@@ -1,13 +1,7 @@
-import { useState } from 'react'
-import { Test } from "@/components/Test";
-  
+// src/app/App.tsx
+import { RouterProvider } from "react-router-dom";
+import { router } from "./router";
 
-function App() {
-  return (
-    <>
-      <Test />
-    </>
-  )
+export default function App() {
+  return <RouterProvider router={router} />;
 }
-
-export default App
