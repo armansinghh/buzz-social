@@ -1,4 +1,4 @@
-import { useAuth } from "@/features/auth/useAuth";
+import { useAuth } from "@/features/auth/AuthContext";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -8,7 +8,10 @@ export default function Navbar() {
       <span className="font-bold">Buzz</span>
 
       {user ? (
-        <button onClick={logout}>Logout</button>
+        <div className="flex gap-4 items-center">
+          <span>Hello, {user.name}</span>
+          <button onClick={logout}>Logout</button>
+        </div>
       ) : (
         <a href="/login">Login</a>
       )}
