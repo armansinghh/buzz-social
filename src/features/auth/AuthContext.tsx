@@ -15,7 +15,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const PREDEFINED_USER = {
-  email: "test@buzz.com",
+  email: "testuser",
   password: "123456",
   name: "Buzz User",
 };
