@@ -2,3 +2,11 @@
 :root {
   font-family: "Outfit", sans-serif;
 }
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+}

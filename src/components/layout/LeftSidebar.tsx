@@ -1,19 +1,23 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHouse, faCompass, faUser } from "@fortawesome/free-solid-svg-icons";
 
-export default function Sidebar() {
+export default function LeftSidebar() {
   const { user } = useAuth();
 
   return (
-    <aside className="w-64 border-r p-4 hidden md:block">
-      <nav className="flex flex-col gap-3">
+    <aside className="hidden md:block">
+      <nav className="flex flex-col gap-4">
         <NavLink
           to="/"
           className={({ isActive }) =>
             `p-2 rounded ${isActive ? "bg-black text-white" : "hover:bg-gray-100"}`
           }
         >
-          Home
+          {" "}
+          <FontAwesomeIcon icon={faHouse} />
+          <span className="pl-2">Home</span>
         </NavLink>
 
         <NavLink
@@ -22,7 +26,9 @@ export default function Sidebar() {
             `p-2 rounded ${isActive ? "bg-black text-white" : "hover:bg-gray-100"}`
           }
         >
-          Explore
+          {" "}
+          <FontAwesomeIcon icon={faCompass} />
+          <span className="pl-2">Explore</span>
         </NavLink>
 
         {user && (
@@ -32,7 +38,8 @@ export default function Sidebar() {
               `p-2 rounded ${isActive ? "bg-black text-white" : "hover:bg-gray-100"}`
             }
           >
-            Profile
+            <FontAwesomeIcon icon={faUser} />
+            <span className="pl-2">Profile</span>
           </NavLink>
         )}
       </nav>

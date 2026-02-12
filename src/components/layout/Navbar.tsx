@@ -1,20 +1,43 @@
 import { useAuth } from "@/features/auth/AuthContext";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+   const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   return (
-    <nav className="border-b p-4 flex justify-between align-middle">
-      <span className="font-bold text-2xl">Buzz</span>
-
+    <div className="h-14 w-full flex justify-between items-center px-6 bg-white">
+      <h1 className="text-xl font-bold">Buzz</h1>
       {user ? (
-        <div className="flex gap-4 items-center">
-          <span>Hello, {user.name}</span>
-          <button onClick={logout}>Logout</button>
+        <div className="flex items-center gap-4">
+          <span className="text-sm text-gray-600">
+            {user.name}
+          </span>
+
+          <button
+            onClick={handleLogout}
+            className="px-3 py-1 text-sm rounded-md border hover:bg-gray-100 transition"
+          >
+            Logout
+          </button>
         </div>
       ) : (
-        <a href="/login" className="flex items-center">Login</a>
+        <Link
+          to="/login"
+          className="px-4 py-2 text-sm rounded-md border hover:bg-gray-100 transition"
+        >
+          Login
+        </Link>
       )}
-    </nav>
+    </div>
   );
 }
+function logout() {
+  throw new Error("Function not implemented.");
+}
+
