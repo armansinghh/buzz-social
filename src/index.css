@@ -10,3 +10,8 @@ body {
   margin: 0;
   overflow: hidden;
 }
+
+.main-scroll{
+    scrollbar-width: thin;
+  scrollbar-color: rgba(100,116,139,0.5) transparent;
+}

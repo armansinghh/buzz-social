@@ -15,7 +15,7 @@ export default function AppLayout() {
           <LeftSidebar />
         </aside>
 
-        <main className="flex-1 overflow-y-auto bg-gray-50 p-8">
+        <main className="flex-1 overflow-y-auto bg-gray-50 p-8 main-scroll">
           <div className="max-w-2xl mx-auto">
             <Outlet />
           </div>
