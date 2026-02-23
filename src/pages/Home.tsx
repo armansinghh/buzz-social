@@ -1,5 +1,5 @@
 import PostCard from "@/components/post/PostCard";
-import { Post } from "@/types/post";
+import type { Post } from "@/types/post";
 
 export default function Home() {
   const mockPosts: Post[] = [
