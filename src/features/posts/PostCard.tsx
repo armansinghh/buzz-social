@@ -1,4 +1,4 @@
-import type { Post } from "@/types/post";
+import type { Post } from "@/features/posts/posts.types";
 
 interface PostCardProps {
   post: Post;

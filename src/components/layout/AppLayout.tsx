@@ -2,7 +2,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import LeftSidebar from "./LeftSidebar";
 import RightSidebar from "./RightSidebar";
-import CreatePostModal from "@/components/post/CreatePostModal";
+import CreatePostModal from "@/features/posts/components/CreatePostModal";
 import NotificationModal from "@/features/notifications/components/NotificationModal";
 
 export default function AppLayout() {
