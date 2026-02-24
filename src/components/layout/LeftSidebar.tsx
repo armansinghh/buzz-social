@@ -60,12 +60,14 @@ export default function LeftSidebar() {
           onClick={() => openModal("notifications")}
           className="p-2 rounded hover:bg-gray-100 flex items-center w-full text-left"
         >
-          <FontAwesomeIcon icon={faHeart} />
-          {unreadCount > 0 && (
-            <span className="ml-2 text-xs bg-red-500 text-white px-2 py-0.5 rounded-full">
-              {unreadCount}
-            </span>
-          )}
+          <div className="relative">
+            <FontAwesomeIcon icon={faHeart} />
+
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+            )}
+          </div>
+
           <span className="pl-2">Notifications</span>
         </button>
 
