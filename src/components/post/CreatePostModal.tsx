@@ -2,23 +2,24 @@ import { useEffect } from "react";
 import { useUI } from "@/features/ui/UIContext";
 
 export default function CreatePostModal() {
-  const { isCreatePostOpen, closeCreatePost } = useUI();
+  const { activeModal, closeModal } = useUI();
+  if (activeModal !== "createPost") return null;
 
   // Close on Escape
   useEffect(() => {
-    if (!isCreatePostOpen) return;
+    if (activeModal !== "createPost") return;
 
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeCreatePost();
+      if (e.key === "Escape") closeModal();
     };
 
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [isCreatePostOpen, closeCreatePost]);
+  }, [activeModal, closeModal]);
 
   // Lock body scroll
   useEffect(() => {
-    if (isCreatePostOpen) {
+    if (activeModal === "createPost") {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -27,14 +28,14 @@ export default function CreatePostModal() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isCreatePostOpen]);
+  }, [activeModal]);
 
-  if (!isCreatePostOpen) return null;
+  if (activeModal !== "createPost") return null;
 
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={closeCreatePost}
+      onClick={closeModal}
     >
       <div
         className="bg-white w-full max-w-lg rounded-xl p-6 shadow-xl"
@@ -43,7 +44,7 @@ export default function CreatePostModal() {
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">Create Post</h2>
           <button
-            onClick={closeCreatePost}
+            onClick={closeModal}
             className="text-gray-500 hover:text-black"
           >
             ✕

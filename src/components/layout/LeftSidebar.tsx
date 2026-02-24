@@ -13,7 +13,8 @@ import {
 
 export default function LeftSidebar() {
   const { user } = useAuth();
-  const { openCreatePost } = useUI(); // ✅ moved inside
+  const { openModal } = useUI();
+
 
   return (
     <aside className="hidden md:block">
@@ -55,7 +56,7 @@ export default function LeftSidebar() {
         </NavLink>
 
         <button
-          onClick={openCreatePost}
+          onClick={() => openModal("notifications")}
           className="p-2 rounded hover:bg-gray-100 flex items-center w-full text-left"
         >
           <FontAwesomeIcon icon={faHeart} />
@@ -63,7 +64,7 @@ export default function LeftSidebar() {
         </button>
 
         <button
-          onClick={openCreatePost}
+          onClick={() => openModal("createPost")}
           className="p-2 rounded hover:bg-gray-100 flex items-center w-full text-left"
         >
           <FontAwesomeIcon icon={faAdd} />

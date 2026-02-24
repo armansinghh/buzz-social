@@ -1,23 +1,31 @@
 import { createContext, useContext, useState } from "react";
 
+export type ActiveModal =
+  | "createPost"
+  | "notifications"
+  | null;
+
 interface UIContextType {
-  isCreatePostOpen: boolean;
-  openCreatePost: () => void;
-  closeCreatePost: () => void;
+  activeModal: ActiveModal;
+  openModal: (modal: ActiveModal) => void;
+  closeModal: () => void;
 }
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export const UIProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
-  const openCreatePost = () => setIsCreatePostOpen(true);
-  const closeCreatePost = () => setIsCreatePostOpen(false);
+  const openModal = (modal: ActiveModal) => {
+    setActiveModal(modal);
+  };
+
+  const closeModal = () => {
+    setActiveModal(null);
+  };
 
   return (
-    <UIContext.Provider
-      value={{ isCreatePostOpen, openCreatePost, closeCreatePost }}
-    >
+    <UIContext.Provider value={{ activeModal, openModal, closeModal }}>
       {children}
     </UIContext.Provider>
   );
@@ -30,4 +38,3 @@ export const useUI = () => {
   }
   return context;
 };
-console.log("UIProvider mounted");
