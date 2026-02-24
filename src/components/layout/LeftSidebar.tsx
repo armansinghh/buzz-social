@@ -7,6 +7,8 @@ import {
   faCompass,
   faUser,
   faAdd,
+  faHeart,
+  faMagnifyingGlass
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function LeftSidebar() {
@@ -39,6 +41,26 @@ export default function LeftSidebar() {
           <FontAwesomeIcon icon={faCompass} />
           <span className="pl-2">Explore</span>
         </NavLink>
+
+                <NavLink
+          to="/search"
+          className={({ isActive }) =>
+            `p-2 rounded ${
+              isActive ? "bg-black text-white" : "hover:bg-gray-100"
+            }`
+          }
+        >
+          <FontAwesomeIcon icon={faMagnifyingGlass} />
+          <span className="pl-2">Search</span>
+        </NavLink>
+
+        <button
+          onClick={openCreatePost}
+          className="p-2 rounded hover:bg-gray-100 flex items-center w-full text-left"
+        >
+          <FontAwesomeIcon icon={faHeart} />
+          <span className="pl-2">Notifications</span>
+        </button>
 
         <button
           onClick={openCreatePost}

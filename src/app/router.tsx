@@ -6,6 +6,7 @@ import Register from "@/pages/Register";
 import Profile from "@/pages/Profile";
 import NotFound from "@/pages/NotFound";
 import Explore from "@/pages/Explore";
+import Search from "@/pages/Search";
 
 export const router = createBrowserRouter([
   {
@@ -13,7 +14,9 @@ export const router = createBrowserRouter([
     children: [
       { path: "/", element: <Home /> },
       { path: "/explore", element: <Explore /> },
+      { path: "/search", element: <Search /> },
       { path: "/profile/:id", element: <Profile /> },
+      
     ],
   },
   { path: "/login", element: <Login /> },
