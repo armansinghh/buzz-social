@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 import type { Notification } from "./notifications.types";
 import { mockNotifications } from "./notifications.mock";
 
@@ -8,9 +8,9 @@ interface NotificationContextType {
   markAllAsRead: () => void;
 }
 
-const NotificationContext = createContext<
-  NotificationContextType | undefined
->(undefined);
+const NotificationContext = createContext<NotificationContextType | undefined>(
+  undefined,
+);
 
 export const NotificationProvider = ({
   children,
@@ -20,15 +20,13 @@ export const NotificationProvider = ({
   const [notifications, setNotifications] =
     useState<Notification[]>(mockNotifications);
 
-  const markAllAsRead = () => {
+  const markAllAsRead = useCallback(() => {
     setNotifications((prev) =>
-      prev.map((n) => ({ ...n, isRead: true }))
+      prev.map((n) => (n.isRead ? n : { ...n, isRead: true })),
     );
-  };
+  }, []);
 
-  const unreadCount = notifications.filter(
-    (n) => !n.isRead
-  ).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
     <NotificationContext.Provider
@@ -43,7 +41,7 @@ export const useNotifications = () => {
   const context = useContext(NotificationContext);
   if (!context) {
     throw new Error(
-      "useNotifications must be used within NotificationProvider"
+      "useNotifications must be used within NotificationProvider",
     );
   }
   return context;
