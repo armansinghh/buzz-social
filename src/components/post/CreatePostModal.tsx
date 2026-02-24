@@ -51,11 +51,19 @@ export default function CreatePostModal() {
           </button>
         </div>
 
-        <textarea
-          placeholder="What's happening?"
-          className="w-full border rounded-lg p-3 mb-4 resize-none focus:outline-none focus:ring-2 focus:ring-black"
-          rows={4}
-        />
+        <div className="mb-4">
+          <label htmlFor="create-post-content" className="sr-only">
+            Post Content
+          </label>
+
+          <textarea
+            id="create-post-content"
+            name="content"
+            placeholder="What's happening?"
+            className="w-full border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-black"
+            rows={4}
+          />
+        </div>
 
         <button className="bg-black text-white px-4 py-2 rounded-lg hover:opacity-90">
           Post
