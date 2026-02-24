@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import LeftSidebar from "./LeftSidebar";
 import RightSidebar from "./RightSidebar";
+import CreatePostModal from "@/components/post/CreatePostModal";
 
 export default function AppLayout() {
   return (
@@ -25,6 +26,8 @@ export default function AppLayout() {
           <RightSidebar />
         </aside>
       </div>
+        <CreatePostModal />
     </div>
+    
   );
 }
