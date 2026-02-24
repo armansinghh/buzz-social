@@ -3,11 +3,11 @@ import { useUI } from "@/features/ui/UIContext";
 
 export default function CreatePostModal() {
   const { activeModal, closeModal } = useUI();
-  if (activeModal !== "createPost") return null;
+  const isOpen = activeModal === "createPost";
 
-  // Close on Escape
+  // always call hooks
   useEffect(() => {
-    if (activeModal !== "createPost") return;
+    if (!isOpen) return;
 
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") closeModal();
@@ -15,11 +15,10 @@ export default function CreatePostModal() {
 
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [activeModal, closeModal]);
+  }, [isOpen, closeModal]);
 
-  // Lock body scroll
   useEffect(() => {
-    if (activeModal === "createPost") {
+    if (isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -28,9 +27,10 @@ export default function CreatePostModal() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [activeModal]);
+  }, [isOpen]);
 
-  if (activeModal !== "createPost") return null;
+  // return conditionally AFTER hooks
+  if (!isOpen) return null;
 
   return (
     <div
