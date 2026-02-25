@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useUI } from "@/features/ui/UIContext";
+import { usePosts } from "@/features/posts/PostContext";
 
 export default function CreatePostModal() {
   const { activeModal, closeModal } = useUI();
   const isOpen = activeModal === "createPost";
+  const { addPost } = usePosts();
+  const [content, setContent] = useState("");
 
   // always call hooks
   useEffect(() => {
@@ -59,13 +62,30 @@ export default function CreatePostModal() {
           <textarea
             id="create-post-content"
             name="content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             placeholder="What's happening?"
             className="w-full border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-black"
             rows={4}
           />
         </div>
 
-        <button className="bg-black text-white px-4 py-2 rounded-lg hover:opacity-90">
+        <button
+          type="button"
+          disabled={!content.trim()}
+          onClick={() => {
+            if (!content.trim()) return;
+
+            addPost(content.trim());
+            setContent("");
+            closeModal();
+          }}
+          className={`px-4 py-2 rounded-lg transition ${
+            content.trim()
+              ? "bg-black text-white hover:opacity-90"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
+        >
           Post
         </button>
       </div>

@@ -5,13 +5,16 @@ import { AuthProvider } from "@/features/auth/AuthContext";
 import { UIProvider } from "@/features/ui/UIContext";
 import { NotificationProvider } from "@/features/notifications/NotificationContext";
 import "@/index.css";
+import { PostProvider } from "@/features/posts/PostContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <AuthProvider>
       <UIProvider>
         <NotificationProvider>
-          <App />
+          <PostProvider>
+            <App />
+          </PostProvider>
         </NotificationProvider>
       </UIProvider>
     </AuthProvider>
