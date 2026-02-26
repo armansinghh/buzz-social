@@ -23,6 +23,7 @@ The project focuses on clean layout systems, modular feature organization, and r
 - 🖼 FontAwesome icon integration
 - 📱 Responsive layout (desktop-first, mobile-aware)
 - 📦 Clean project structure for scalability
+- 📝 Post creation system
 
 ---
 
@@ -121,7 +122,6 @@ Planned improvements:
 
 - Persist auth state (localStorage)
 - Protected route system
-- Post creation system
 - Post feed with mock data
 - Like & comment system
 - Follow/unfollow functionality
