@@ -15,7 +15,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       author: "Arman",
       content: "Welcome to Buzz 🚀",
       createdAt: new Date().toISOString(),
-      likes: 99000,
+      likes: 99999999999,
     },
   ]);
 

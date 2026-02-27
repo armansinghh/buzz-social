@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useUI } from "@/features/ui/UIContext";
 import { usePosts } from "@/features/posts/PostContext";
 
@@ -7,6 +7,7 @@ export default function CreatePostModal() {
   const isOpen = activeModal === "createPost";
   const { addPost } = usePosts();
   const [content, setContent] = useState("");
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   // always call hooks
   useEffect(() => {
@@ -21,7 +22,8 @@ export default function CreatePostModal() {
   }, [isOpen, closeModal]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && textareaRef.current) {
+      textareaRef.current.focus();
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -60,6 +62,7 @@ export default function CreatePostModal() {
           </label>
 
           <textarea
+            ref={textareaRef}
             id="create-post-content"
             name="content"
             value={content}
