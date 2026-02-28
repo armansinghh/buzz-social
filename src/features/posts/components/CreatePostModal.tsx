@@ -72,25 +72,30 @@ export default function CreatePostModal() {
             rows={4}
           />
         </div>
+        <div className="flex items-center justify-between mt-3">
+          <div className="text-sm text-gray-500">
+            {content.length} characters
+          </div>
 
-        <button
-          type="button"
-          disabled={!content.trim()}
-          onClick={() => {
-            if (!content.trim()) return;
+          <button
+            type="button"
+            disabled={!content.trim()}
+            onClick={() => {
+              if (!content.trim()) return;
 
-            addPost(content.trim());
-            setContent("");
-            closeModal();
-          }}
-          className={`px-4 py-2 rounded-lg transition ${
-            content.trim()
-              ? "bg-black text-white hover:opacity-90"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
-        >
-          Post
-        </button>
+              addPost(content.trim());
+              setContent("");
+              closeModal();
+            }}
+            className={`px-4 py-2 rounded-lg transition ${
+              content.trim()
+                ? "bg-black text-white hover:opacity-90"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+          >
+            Post
+          </button>
+        </div>
       </div>
     </div>
   );
