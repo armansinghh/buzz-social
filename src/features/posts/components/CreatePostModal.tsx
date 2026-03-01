@@ -6,10 +6,13 @@ export default function CreatePostModal() {
   const { activeModal, closeModal } = useUI();
   const isOpen = activeModal === "createPost";
   const { addPost } = usePosts();
-  const [content, setContent] = useState("");
+
+  const [caption, setCaption] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // always call hooks
+  // Escape key handling
   useEffect(() => {
     if (!isOpen) return;
 
@@ -21,6 +24,7 @@ export default function CreatePostModal() {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen, closeModal]);
 
+  // Focus + scroll lock
   useEffect(() => {
     if (isOpen && textareaRef.current) {
       textareaRef.current.focus();
@@ -34,8 +38,9 @@ export default function CreatePostModal() {
     };
   }, [isOpen]);
 
-  // return conditionally AFTER hooks
   if (!isOpen) return null;
+
+  const canPost = caption.trim() || selectedFile;
 
   return (
     <div
@@ -56,39 +61,59 @@ export default function CreatePostModal() {
           </button>
         </div>
 
+        {/* Caption */}
         <div className="mb-4">
-          <label htmlFor="create-post-content" className="sr-only">
-            Post Content
+          <label htmlFor="create-post-caption" className="sr-only">
+            Post Caption
           </label>
 
           <textarea
             ref={textareaRef}
-            id="create-post-content"
-            name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="What's happening?"
+            id="create-post-caption"
+            name="caption"
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            placeholder="Write a caption..."
             className="w-full border rounded-lg p-3 resize-none focus:outline-none focus:ring-2 focus:ring-black"
             rows={4}
           />
         </div>
+
+        {/* Media Input */}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) setSelectedFile(file);
+          }}
+          className="mb-4"
+        />
+
+        {/* Footer Row */}
         <div className="flex items-center justify-between mt-3">
           <div className="text-sm text-gray-500">
-            {content.length} characters
+            {caption.length} characters
           </div>
 
           <button
             type="button"
-            disabled={!content.trim()}
+            disabled={!canPost}
             onClick={() => {
-              if (!content.trim()) return;
+              if (!canPost) return;
 
-              addPost(content.trim());
-              setContent("");
+              const mediaUrl = selectedFile
+                ? URL.createObjectURL(selectedFile)
+                : undefined;
+
+              addPost(caption.trim(), mediaUrl);
+
+              setCaption("");
+              setSelectedFile(null);
               closeModal();
             }}
             className={`px-4 py-2 rounded-lg transition ${
-              content.trim()
+              canPost
                 ? "bg-black text-white hover:opacity-90"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
