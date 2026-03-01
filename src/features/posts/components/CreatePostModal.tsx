@@ -82,7 +82,7 @@ export default function CreatePostModal() {
         {/* Media Input */}
         <input
           type="file"
-          accept="image/*"
+          accept="image/*,video/*"
           onChange={(e) => {
             const file = e.target.files?.[0];
             if (file) setSelectedFile(file);
@@ -90,7 +90,7 @@ export default function CreatePostModal() {
           className="mb-4"
         />
 
-        {/* Footer Row */}
+        {/* Footer */}
         <div className="flex items-center justify-between mt-3">
           <div className="text-sm text-gray-500">
             {caption.length} characters
@@ -102,11 +102,18 @@ export default function CreatePostModal() {
             onClick={() => {
               if (!canPost) return;
 
-              const mediaUrl = selectedFile
-                ? URL.createObjectURL(selectedFile)
-                : undefined;
+              let media;
 
-              addPost(caption.trim(), mediaUrl);
+              if (selectedFile) {
+                media = {
+                  url: URL.createObjectURL(selectedFile),
+                  type: selectedFile.type.startsWith("video")
+                    ? "video"
+                    : "image",
+                };
+              }
+
+              addPost(caption.trim(), media);
 
               setCaption("");
               setSelectedFile(null);
