@@ -1,35 +1,45 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import type { Post } from "./posts.types";
+import { useAuth } from "@/features/auth/useAuth";
 
 interface PostContextType {
   posts: Post[];
-  addPost: (content: string) => void;
+  addPost: (caption: string, mediaUrl?: string) => void;
 }
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+
   const [posts, setPosts] = useState<Post[]>([
     {
       id: "1",
-      author: "Arman",
-      content: "Welcome to Buzz 🚀",
+      authorId: "demo-user",
+      caption: "Welcome to Buzz 🚀",
+      mediaUrl: undefined,
+      likes: [],
       createdAt: new Date().toISOString(),
-      likes: 99999999999,
     },
   ]);
 
-  const addPost = useCallback((content: string) => {
-    const newPost: Post = {
-      id: crypto.randomUUID(),
-      author: "CurrentUser", // temporary
-      content,
-      createdAt: new Date().toISOString(),
-      likes: 0,
-    };
+  const addPost = useCallback(
+    (caption: string, mediaUrl?: string) => {
+      if (!user) return;
 
-    setPosts((prev) => [newPost, ...prev]);
-  }, []);
+      const newPost: Post = {
+        id: crypto.randomUUID(),
+        authorId: user.id,
+        caption,
+        mediaUrl,
+        likes: [],
+        createdAt: new Date().toISOString(),
+      };
+
+      setPosts((prev) => [newPost, ...prev]);
+    },
+    [user]
+  );
 
   return (
     <PostContext.Provider value={{ posts, addPost }}>
