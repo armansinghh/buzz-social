@@ -22,12 +22,22 @@ export default function PostCard({ post }: PostCardProps) {
       </div>
 
       {/* Media */}
-      {post.mediaUrl && (
-        <img
-          src={post.mediaUrl}
-          alt="Post media"
-          className="w-full rounded-lg mb-3 object-cover"
-        />
+      {post.media && (
+        <div className="w-full h-96 bg-black rounded-lg mb-3 overflow-hidden">
+          {post.media.type === "image" ? (
+            <img
+              src={post.media.url}
+              alt="Post media"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <video
+              src={post.media.url}
+              controls
+              className="w-full h-full object-cover"
+            />
+          )}
+        </div>
       )}
 
       {/* Caption */}
