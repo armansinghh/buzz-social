@@ -22,14 +22,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       createdAt: new Date().toISOString(),
     },
   ]);
-
+  
   const addPost = useCallback(
     (caption: string, mediaUrl?: string) => {
-      if (!user) return;
+      const authorId = user?.id ?? "guest";
 
       const newPost: Post = {
         id: crypto.randomUUID(),
-        authorId: user.id,
+        authorId,
         caption,
         mediaUrl,
         likes: [],
@@ -38,7 +38,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       setPosts((prev) => [newPost, ...prev]);
     },
-    [user]
+    [user],
   );
 
   return (
