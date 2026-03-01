@@ -102,14 +102,15 @@ export default function CreatePostModal() {
             onClick={() => {
               if (!canPost) return;
 
-              let media;
+              let media: { url: string; type: "image" | "video" } | undefined;
 
               if (selectedFile) {
+                const mediaType: "image" | "video" =
+                  selectedFile.type.startsWith("video") ? "video" : "image";
+
                 media = {
                   url: URL.createObjectURL(selectedFile),
-                  type: selectedFile.type.startsWith("video")
-                    ? "video"
-                    : "image",
+                  type: mediaType,
                 };
               }
 
