@@ -1,9 +1,12 @@
 export interface Post {
   id: string;
-  authorId: string;      // relational
-  caption: string;       // renamed from content
-  mediaUrl?: string;     // optional media
-  likes: string[];       // array of userIds
+  authorId: string;
+  caption: string;
+  media?: {
+    url: string;
+    type: "image" | "video";
+  };
+  likes: string[];
   createdAt: string;
 }
 
