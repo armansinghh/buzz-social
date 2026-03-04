@@ -10,6 +10,7 @@ interface Media {
 interface PostContextType {
   posts: Post[];
   addPost: (caption: string, media?: Media) => void;
+  toggleLike: (postId: string) => void;
 }
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
@@ -46,8 +47,30 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     [user]
   );
 
+  const toggleLike = useCallback(
+    (postId: string) => {
+      if (!user) return;
+
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post.id !== postId) return post;
+
+          const isLiked = post.likes.includes(user.id);
+
+          return {
+            ...post,
+            likes: isLiked
+              ? post.likes.filter((id) => id !== user.id)
+              : [...post.likes, user.id],
+          };
+        })
+      );
+    },
+    [user]
+  );
+
   return (
-    <PostContext.Provider value={{ posts, addPost }}>
+    <PostContext.Provider value={{ posts, addPost, toggleLike }}>
       {children}
     </PostContext.Provider>
   );
