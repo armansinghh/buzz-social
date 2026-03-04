@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Post } from "@/features/posts/posts.types";
 import { useAuth } from "@/features/auth/useAuth";
 import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
+import { usePosts } from "./PostContext";
 
 interface PostCardProps {
   post: Post;
@@ -11,6 +12,7 @@ export default function PostCard({ post }: PostCardProps) {
   const { user } = useAuth();
   const [isViewerOpen, setIsViewerOpen] = useState(false);
 
+  const { toggleLike } = usePosts();
   const likeCount = post.likes.length;
   const isLiked = user ? post.likes.includes(user.id) : false;
 
@@ -48,20 +50,17 @@ export default function PostCard({ post }: PostCardProps) {
         )}
 
         {/* Caption */}
-        {post.caption && (
-          <p className="text-gray-800 mb-3">
-            {post.caption}
-          </p>
-        )}
+        {post.caption && <p className="text-gray-800 mb-3">{post.caption}</p>}
 
         {/* Likes */}
-        <div
-          className={`text-sm ${
+        <button
+          onClick={() => toggleLike(post.id)}
+          className={`text-sm flex items-center gap-1 ${
             isLiked ? "text-red-500" : "text-gray-500"
           }`}
         >
           ❤️ {likeCount} {likeCount === 1 ? "like" : "likes"}
-        </div>
+        </button>
       </div>
 
       {/* Fullscreen Viewer */}

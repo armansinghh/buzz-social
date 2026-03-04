@@ -44,29 +44,29 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       setPosts((prev) => [newPost, ...prev]);
     },
-    [user]
+    [user],
   );
 
   const toggleLike = useCallback(
     (postId: string) => {
-      if (!user) return;
+      const userId = user?.id ?? "guest";
 
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
           if (post.id !== postId) return post;
 
-          const isLiked = post.likes.includes(user.id);
+          const isLiked = post.likes.includes(userId);
 
           return {
             ...post,
             likes: isLiked
-              ? post.likes.filter((id) => id !== user.id)
-              : [...post.likes, user.id],
+              ? post.likes.filter((id) => id !== userId)
+              : [...post.likes, userId],
           };
-        })
+        }),
       );
     },
-    [user]
+    [user],
   );
 
   return (
