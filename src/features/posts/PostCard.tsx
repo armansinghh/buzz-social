@@ -19,7 +19,8 @@ export default function PostCard({ post }: PostCardProps) {
 
   return (
     <>
-      <div className="bg-white p-4 rounded-xl shadow-sm border">
+      <div className="bg-white p-4 rounded-xl shadow-sm border" 
+        onDoubleClick={() => toggleLike(post.id)}>
         {/* Header */}
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-semibold">{post.authorId}</h3>
