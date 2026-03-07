@@ -11,6 +11,7 @@ interface PostContextType {
   posts: Post[];
   addPost: (caption: string, media?: Media) => void;
   toggleLike: (postId: string) => void;
+  likePost: (postId: string) => void;
 }
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
@@ -44,7 +45,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       setPosts((prev) => [newPost, ...prev]);
     },
-    [user],
+    [user]
   );
 
   const toggleLike = useCallback(
@@ -63,14 +64,35 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
               ? post.likes.filter((id) => id !== userId)
               : [...post.likes, userId],
           };
-        }),
+        })
       );
     },
-    [user],
+    [user]
+  );
+
+  // 👇 new function
+  const likePost = useCallback(
+    (postId: string) => {
+      const userId = user?.id ?? "guest";
+
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post.id !== postId) return post;
+
+          if (post.likes.includes(userId)) return post;
+
+          return {
+            ...post,
+            likes: [...post.likes, userId],
+          };
+        })
+      );
+    },
+    [user]
   );
 
   return (
-    <PostContext.Provider value={{ posts, addPost, toggleLike }}>
+    <PostContext.Provider value={{ posts, addPost, toggleLike, likePost }}>
       {children}
     </PostContext.Provider>
   );

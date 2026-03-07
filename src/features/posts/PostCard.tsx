@@ -11,7 +11,7 @@ interface PostCardProps {
 
 export default function PostCard({ post }: PostCardProps) {
   const { user } = useAuth();
-  const { toggleLike } = usePosts();
+  const { toggleLike, likePost } = usePosts();
 
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [showHeart, setShowHeart] = useState(false);
@@ -35,10 +35,8 @@ export default function PostCard({ post }: PostCardProps) {
             clearTimeout(clickTimeout.current);
             clickTimeout.current = null;
 
-            if (!isLiked) {
-              toggleLike(post.id);
-              triggerHeart();
-            }
+            triggerHeart();
+            likePost(post.id);
           } else {
             clickTimeout.current = setTimeout(() => {
               setIsViewerOpen(true);
