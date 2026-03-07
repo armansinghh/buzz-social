@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { Post } from "@/features/posts/posts.types";
 import { useAuth } from "@/features/auth/useAuth";
 import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
@@ -12,15 +12,28 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
   const { user } = useAuth();
   const [isViewerOpen, setIsViewerOpen] = useState(false);
-
   const { toggleLike } = usePosts();
   const likeCount = post.likes.length;
   const isLiked = user ? post.likes.includes(user.id) : false;
+const clickTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   return (
     <>
-      <div className="bg-white p-4 rounded-xl shadow-sm border" 
-        onDoubleClick={() => toggleLike(post.id)}>
+      <div
+        className="bg-white p-4 rounded-xl shadow-sm border"
+        onClick={() => {
+          if (clickTimeout.current) {
+            clearTimeout(clickTimeout.current);
+            clickTimeout.current = null;
+            toggleLike(post.id);
+          } else {
+            clickTimeout.current = setTimeout(() => {
+              setIsViewerOpen(true);
+              clickTimeout.current = null;
+            }, 250);
+          }
+        }}
+      >
         {/* Header */}
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-semibold">{post.authorId}</h3>
@@ -32,9 +45,7 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Media */}
         {post.media && (
           <div
-            className="w-full h-96 bg-black rounded-lg mb-3 overflow-hidden cursor-pointer"
-            onClick={() => setIsViewerOpen(true)}
-          >
+            className="w-full h-96 bg-black rounded-lg mb-3 overflow-hidden cursor-pointer">
             {post.media.type === "image" ? (
               <img
                 src={post.media.url}
