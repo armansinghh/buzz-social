@@ -35,8 +35,10 @@ export default function PostCard({ post }: PostCardProps) {
             clearTimeout(clickTimeout.current);
             clickTimeout.current = null;
 
-            toggleLike(post.id);
-            triggerHeart(); // ❤️ animation on double-click
+            if (!isLiked) {
+              toggleLike(post.id);
+              triggerHeart();
+            }
           } else {
             clickTimeout.current = setTimeout(() => {
               setIsViewerOpen(true);
