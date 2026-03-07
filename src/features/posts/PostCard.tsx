@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Post } from "@/features/posts/posts.types";
 import { useAuth } from "@/features/auth/useAuth";
 import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
+import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { usePosts } from "./PostContext";
 
 interface PostCardProps {
@@ -23,7 +24,7 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="flex justify-between items-center mb-3">
           <h3 className="font-semibold">{post.authorId}</h3>
           <span className="text-xs text-gray-500">
-            {new Date(post.createdAt).toLocaleString()}
+            {formatRelativeTime(post.createdAt)}
           </span>
         </div>
 
