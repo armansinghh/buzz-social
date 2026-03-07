@@ -1,8 +1,12 @@
 @import "tailwindcss";
+
 :root {
   font-family: "Outfit", sans-serif;
 }
-html, body, #root {
+
+html,
+body,
+#root {
   height: 100%;
 }
 
@@ -11,7 +15,33 @@ body {
   overflow: hidden;
 }
 
-.main-scroll{
-    scrollbar-width: thin;
-  scrollbar-color: rgba(100,116,139,0.5) transparent;
+.main-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.5) transparent;
+}
+
+@keyframes heart-burst {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+
+  30% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+
+  70% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+.animate-heart-burst {
+  animation: heart-burst 0.7s ease forwards;
 }
