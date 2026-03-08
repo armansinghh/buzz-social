@@ -36,7 +36,7 @@ export default function PostCard({ post }: PostCardProps) {
             clickTimeout.current = null;
 
             triggerHeart();
-            likePost(post.id);
+            likePost(post.id); 
           } else {
             clickTimeout.current = setTimeout(() => {
               setIsViewerOpen(true);
