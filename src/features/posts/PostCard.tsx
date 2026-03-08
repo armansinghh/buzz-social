@@ -2,6 +2,8 @@ import { useState, useRef } from "react";
 import type { Post } from "@/features/posts/posts.types";
 import { useAuth } from "@/features/auth/useAuth";
 import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
+import CommentInput from "@/features/posts/components/CommentInput";
+import CommentItem from "@/features/posts/components/CommentItem";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { usePosts } from "./PostContext";
 
@@ -36,7 +38,7 @@ export default function PostCard({ post }: PostCardProps) {
             clickTimeout.current = null;
 
             triggerHeart();
-            likePost(post.id); 
+            likePost(post.id);
           } else {
             clickTimeout.current = setTimeout(() => {
               setIsViewerOpen(true);
@@ -73,20 +75,37 @@ export default function PostCard({ post }: PostCardProps) {
         )}
 
         {/* Caption */}
-        {post.caption && <p className="text-gray-800 mb-3">{post.caption}</p>}
+        {post.caption && (
+          <p className="text-gray-800 mb-3">{post.caption}</p>
+        )}
 
         {/* Likes */}
         <button
           onClick={(e) => {
-            e.stopPropagation(); // prevent card click logic
+            e.stopPropagation();
             toggleLike(post.id);
           }}
-          className={`text-sm flex items-center gap-1 ${
+          className={`text-sm flex items-center gap-1 mb-3 ${
             isLiked ? "text-red-500" : "text-gray-500"
           }`}
         >
           ❤️ {likeCount} {likeCount === 1 ? "like" : "likes"}
         </button>
+
+        {/* Comments */}
+        <div
+          className="space-y-2 mb-3"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {post.comments.slice(-3).map((comment) => (
+            <CommentItem key={comment.id} comment={comment} />
+          ))}
+        </div>
+
+        {/* Comment Input */}
+        <div onClick={(e) => e.stopPropagation()}>
+          <CommentInput postId={post.id} />
+        </div>
 
         {/* ❤️ Heart Burst Overlay */}
         {showHeart && (
