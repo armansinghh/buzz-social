@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback } from "react";
-import type { Post } from "./posts.types";
+import type { Post, Comment } from "./posts.types";
 import { useAuth } from "@/features/auth/useAuth";
 
 interface Media {
@@ -12,6 +12,7 @@ interface PostContextType {
   addPost: (caption: string, media?: Media) => void;
   toggleLike: (postId: string) => void;
   likePost: (postId: string) => void;
+  addComment: (postId: string, text: string) => void;
 }
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
@@ -26,6 +27,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       caption: "Welcome to Buzz 🚀",
       media: undefined,
       likes: [],
+      comments: [],
       createdAt: new Date().toISOString(),
     },
   ]);
@@ -40,6 +42,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         caption,
         media,
         likes: [],
+        comments: [],
         createdAt: new Date().toISOString(),
       };
 
@@ -70,7 +73,6 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     [user]
   );
 
-  // 👇 new function
   const likePost = useCallback(
     (postId: string) => {
       const userId = user?.id ?? "guest";
@@ -91,8 +93,36 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     [user]
   );
 
+  const addComment = useCallback(
+    (postId: string, text: string) => {
+      const authorId = user?.id ?? "guest";
+
+      const newComment: Comment = {
+        id: crypto.randomUUID(),
+        authorId,
+        text,
+        reactions: [],
+        createdAt: new Date().toISOString(),
+      };
+
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post.id !== postId) return post;
+
+          return {
+            ...post,
+            comments: [...post.comments, newComment],
+          };
+        })
+      );
+    },
+    [user]
+  );
+
   return (
-    <PostContext.Provider value={{ posts, addPost, toggleLike, likePost }}>
+    <PostContext.Provider
+      value={{ posts, addPost, toggleLike, likePost, addComment }}
+    >
       {children}
     </PostContext.Provider>
   );
