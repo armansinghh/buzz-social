@@ -6,6 +6,7 @@ import CommentInput from "@/features/posts/components/CommentInput";
 import CommentItem from "@/features/posts/components/CommentItem";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { usePosts } from "./PostContext";
+import { useUI } from "@/features/ui/UIContext";
 
 interface PostCardProps {
   post: Post;
@@ -14,6 +15,7 @@ interface PostCardProps {
 export default function PostCard({ post }: PostCardProps) {
   const { user } = useAuth();
   const { toggleLike, likePost } = usePosts();
+  const { openComments } = useUI();
 
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [showHeart, setShowHeart] = useState(false);
@@ -75,9 +77,7 @@ export default function PostCard({ post }: PostCardProps) {
         )}
 
         {/* Caption */}
-        {post.caption && (
-          <p className="text-gray-800 mb-3">{post.caption}</p>
-        )}
+        {post.caption && <p className="text-gray-800 mb-3">{post.caption}</p>}
 
         {/* Likes */}
         <button
@@ -93,17 +93,25 @@ export default function PostCard({ post }: PostCardProps) {
         </button>
 
         {/* Comments */}
-        <div
-          className="space-y-2 mb-3"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {post.comments.slice(-3).map((comment) => (
+        <div className="space-y-2 mb-3" onClick={(e) => e.stopPropagation()}>
+          {post.comments.length > 0 && (
             <CommentItem
-              key={comment.id}
-              comment={comment}
+              comment={post.comments[post.comments.length - 1]}
               postId={post.id}
             />
-          ))}
+          )}
+
+          {post.comments.length > 1 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                openComments(post.id);
+              }}
+              className="text-sm text-gray-500 hover:text-gray-700"
+            >
+              View all {post.comments.length} comments
+            </button>
+          )}
         </div>
 
         {/* Comment Input */}
