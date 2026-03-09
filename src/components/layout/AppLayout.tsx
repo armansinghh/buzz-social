@@ -4,6 +4,7 @@ import LeftSidebar from "./LeftSidebar";
 import RightSidebar from "./RightSidebar";
 import CreatePostModal from "@/features/posts/components/CreatePostModal";
 import NotificationModal from "@/features/notifications/components/NotificationModal";
+import CommentsModal from "@/features/posts/components/CommentsModal";
 
 export default function AppLayout() {
   return (
@@ -29,6 +30,7 @@ export default function AppLayout() {
       </div>
         <CreatePostModal />
         <NotificationModal />
+        <CommentsModal />
     </div>
     
   );
