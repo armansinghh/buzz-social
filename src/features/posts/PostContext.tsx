@@ -13,6 +13,7 @@ interface PostContextType {
   toggleLike: (postId: string) => void;
   likePost: (postId: string) => void;
   addComment: (postId: string, text: string) => void;
+  toggleReaction: (postId: string, commentId: string, emoji: string) => void;
 }
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
@@ -119,9 +120,80 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     [user]
   );
 
+  const toggleReaction = useCallback(
+    (postId: string, commentId: string, emoji: string) => {
+      const userId = user?.id ?? "guest";
+
+      setPosts((prevPosts) =>
+        prevPosts.map((post) => {
+          if (post.id !== postId) return post;
+
+          return {
+            ...post,
+            comments: post.comments.map((comment) => {
+              if (comment.id !== commentId) return comment;
+
+              const reactionIndex = comment.reactions.findIndex(
+                (r) => r.emoji === emoji
+              );
+
+              // Reaction already exists
+              if (reactionIndex !== -1) {
+                const reaction = comment.reactions[reactionIndex];
+                const hasReacted = reaction.users.includes(userId);
+
+                let updatedUsers;
+
+                if (hasReacted) {
+                  updatedUsers = reaction.users.filter((u) => u !== userId);
+                } else {
+                  updatedUsers = [...reaction.users, userId];
+                }
+
+                // Remove reaction if no users left
+                if (updatedUsers.length === 0) {
+                  return {
+                    ...comment,
+                    reactions: comment.reactions.filter(
+                      (r) => r.emoji !== emoji
+                    ),
+                  };
+                }
+
+                return {
+                  ...comment,
+                  reactions: comment.reactions.map((r) =>
+                    r.emoji === emoji ? { ...r, users: updatedUsers } : r
+                  ),
+                };
+              }
+
+              // Reaction doesn't exist yet
+              return {
+                ...comment,
+                reactions: [
+                  ...comment.reactions,
+                  { emoji, users: [userId] },
+                ],
+              };
+            }),
+          };
+        })
+      );
+    },
+    [user]
+  );
+
   return (
     <PostContext.Provider
-      value={{ posts, addPost, toggleLike, likePost, addComment }}
+      value={{
+        posts,
+        addPost,
+        toggleLike,
+        likePost,
+        addComment,
+        toggleReaction,
+      }}
     >
       {children}
     </PostContext.Provider>

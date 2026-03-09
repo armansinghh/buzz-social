@@ -98,7 +98,11 @@ export default function PostCard({ post }: PostCardProps) {
           onClick={(e) => e.stopPropagation()}
         >
           {post.comments.slice(-3).map((comment) => (
-            <CommentItem key={comment.id} comment={comment} />
+            <CommentItem
+              key={comment.id}
+              comment={comment}
+              postId={post.id}
+            />
           ))}
         </div>
 
