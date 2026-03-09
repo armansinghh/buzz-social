@@ -27,8 +27,56 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       authorId: "demo-user",
       caption: "Welcome to Buzz 🚀",
       media: undefined,
-      likes: [],
-      comments: [],
+      likes: ["guest", "riya", "alex", "john"],
+      comments: [
+        {
+          id: "c1",
+          authorId: "riya",
+          text: "This looks cool!",
+          reactions: [
+            {
+              emoji: "🔥",
+              users: ["guest", "riya"],
+            },
+            {
+              emoji: "😂",
+              users: ["demo-user"],
+            },
+          ],
+          createdAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
+        },
+        {
+          id: "c2",
+          authorId: "john",
+          text: "Waiting for more features 👀",
+          reactions: [
+            {
+              emoji: "👀",
+              users: ["guest"],
+            },
+          ],
+          createdAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+        },
+        {
+          id: "c3",
+          authorId: "alex",
+          text: "Nice UI!",
+          reactions: [],
+          createdAt: new Date(Date.now() - 1000 * 60 * 40).toISOString(),
+        },
+        {
+          id: "c4",
+          authorId: "Pal",
+          text: "no way this is built in 2 weeks",
+          reactions: [
+            {
+              emoji: "🤣",
+              users: ["riya", "alex"],
+            },
+          ],
+          createdAt: new Date(Date.now() - 1000 * 60 * 40).toISOString(),
+        },
+      ],
       createdAt: new Date().toISOString(),
     },
   ]);
@@ -49,7 +97,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       setPosts((prev) => [newPost, ...prev]);
     },
-    [user]
+    [user],
   );
 
   const toggleLike = useCallback(
@@ -68,10 +116,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
               ? post.likes.filter((id) => id !== userId)
               : [...post.likes, userId],
           };
-        })
+        }),
       );
     },
-    [user]
+    [user],
   );
 
   const likePost = useCallback(
@@ -88,10 +136,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             ...post,
             likes: [...post.likes, userId],
           };
-        })
+        }),
       );
     },
-    [user]
+    [user],
   );
 
   const addComment = useCallback(
@@ -114,10 +162,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             ...post,
             comments: [...post.comments, newComment],
           };
-        })
+        }),
       );
     },
-    [user]
+    [user],
   );
 
   const toggleReaction = useCallback(
@@ -134,7 +182,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
               if (comment.id !== commentId) return comment;
 
               const reactionIndex = comment.reactions.findIndex(
-                (r) => r.emoji === emoji
+                (r) => r.emoji === emoji,
               );
 
               // Reaction already exists
@@ -155,7 +203,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
                   return {
                     ...comment,
                     reactions: comment.reactions.filter(
-                      (r) => r.emoji !== emoji
+                      (r) => r.emoji !== emoji,
                     ),
                   };
                 }
@@ -163,7 +211,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
                 return {
                   ...comment,
                   reactions: comment.reactions.map((r) =>
-                    r.emoji === emoji ? { ...r, users: updatedUsers } : r
+                    r.emoji === emoji ? { ...r, users: updatedUsers } : r,
                   ),
                 };
               }
@@ -171,17 +219,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
               // Reaction doesn't exist yet
               return {
                 ...comment,
-                reactions: [
-                  ...comment.reactions,
-                  { emoji, users: [userId] },
-                ],
+                reactions: [...comment.reactions, { emoji, users: [userId] }],
               };
             }),
           };
-        })
+        }),
       );
     },
-    [user]
+    [user],
   );
 
   return (
