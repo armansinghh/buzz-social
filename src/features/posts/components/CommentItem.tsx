@@ -5,6 +5,7 @@ import { usePosts } from "@/features/posts/PostContext";
 import { useAuth } from "@/features/auth/useAuth";
 import EmojiPicker from "emoji-picker-react";
 
+
 interface CommentItemProps {
   comment: Comment;
   postId: string;
