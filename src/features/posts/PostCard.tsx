@@ -93,7 +93,7 @@ export default function PostCard({ post }: PostCardProps) {
         </button>
 
         {/* Comments */}
-        <div className="space-y-2 mb-3" onClick={(e) => e.stopPropagation()}>
+        <div className="space-y-2 mb-3 pb-2 border-b" onClick={(e) => e.stopPropagation()}>
           {post.comments.length > 0 && (
             <CommentItem
               comment={post.comments[post.comments.length - 1]}

@@ -77,7 +77,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
           createdAt: new Date(Date.now() - 1000 * 60 * 40).toISOString(),
         },
       ],
-      createdAt: new Date().toISOString(),
+      createdAt:  new Date(Date.now() - 1000 * 60 * 40).toISOString(),
     },
   ]);
 

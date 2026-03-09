@@ -18,7 +18,7 @@ export default function CommentInput({ postId }: CommentInputProps) {
   };
 
   return (
-    <div className="flex items-center gap-2 border-t pt-2">
+    <div className="flex items-center gap-2">
       <input
         type="text"
         placeholder="Add a comment..."
