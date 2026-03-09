@@ -5,10 +5,14 @@ import { usePosts } from "@/features/posts/PostContext";
 import { useAuth } from "@/features/auth/useAuth";
 import EmojiPicker from "emoji-picker-react";
 
-
 interface CommentItemProps {
   comment: Comment;
   postId: string;
+}
+
+interface PickerPosition {
+  x: number;
+  y: number;
 }
 
 export default function CommentItem({ comment, postId }: CommentItemProps) {
@@ -16,32 +20,38 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
   const { user } = useAuth();
 
   const [showPicker, setShowPicker] = useState(false);
-  const [openUpward, setOpenUpward] = useState(true);
+  const [pickerPosition, setPickerPosition] = useState<PickerPosition | null>(null);
 
   const pickerRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
 
   const userId = user?.id ?? "guest";
 
-  // Detect best picker position
-  useEffect(() => {
-    if (!showPicker || !buttonRef.current) return;
+  // Open picker anchored to button
+  const openPicker = () => {
+    if (!buttonRef.current) return;
 
     const rect = buttonRef.current.getBoundingClientRect();
-    const spaceAbove = rect.top;
-    const spaceBelow = window.innerHeight - rect.bottom;
 
-    // picker height ≈ 350px
-    const pickerHeight = 350;
+    const pickerHeight = 360;
 
-    if (spaceAbove < pickerHeight && spaceBelow > pickerHeight) {
-      setOpenUpward(false);
-    } else {
-      setOpenUpward(true);
+    let y = rect.top - pickerHeight - 8;
+    let x = rect.left;
+
+    // If not enough space above → open below
+    if (y < 8) {
+      y = rect.bottom + 8;
     }
-  }, [showPicker]);
 
-  // lock page scroll
+    // Prevent touching right edge
+    const maxX = window.innerWidth - 320;
+    if (x > maxX) x = maxX;
+
+    setPickerPosition({ x, y });
+    setShowPicker(true);
+  };
+
+  // lock scroll
   useEffect(() => {
     if (showPicker) {
       document.body.style.overflow = "hidden";
@@ -54,7 +64,7 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
     };
   }, [showPicker]);
 
-  // close picker when clicking outside
+  // close picker outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
@@ -76,7 +86,7 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
   }, [showPicker]);
 
   return (
-    <div className="text-sm relative">
+    <div className="text-sm">
       {/* Comment content */}
       <div className="flex justify-between">
         <div>
@@ -101,11 +111,11 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
                 toggleReaction(postId, comment.id, reaction.emoji)
               }
               className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full transition
-                ${
-                  reactedByUser
-                    ? "bg-blue-100 text-blue-600"
-                    : "bg-gray-100 hover:bg-gray-200"
-                }`}
+              ${
+                reactedByUser
+                  ? "bg-blue-100 text-blue-600"
+                  : "bg-gray-100 hover:bg-gray-200"
+              }`}
             >
               <span>{reaction.emoji}</span>
               <span>{reaction.users.length}</span>
@@ -116,7 +126,13 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
         {/* Add reaction button */}
         <button
           ref={buttonRef}
-          onClick={() => setShowPicker((prev) => !prev)}
+          onClick={() => {
+            if (showPicker) {
+              setShowPicker(false);
+            } else {
+              openPicker();
+            }
+          }}
           className="text-xs bg-gray-100 px-2 py-0.5 rounded-full hover:bg-gray-200 transition"
         >
           +
@@ -124,12 +140,15 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
       </div>
 
       {/* Floating Emoji Picker */}
-      {showPicker && (
+      {showPicker && pickerPosition && (
         <div
           ref={pickerRef}
-          className={`absolute z-50 shadow-lg ${
-            openUpward ? "bottom-full mb-2" : "top-full mt-2"
-          } right-0`}
+          style={{
+            position: "fixed",
+            left: pickerPosition.x,
+            top: pickerPosition.y,
+            zIndex: 1000,
+          }}
         >
           <EmojiPicker
             onEmojiClick={(emojiData) => {
