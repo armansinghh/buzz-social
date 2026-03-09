@@ -20,7 +20,9 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
   const { user } = useAuth();
 
   const [showPicker, setShowPicker] = useState(false);
-  const [pickerPosition, setPickerPosition] = useState<PickerPosition | null>(null);
+  const [pickerPosition, setPickerPosition] = useState<PickerPosition | null>(
+    null,
+  );
 
   const pickerRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
@@ -84,7 +86,21 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showPicker]);
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowPicker(false);
+      }
+    };
 
+    if (showPicker) {
+      window.addEventListener("keydown", handleEsc);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [showPicker]);
   return (
     <div className="text-sm">
       {/* Comment content */}
@@ -107,9 +123,7 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
           return (
             <button
               key={reaction.emoji}
-              onClick={() =>
-                toggleReaction(postId, comment.id, reaction.emoji)
-              }
+              onClick={() => toggleReaction(postId, comment.id, reaction.emoji)}
               className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full transition
               ${
                 reactedByUser
