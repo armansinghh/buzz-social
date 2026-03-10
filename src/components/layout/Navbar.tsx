@@ -1,8 +1,10 @@
 import { useAuth } from "@/features/auth/AuthContext";
+import { useUI } from "@/features/ui/UIContext";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const { toggleTheme, theme } = useUI();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -13,12 +15,15 @@ export default function Navbar() {
   return (
     <div className="h-14 w-full flex justify-between items-center px-6 bg-white">
       <h1 className="text-xl font-bold">Buzz</h1>
-
+      <button
+        onClick={toggleTheme}
+        className="p-2 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+      >
+        {theme === "dark" ? "☀️" : "🌙"}
+      </button>
       {user ? (
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">
-            {user.name}
-          </span>
+          <span className="text-sm text-gray-600">{user.name}</span>
 
           <button
             onClick={handleLogout}
