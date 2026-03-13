@@ -13,11 +13,11 @@ export default function Navbar() {
   };
 
   return (
-    <div className="h-14 w-full flex justify-between items-center px-6 bg-white">
+    <div className="h-14 w-full flex justify-between items-center px-6 bg-white dark:bg-zinc-900">
       <h1 className="text-xl font-bold">Buzz</h1>
       <button
         onClick={toggleTheme}
-        className="p-2 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700"
+        className="p-2 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 hidden"
       >
         {theme === "dark" ? "☀️" : "🌙"}
       </button>

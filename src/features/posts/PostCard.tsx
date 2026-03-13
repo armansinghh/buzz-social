@@ -33,7 +33,7 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <>
       <div
-        className="relative bg-white p-4 rounded-xl shadow-sm border"
+        className="relative bg-white dark:bg-zinc-800 p-4 rounded-xl shadow-sm border"
         onClick={() => {
           if (clickTimeout.current) {
             clearTimeout(clickTimeout.current);
@@ -77,7 +77,7 @@ export default function PostCard({ post }: PostCardProps) {
         )}
 
         {/* Caption */}
-        {post.caption && <p className="text-gray-800 mb-3">{post.caption}</p>}
+        {post.caption && <p className="text-gray-800 mb-3 dark:text-white">{post.caption}</p>}
 
         {/* Likes */}
         <button
