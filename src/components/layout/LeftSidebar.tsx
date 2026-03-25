@@ -6,7 +6,7 @@ import {
   faHouse,
   faCompass,
   faUser,
-  faAdd,
+  faPlus,
   faHeart,
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
@@ -17,82 +17,67 @@ export default function LeftSidebar() {
   const { openModal } = useUI();
   const { unreadCount } = useNotifications();
 
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+    ${
+      isActive
+        ? "bg-[var(--accent)] text-[var(--bg-primary)]"
+        : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]"
+    }`;
+
+  const btnClass =
+    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] w-full text-left";
+
   return (
-    <aside className="hidden md:block">
-      <nav className="flex flex-col gap-4">
+    <aside className="hidden md:flex flex-col gap-1 pt-2">
+      <NavLink to="/" className={navLinkClass}>
+        <FontAwesomeIcon icon={faHouse} className="w-4 h-4" />
+        <span>Home</span>
+      </NavLink>
+
+      <NavLink to="/explore" className={navLinkClass}>
+        <FontAwesomeIcon icon={faCompass} className="w-4 h-4" />
+        <span>Explore</span>
+      </NavLink>
+
+      <NavLink to="/search" className={navLinkClass}>
+        <FontAwesomeIcon icon={faMagnifyingGlass} className="w-4 h-4" />
+        <span>Search</span>
+      </NavLink>
+
+      <button
+        onClick={() => openModal("notifications")}
+        className={btnClass}
+      >
+        <div className="relative">
+          <FontAwesomeIcon icon={faHeart} className="w-4 h-4" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-red-500 rounded-full text-white text-[9px] flex items-center justify-center font-bold">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </div>
+        <span>Notifications</span>
+      </button>
+
+      <button
+        onClick={() => openModal("createPost")}
+        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+          bg-[var(--bg-primary)] text-[var(--text-primary)] hover:opacity-90 w-full text-left mt-2"
+      >
+        <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
+        <span>Create Post</span>
+      </button>
+
+      {user && (
         <NavLink
-          to="/"
-          className={({ isActive }) =>
-            `p-2 rounded ${
-              isActive ? "bg-black text-white" : "hover:bg-gray-100"
-            }`
-          }
+          to={`/profile/${user.id}`}
+          className={navLinkClass}
         >
-          <FontAwesomeIcon icon={faHouse} />
-          <span className="pl-2">Home</span>
+          <FontAwesomeIcon icon={faUser} className="w-4 h-4" />
+          <span>Profile</span>
         </NavLink>
-
-        <NavLink
-          to="/explore"
-          className={({ isActive }) =>
-            `p-2 rounded ${
-              isActive ? "bg-black text-white" : "hover:bg-gray-100"
-            }`
-          }
-        >
-          <FontAwesomeIcon icon={faCompass} />
-          <span className="pl-2">Explore</span>
-        </NavLink>
-
-        <NavLink
-          to="/search"
-          className={({ isActive }) =>
-            `p-2 rounded ${
-              isActive ? "bg-black text-white" : "hover:bg-gray-100"
-            }`
-          }
-        >
-          <FontAwesomeIcon icon={faMagnifyingGlass} />
-          <span className="pl-2">Search</span>
-        </NavLink>
-
-        <button
-          onClick={() => openModal("notifications")}
-          className="p-2 rounded hover:bg-gray-100 flex items-center w-full text-left"
-        >
-          <div className="relative">
-            <FontAwesomeIcon icon={faHeart} />
-
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-            )}
-          </div>
-
-          <span className="pl-2">Notifications</span>
-        </button>
-
-        <button
-          onClick={() => openModal("createPost")}
-          className="p-2 rounded hover:bg-gray-100 flex items-center w-full text-left"
-        >
-          <FontAwesomeIcon icon={faAdd} />
-          <span className="pl-2">Create</span>
-        </button>
-
-        {user && (
-          <NavLink
-            to={`/profile/${user.id}`}
-            className={({ isActive }) =>
-              `p-2 rounded ${
-                isActive ? "bg-black text-white" : "hover:bg-gray-100"
-              }`
-            }
-          >
-            <FontAwesomeIcon icon={faUser} />
-            <span className="pl-2">Profile</span>
-          </NavLink>
-        )}
-      </nav>
+      )}
     </aside>
   );
 }

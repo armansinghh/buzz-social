@@ -2,36 +2,46 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import LeftSidebar from "./LeftSidebar";
 import RightSidebar from "./RightSidebar";
+import BottomNav from "./BottomNav";
 import CreatePostModal from "@/features/posts/components/CreatePostModal";
 import NotificationModal from "@/features/notifications/components/NotificationModal";
 import CommentsModal from "@/features/posts/components/CommentsModal";
+import EmojiPickerPortal from "@/features/posts/components/EmojiPickerPortal";
 
 export default function AppLayout() {
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-white dark:bg-zinc-950 text-black dark:text-white">
-      <header className="border-b border-gray-200 dark:border-zinc-700 px-6 flex items-center bg-white dark:bg-zinc-900">
+    <div className="h-screen flex flex-col overflow-hidden bg-[var(--bg-primary)] text-[var(--text-primary)]">
+      <header className="border-b border-[var(--border-color)] flex-shrink-0">
         <Navbar />
       </header>
 
       <div className="flex flex-1 min-h-0">
-        <aside className="w-72 border-r border-gray-200 dark:border-zinc-700 p-6 hidden lg:block bg-white dark:bg-zinc-900">
+        {/* Left sidebar */}
+        <aside className="w-64 border-r border-[var(--border-color)] px-4 py-4 hidden md:flex flex-col bg-[var(--bg-primary)] flex-shrink-0">
           <LeftSidebar />
         </aside>
 
-        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-zinc-950 p-8 main-scroll">
-          <div className="max-w-2xl mx-auto">
+        {/* Main feed */}
+        <main className="flex-1 overflow-y-auto bg-[var(--bg-secondary)] main-scroll pb-20 md:pb-0">
+          <div className="max-w-xl mx-auto px-4 py-6">
             <Outlet />
           </div>
         </main>
 
-        <aside className="w-72 border-l border-gray-200 dark:border-zinc-700 p-6 hidden xl:block bg-white dark:bg-zinc-900">
+        {/* Right sidebar */}
+        <aside className="w-64 border-l border-[var(--border-color)] px-4 py-4 hidden xl:flex flex-col bg-[var(--bg-primary)] flex-shrink-0">
           <RightSidebar />
         </aside>
       </div>
 
+      {/* Mobile bottom nav */}
+      <BottomNav />
+
+      {/* Modals + Global UI */}
       <CreatePostModal />
       <NotificationModal />
       <CommentsModal />
+      <EmojiPickerPortal /> {/* ✅ ADD THIS */}
     </div>
   );
 }

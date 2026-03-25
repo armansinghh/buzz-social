@@ -8,6 +8,12 @@ export type ActiveModal =
 
 export type Theme = "light" | "dark";
 
+interface EmojiPickerState {
+  commentId: string;
+  postId: string;
+  position: { x: number; y: number };
+}
+
 interface UIContextType {
   activeModal: ActiveModal;
   commentsPostId: string | null;
@@ -15,6 +21,15 @@ interface UIContextType {
   theme: Theme;
   toggleTheme: () => void;
   setTheme: (theme: Theme) => void;
+
+  // ✅ Emoji Picker
+  emojiPicker: EmojiPickerState | null;
+  openEmojiPicker: (
+    commentId: string,
+    postId: string,
+    position: { x: number; y: number }
+  ) => void;
+  closeEmojiPicker: () => void;
 
   openModal: (modal: ActiveModal) => void;
   closeModal: () => void;
@@ -30,7 +45,22 @@ export const UIProvider = ({ children }: { children: React.ReactNode }) => {
 
   const [theme, setThemeState] = useState<Theme>("light");
 
-  // Apply theme to document
+  // ✅ Emoji Picker state
+  const [emojiPicker, setEmojiPicker] = useState<EmojiPickerState | null>(null);
+
+  const openEmojiPicker = (
+    commentId: string,
+    postId: string,
+    position: { x: number; y: number }
+  ) => {
+    setEmojiPicker({ commentId, postId, position });
+  };
+
+  const closeEmojiPicker = () => {
+    setEmojiPicker(null);
+  };
+
+  // Apply theme
   const applyTheme = (theme: Theme) => {
     const root = document.documentElement;
 
@@ -93,6 +123,9 @@ export const UIProvider = ({ children }: { children: React.ReactNode }) => {
         theme,
         toggleTheme,
         setTheme,
+        emojiPicker,
+        openEmojiPicker,
+        closeEmojiPicker,
         openModal,
         openComments,
         closeModal,
