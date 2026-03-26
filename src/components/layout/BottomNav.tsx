@@ -22,7 +22,7 @@ export default function BottomNav() {
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center
-      bg-[var(--bg-primary)] border-t border-[var(--border-color)]
+      bg-(--bg-primary) border-t border-(--border-color)
       pb-safe"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
@@ -40,14 +40,14 @@ export default function BottomNav() {
         onClick={() => openModal("createPost")}
         className="flex flex-col items-center justify-center gap-1 text-xs font-medium flex-1 py-2"
       >
-        <div className="w-9 h-9 rounded-xl bg-[var(--accent)] text-[var(--bg-primary)] flex items-center justify-center">
+        <div className="w-9 h-9 rounded-xl bg-(--accent) text-(--bg-primary) flex items-center justify-center">
           <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
         </div>
       </button>
 
       <button
         onClick={() => openModal("notifications")}
-        className="relative flex flex-col items-center justify-center gap-1 text-xs font-medium flex-1 py-2 text-[var(--text-muted)]"
+        className="relative flex flex-col items-center justify-center gap-1 text-xs font-medium flex-1 py-2 text-(--text-muted)"
       >
         <div className="relative">
           <FontAwesomeIcon icon={faHeart} className="w-5 h-5" />

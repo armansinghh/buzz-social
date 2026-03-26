@@ -14,10 +14,10 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="h-14 w-full flex justify-between items-center px-6 bg-[var(--bg-primary)] border-b border-[var(--border-color)]">
+    <nav className="h-14 w-full flex justify-between items-center px-6 bg-(--bg-primary) border-b border-(--border-color)">
       {/* Logo */}
       <Link to="/" className="flex items-center gap-2 group">
-        <span className="text-xl font-bold tracking-tight text-[var(--text-primary)]">
+        <span className="text-xl font-bold tracking-tight text-(--text-primary)">
           buzz
         </span>
         <span className="w-1.5 h-1.5 rounded-full bg-amber-400 group-hover:scale-125 transition-transform" />
@@ -28,7 +28,7 @@ export default function Navbar() {
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-[var(--bg-tertiary)] transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+          className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-(--bg-tertiary) transition-colors text-(--text-secondary) hover:text-(--text-primary)"
           title={theme === "dark" ? "Switch to light" : "Switch to dark"}
         >
           {theme === "dark" ? (
@@ -53,12 +53,12 @@ export default function Navbar() {
         {user ? (
           <div className="flex items-center gap-3">
             <Avatar name={user.name} size="sm" />
-            <span className="text-sm text-[var(--text-secondary)] hidden sm:block font-medium">
+            <span className="text-sm text-(--text-secondary) hidden sm:block font-medium">
               {user.name}
             </span>
             <button
               onClick={handleLogout}
-              className="px-3 py-1.5 text-sm rounded-lg border border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors font-medium"
+              className="px-3 py-1.5 text-sm rounded-lg border border-(--border-color) text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors font-medium"
             >
               Logout
             </button>
@@ -66,7 +66,7 @@ export default function Navbar() {
         ) : (
           <Link
             to="/login"
-            className="px-4 py-1.5 text-sm rounded-lg bg-[var(--accent)] text-[var(--bg-primary)] hover:opacity-90 transition-opacity font-medium"
+            className="px-4 py-1.5 text-sm rounded-lg bg-(--accent) text-(--bg-primary) hover:opacity-90 transition-opacity font-medium"
           >
             Login
           </Link>

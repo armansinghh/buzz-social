@@ -10,26 +10,26 @@ import EmojiPickerPortal from "@/features/posts/components/EmojiPickerPortal";
 
 export default function AppLayout() {
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[var(--bg-primary)] text-[var(--text-primary)]">
-      <header className="border-b border-[var(--border-color)] flex-shrink-0">
+    <div className="h-screen flex flex-col overflow-hidden bg-(--bg-primary) text-(--text-primary)">
+      <header className="border-b border-(--border-color) shrink-0">
         <Navbar />
       </header>
 
       <div className="flex flex-1 min-h-0">
         {/* Left sidebar */}
-        <aside className="w-64 border-r border-[var(--border-color)] px-4 py-4 hidden md:flex flex-col bg-[var(--bg-primary)] flex-shrink-0">
+        <aside className="w-64 border-r border-(--border-color) px-4 py-4 hidden md:flex flex-col bg-(--bg-primary) shrink-0">
           <LeftSidebar />
         </aside>
 
         {/* Main feed */}
-        <main className="flex-1 overflow-y-auto bg-[var(--bg-secondary)] main-scroll pb-20 md:pb-0">
+        <main className="flex-1 overflow-y-auto bg-(--bg-secondary) main-scroll pb-20 md:pb-0">
           <div className="max-w-xl mx-auto px-4 py-6">
             <Outlet />
           </div>
         </main>
 
         {/* Right sidebar */}
-        <aside className="w-64 border-l border-[var(--border-color)] px-4 py-4 hidden xl:flex flex-col bg-[var(--bg-primary)] flex-shrink-0">
+        <aside className="w-64 border-l border-(--border-color) px-4 py-4 hidden xl:flex flex-col bg-(--bg-primary) shrink-0">
           <RightSidebar />
         </aside>
       </div>

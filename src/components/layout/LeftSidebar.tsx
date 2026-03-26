@@ -63,7 +63,7 @@ export default function LeftSidebar() {
       <button
         onClick={() => openModal("createPost")}
         className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-          bg-[var(--bg-primary)] text-[var(--text-primary)] hover:opacity-90 w-full text-left mt-2"
+          bg-(--bg-primary) text-(--text-primary) hover:opacity-90 w-full text-left mt-2"
       >
         <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
         <span>Create Post</span>
