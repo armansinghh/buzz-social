@@ -75,24 +75,24 @@ export default function CreatePostModal() {
       onClick={handleClose}
     >
       <div
-        className="bg-[var(--bg-primary)] w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl overflow-hidden modal-in border border-[var(--border-color)]"
+        className="bg-(--bg-primary) w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl overflow-hidden modal-in border border-(--border-color)"
         style={{ boxShadow: "var(--shadow-md)" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-color)]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-(--border-color)">
           <button
             onClick={handleClose}
-            className="text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+            className="text-sm text-(--text-secondary) hover:text-(--text-primary) transition-colors"
           >
             Cancel
           </button>
-          <h2 className="text-sm font-semibold text-[var(--text-primary)]">Create post</h2>
+          <h2 className="text-sm font-semibold text-(--text-primary)">Create post</h2>
           <button
             onClick={handlePost}
             disabled={!canPost}
             className={`text-sm font-semibold transition-opacity
-              ${canPost ? "text-blue-500 hover:text-blue-400" : "text-[var(--text-muted)] cursor-not-allowed opacity-50"}`}
+              ${canPost ? "text-blue-500 hover:text-blue-400" : "text-(--text-muted) cursor-not-allowed opacity-50"}`}
           >
             Share
           </button>
@@ -106,13 +106,13 @@ export default function CreatePostModal() {
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
             placeholder="What's buzzing?"
-            className="w-full resize-none outline-none text-[var(--text-primary)] placeholder:text-[var(--text-muted)] bg-transparent text-base leading-relaxed"
+            className="w-full resize-none outline-none text-(--text-primary) placeholder:text-(--text-muted) bg-transparent text-base leading-relaxed"
             rows={4}
           />
 
           {/* File preview */}
           {preview && (
-            <div className="relative mt-3 rounded-xl overflow-hidden bg-[var(--bg-tertiary)]">
+            <div className="relative mt-3 rounded-xl overflow-hidden bg-(--bg-tertiary)">
               {selectedFile?.type.startsWith("video") ? (
                 <video src={preview} controls className="w-full max-h-64 object-contain" />
               ) : (
@@ -129,8 +129,8 @@ export default function CreatePostModal() {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-3 border-t border-[var(--border-color)]">
-          <label className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer">
+        <div className="flex items-center justify-between px-5 py-3 border-t border-(--border-color)">
+          <label className="flex items-center gap-2 text-sm text-(--text-secondary) hover:text-(--text-primary) transition-colors cursor-pointer">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
               <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -140,7 +140,7 @@ export default function CreatePostModal() {
             <input type="file" accept="image/*,video/*" onChange={handleFileChange} className="sr-only" />
           </label>
 
-          <span className={`text-xs font-medium transition-colors ${caption.length > 2000 ? "text-red-500" : "text-[var(--text-muted)]"}`}>
+          <span className={`text-xs font-medium transition-colors ${caption.length > 2000 ? "text-red-500" : "text-(--text-muted)"}`}>
             {caption.length} / 2200
           </span>
         </div>

@@ -49,7 +49,7 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <>
       <article
-        className="relative bg-[var(--bg-primary)] rounded-2xl border border-[var(--border-color)] overflow-hidden fade-in"
+        className="relative bg-(--bg-primary) rounded-2xl border border-(--border-color) overflow-hidden fade-in"
         style={{ boxShadow: "var(--shadow-sm)" }}
       >
         {/* Header */}
@@ -57,16 +57,16 @@ export default function PostCard({ post }: PostCardProps) {
           <div className="flex items-center gap-2.5">
             <Avatar name={post.authorId} size="sm" />
             <div>
-              <p className="text-sm font-semibold text-[var(--text-primary)] leading-tight">
+              <p className="text-sm font-semibold text-(--text-primary) leading-tight">
                 {post.authorId}
               </p>
-              <p className="text-xs text-[var(--text-muted)]">
+              <p className="text-xs text-(--text-muted)">
                 {formatRelativeTime(post.createdAt)}
               </p>
             </div>
           </div>
           {/* Options button */}
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors">
+          <button className="w-8 h-8 flex items-center justify-center rounded-lg text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
               <circle cx="12" cy="5" r="1.5"/>
               <circle cx="12" cy="12" r="1.5"/>
@@ -78,7 +78,7 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Media */}
         {post.media && (
           <div
-            className="w-full bg-[var(--bg-tertiary)] cursor-pointer overflow-hidden"
+            className="w-full bg-(--bg-tertiary) cursor-pointer overflow-hidden"
             style={{ maxHeight: "400px" }}
             onClick={handleCardClick}
           >
@@ -104,7 +104,7 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="px-4 pb-4">
           {/* Caption */}
           {post.caption && (
-            <p className="text-sm text-[var(--text-primary)] mt-3 leading-relaxed">
+            <p className="text-sm text-(--text-primary) mt-3 leading-relaxed">
               <span className="font-semibold mr-1.5">{post.authorId}</span>
               {post.caption}
             </p>
@@ -120,7 +120,7 @@ export default function PostCard({ post }: PostCardProps) {
               className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium transition-all
                 ${isLiked
                   ? "text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
-                  : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)]"
+                  : "text-(--text-secondary) hover:bg-(--bg-tertiary)"
                 }`}
             >
               <svg
@@ -143,7 +143,7 @@ export default function PostCard({ post }: PostCardProps) {
                 e.stopPropagation();
                 openComments(post.id);
               }}
-              className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -165,7 +165,7 @@ export default function PostCard({ post }: PostCardProps) {
                     e.stopPropagation();
                     openComments(post.id);
                   }}
-                  className="text-xs text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition-colors"
+                  className="text-xs text-(--text-muted) hover:text-(--text-secondary) transition-colors"
                 >
                   View all {post.comments.length} comments
                 </button>
@@ -175,7 +175,7 @@ export default function PostCard({ post }: PostCardProps) {
 
           {/* Comment input */}
           <div
-            className="mt-3 pt-3 border-t border-[var(--border-color)]"
+            className="mt-3 pt-3 border-t border-(--border-color)"
             onClick={(e) => e.stopPropagation()}
           >
             <CommentInput postId={post.id} />

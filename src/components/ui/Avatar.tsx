@@ -44,8 +44,8 @@ export default function Avatar({
       className={`
         relative flex items-center justify-center
         rounded-full overflow-hidden
-        bg-[var(--bg-tertiary)]
-        text-[var(--text-primary)]
+        bg-(--bg-tertiary)
+        text-(--text-primary)
         font-semibold select-none
         ${sizeClasses[size]}
         ${onClick ? "cursor-pointer" : ""}

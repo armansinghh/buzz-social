@@ -42,16 +42,16 @@ export default function NotificationModal() {
       onClick={closeModal}
     >
       <div
-        className="bg-[var(--bg-primary)] w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl overflow-hidden modal-in border border-[var(--border-color)]"
+        className="bg-(--bg-primary) w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl overflow-hidden modal-in border border-(--border-color)"
         style={{ boxShadow: "var(--shadow-md)", maxHeight: "80vh" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-color)]">
-          <h2 className="text-base font-semibold text-[var(--text-primary)]">Notifications</h2>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-(--border-color)">
+          <h2 className="text-base font-semibold text-(--text-primary)">Notifications</h2>
           <button
             onClick={closeModal}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
               <line x1="18" y1="6" x2="6" y2="18"/>
@@ -63,7 +63,7 @@ export default function NotificationModal() {
         {/* Content */}
         <div className="overflow-y-auto main-scroll" style={{ maxHeight: "calc(80vh - 64px)" }}>
           {notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3 text-[var(--text-muted)]">
+            <div className="flex flex-col items-center justify-center py-16 gap-3 text-(--text-muted)">
               <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-40">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -71,22 +71,22 @@ export default function NotificationModal() {
               <p className="text-sm">No notifications yet</p>
             </div>
           ) : (
-            <div className="divide-y divide-[var(--border-color)]">
+            <div className="divide-y divide-(--border-color)">
               {notifications.map((notification) => {
                 const meta = ICONS[notification.type];
                 return (
                   <div
                     key={notification.id}
                     className={`flex items-start gap-3 px-5 py-4 transition-colors
-                      ${!notification.isRead ? "bg-[var(--bg-secondary)]" : "bg-[var(--bg-primary)]"}
-                      hover:bg-[var(--bg-tertiary)]`}
+                      ${!notification.isRead ? "bg-(--bg-secondary)" : "bg-(--bg-primary)"}
+                      hover:bg-(--bg-tertiary)`}
                   >
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${meta.bg}`}>
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${meta.bg}`}>
                       <span className="text-base">{meta.icon}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-[var(--text-primary)]">{notification.message}</p>
-                      <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                      <p className="text-sm text-(--text-primary)">{notification.message}</p>
+                      <p className="text-xs text-(--text-muted) mt-0.5">
                         {new Date(notification.createdAt).toLocaleString(undefined, {
                           month: "short",
                           day: "numeric",
@@ -96,7 +96,7 @@ export default function NotificationModal() {
                       </p>
                     </div>
                     {!notification.isRead && (
-                      <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-1.5" />
+                      <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0 mt-1.5" />
                     )}
                   </div>
                 );

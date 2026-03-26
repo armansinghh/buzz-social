@@ -33,7 +33,7 @@ export default function CommentInput({ postId }: CommentInputProps) {
             handleSubmit();
           }
         }}
-        className="flex-1 text-sm outline-none bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
+        className="flex-1 text-sm outline-none bg-transparent text-(--text-primary) placeholder:text-(--text-muted)"
       />
       {text.trim() && (
         <button

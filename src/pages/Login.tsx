@@ -30,33 +30,33 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-secondary)] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-(--bg-secondary) px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <span className="text-3xl font-bold tracking-tight text-[var(--text-primary)]">buzz</span>
+            <span className="text-3xl font-bold tracking-tight text-(--text-primary)">buzz</span>
             <span className="w-2 h-2 rounded-full bg-amber-400" />
           </div>
-          <p className="text-sm text-[var(--text-muted)]">What's buzzing right now.</p>
+          <p className="text-sm text-(--text-muted)">What's buzzing right now.</p>
         </div>
 
         {/* Card */}
         <div
-          className="bg-[var(--bg-primary)] rounded-2xl p-6 border border-[var(--border-color)]"
+          className="bg-(--bg-primary) rounded-2xl p-6 border border-(--border-color)"
           style={{ boxShadow: "var(--shadow-md)" }}
         >
-          <h1 className="text-lg font-semibold text-[var(--text-primary)] mb-5">Sign in</h1>
+          <h1 className="text-lg font-semibold text-(--text-primary) mb-5">Sign in</h1>
 
           <div className="space-y-3">
             <div>
-              <label className="text-xs font-medium text-[var(--text-secondary)] block mb-1.5">
+              <label className="text-xs font-medium text-(--text-secondary) block mb-1.5">
                 Username
               </label>
               <input
                 type="text"
                 placeholder="testuser"
-                className="w-full border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]/20 focus:border-[var(--accent)] transition-all"
+                className="w-full border border-(--border-color) bg-(--bg-secondary) text-(--text-primary) placeholder:text-(--text-muted) p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-(--accent)/20 focus:border-(--accent) transition-all"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
@@ -64,13 +64,13 @@ export default function Login() {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-[var(--text-secondary)] block mb-1.5">
+              <label className="text-xs font-medium text-(--text-secondary) block mb-1.5">
                 Password
               </label>
               <input
                 type="password"
                 placeholder="••••••"
-                className="w-full border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[var(--accent)]/20 focus:border-[var(--accent)] transition-all"
+                className="w-full border border-(--border-color) bg-(--bg-secondary) text-(--text-primary) placeholder:text-(--text-muted) p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-(--accent)/20 focus:border-(--accent) transition-all"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleLogin()}
@@ -87,16 +87,16 @@ export default function Login() {
             <button
               onClick={handleLogin}
               disabled={loading}
-              className="w-full bg-[var(--accent)] text-[var(--bg-primary)] p-3 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full bg-(--accent) text-(--bg-primary) p-3 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {loading ? "Signing in…" : "Sign in"}
             </button>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-[var(--border-color)] text-center">
-            <p className="text-xs text-[var(--text-muted)]">
+          <div className="mt-4 pt-4 border-t border-(--border-color) text-center">
+            <p className="text-xs text-(--text-muted)">
               Don't have an account?{" "}
-              <Link to="/register" className="text-[var(--text-primary)] font-medium hover:underline">
+              <Link to="/register" className="text-(--text-primary) font-medium hover:underline">
                 Sign up
               </Link>
             </p>
@@ -104,9 +104,9 @@ export default function Login() {
         </div>
 
         {/* Demo hint */}
-        <p className="text-center text-xs text-[var(--text-muted)] mt-4">
-          Demo: <span className="font-mono text-[var(--text-secondary)]">testuser</span> /{" "}
-          <span className="font-mono text-[var(--text-secondary)]">123456</span>
+        <p className="text-center text-xs text-(--text-muted) mt-4">
+          Demo: <span className="font-mono text-(--text-secondary)">testuser</span> /{" "}
+          <span className="font-mono text-(--text-secondary)">123456</span>
         </p>
       </div>
     </div>

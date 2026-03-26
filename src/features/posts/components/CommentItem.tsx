@@ -50,18 +50,18 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
 
   return (
     <div className="flex gap-2">
-      <Avatar name={comment.authorId} size="xs" className="mt-0.5 flex-shrink-0" />
+      <Avatar name={comment.authorId} size="xs" className="mt-0.5 shrink-0" />
 
       <div className="flex-1 min-w-0">
         <div className="text-sm">
-          <span className="font-semibold text-[var(--text-primary)] mr-1.5">
+          <span className="font-semibold text-(--text-primary) mr-1.5">
             {comment.authorId}
           </span>
-          <span className="text-[var(--text-primary)]">{comment.text}</span>
+          <span className="text-(--text-primary)">{comment.text}</span>
         </div>
 
         <div className="flex items-center gap-2 mt-1 flex-wrap">
-          <span className="text-xs text-[var(--text-muted)]">
+          <span className="text-xs text-(--text-muted)">
             {formatRelativeTime(comment.createdAt)}
           </span>
 
@@ -79,7 +79,7 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
                   ${
                     reactedByUser
                       ? "bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400"
-                      : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--border-color)]"
+                      : "bg-(--bg-tertiary) text-(--text-secondary) hover:bg-(--border-color)"
                   }`}
               >
                 <span>{reaction.emoji}</span>
@@ -94,7 +94,7 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
           <button
             ref={buttonRef}
             onClick={handleOpenPicker}
-            className="text-xs px-1.5 py-0.5 rounded-full bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:bg-[var(--border-color)] hover:text-[var(--text-secondary)] transition-colors"
+            className="text-xs px-1.5 py-0.5 rounded-full bg-(--bg-tertiary) text-(--text-muted) hover:bg-(--border-color) hover:text-(--text-secondary) transition-colors"
           >
             + React
           </button>
