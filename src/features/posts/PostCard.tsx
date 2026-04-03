@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import type { Post } from "@/features/posts/posts.types";
-import { useAuth } from "@/features/auth/useAuth";
+import { useAuth } from "@/features/auth/AuthContext";
 import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
 import CommentInput from "@/features/posts/components/CommentInput";
 import CommentItem from "@/features/posts/components/CommentItem";
@@ -14,7 +14,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post }: PostCardProps) {
-  const { user } = useAuth();
+    const { user, profile } = useAuth();
   const { toggleLike, likePost } = usePosts();
   const { openComments } = useUI();
 
@@ -24,7 +24,7 @@ export default function PostCard({ post }: PostCardProps) {
   const clickTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const likeCount = post.likes.length;
-  const isLiked = user ? post.likes.includes(user.id) : false;
+  const isLiked = user ? post.likes.includes(profile?.username || "") : false;
 
   const triggerHeart = () => {
     setShowHeart(true);
@@ -55,10 +55,10 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-3">
           <div className="flex items-center gap-2.5">
-            <Avatar name={post.authorId} size="sm" />
+            <Avatar name={profile?.username || "User"} size="sm" />
             <div>
               <p className="text-sm font-semibold text-(--text-primary) leading-tight">
-                {post.authorId}
+                {profile?.username || "User"}
               </p>
               <p className="text-xs text-(--text-muted)">
                 {formatRelativeTime(post.createdAt)}
@@ -105,7 +105,7 @@ export default function PostCard({ post }: PostCardProps) {
           {/* Caption */}
           {post.caption && (
             <p className="text-sm text-(--text-primary) mt-3 leading-relaxed">
-              <span className="font-semibold mr-1.5">{post.authorId}</span>
+              {/* <span className="font-semibold mr-1.5">{post.authorId}</span> */}
               {post.caption}
             </p>
           )}

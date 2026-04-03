@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback } from "react";
 import type { Post, Comment } from "./posts.types";
-import { useAuth } from "@/features/auth/useAuth";
+import { useAuth } from "@/features/auth/AuthContext";
 
 interface Media {
   url: string;
@@ -19,7 +19,7 @@ interface PostContextType {
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
 
   const [posts, setPosts] = useState<Post[]>([
     {
@@ -27,67 +27,31 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       authorId: "demo-user",
       caption: "Welcome to Buzz 🚀",
       media: undefined,
-      likes: ["guest", "riya", "alex", "john"],
+      likes: ["demo-user", "riya", "alex", "john"],
       comments: [
         {
           id: "c1",
           authorId: "riya",
           text: "This looks cool!",
           reactions: [
-            {
-              emoji: "🔥",
-              users: ["guest", "riya"],
-            },
-            {
-              emoji: "😂",
-              users: ["demo-user"],
-            },
+            { emoji: "🔥", users: ["riya"] },
+            { emoji: "😂", users: ["demo-user"] },
           ],
           createdAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
         },
-        {
-          id: "c2",
-          authorId: "john",
-          text: "Waiting for more features 👀",
-          reactions: [
-            {
-              emoji: "👀",
-              users: ["guest"],
-            },
-          ],
-          createdAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
-        },
-        {
-          id: "c3",
-          authorId: "alex",
-          text: "Nice UI!",
-          reactions: [],
-          createdAt: new Date(Date.now() - 1000 * 60 * 40).toISOString(),
-        },
-        {
-          id: "c4",
-          authorId: "Pal",
-          text: "no way this is built in 2 weeks",
-          reactions: [
-            {
-              emoji: "🤣",
-              users: ["riya", "alex"],
-            },
-          ],
-          createdAt: new Date(Date.now() - 1000 * 60 * 40).toISOString(),
-        },
       ],
-      createdAt:  new Date(Date.now() - 1000 * 60 * 40).toISOString(),
+      createdAt: new Date(Date.now() - 1000 * 60 * 40).toISOString(),
     },
   ]);
 
+  // 🔹 Add Post
   const addPost = useCallback(
     (caption: string, media?: Media) => {
-      const authorId = user?.id ?? "guest";
+      if (!user || !profile) return;
 
       const newPost: Post = {
         id: crypto.randomUUID(),
-        authorId,
+        authorId: user.uid,
         caption,
         media,
         likes: [],
@@ -97,12 +61,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       setPosts((prev) => [newPost, ...prev]);
     },
-    [user],
+    [user, profile]
   );
 
+  // 🔹 Toggle Like
   const toggleLike = useCallback(
     (postId: string) => {
-      const userId = user?.id ?? "guest";
+      if (!user) return;
+      const userId = user.uid;
 
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
@@ -116,15 +82,17 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
               ? post.likes.filter((id) => id !== userId)
               : [...post.likes, userId],
           };
-        }),
+        })
       );
     },
-    [user],
+    [user]
   );
 
+  // 🔹 Like (one-way)
   const likePost = useCallback(
     (postId: string) => {
-      const userId = user?.id ?? "guest";
+      if (!user) return;
+      const userId = user.uid;
 
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
@@ -136,19 +104,20 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             ...post,
             likes: [...post.likes, userId],
           };
-        }),
+        })
       );
     },
-    [user],
+    [user]
   );
 
+  // 🔹 Add Comment
   const addComment = useCallback(
     (postId: string, text: string) => {
-      const authorId = user?.id ?? "guest";
+      if (!user || !profile) return;
 
       const newComment: Comment = {
         id: crypto.randomUUID(),
-        authorId,
+        authorId: user.uid,
         text,
         reactions: [],
         createdAt: new Date().toISOString(),
@@ -162,15 +131,17 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             ...post,
             comments: [...post.comments, newComment],
           };
-        }),
+        })
       );
     },
-    [user],
+    [user, profile]
   );
 
+  // 🔹 Toggle Reaction
   const toggleReaction = useCallback(
     (postId: string, commentId: string, emoji: string) => {
-      const userId = user?.id ?? "guest";
+      if (!user) return;
+      const userId = user.uid;
 
       setPosts((prevPosts) =>
         prevPosts.map((post) => {
@@ -182,28 +153,22 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
               if (comment.id !== commentId) return comment;
 
               const reactionIndex = comment.reactions.findIndex(
-                (r) => r.emoji === emoji,
+                (r) => r.emoji === emoji
               );
 
-              // Reaction already exists
               if (reactionIndex !== -1) {
                 const reaction = comment.reactions[reactionIndex];
                 const hasReacted = reaction.users.includes(userId);
 
-                let updatedUsers;
+                const updatedUsers = hasReacted
+                  ? reaction.users.filter((u) => u !== userId)
+                  : [...reaction.users, userId];
 
-                if (hasReacted) {
-                  updatedUsers = reaction.users.filter((u) => u !== userId);
-                } else {
-                  updatedUsers = [...reaction.users, userId];
-                }
-
-                // Remove reaction if no users left
                 if (updatedUsers.length === 0) {
                   return {
                     ...comment,
                     reactions: comment.reactions.filter(
-                      (r) => r.emoji !== emoji,
+                      (r) => r.emoji !== emoji
                     ),
                   };
                 }
@@ -211,22 +176,24 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
                 return {
                   ...comment,
                   reactions: comment.reactions.map((r) =>
-                    r.emoji === emoji ? { ...r, users: updatedUsers } : r,
+                    r.emoji === emoji ? { ...r, users: updatedUsers } : r
                   ),
                 };
               }
 
-              // Reaction doesn't exist yet
               return {
                 ...comment,
-                reactions: [...comment.reactions, { emoji, users: [userId] }],
+                reactions: [
+                  ...comment.reactions,
+                  { emoji, users: [userId] },
+                ],
               };
             }),
           };
-        }),
+        })
       );
     },
-    [user],
+    [user]
   );
 
   return (

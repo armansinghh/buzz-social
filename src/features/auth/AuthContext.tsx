@@ -9,8 +9,18 @@ import {
   logout as firebaseLogout,
 } from "./authService";
 
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+
+type UserProfile = {
+  username?: string;
+  name?: string;
+  avatar?: string;
+};
+
 type AuthContextType = {
   user: User | null;
+  profile: UserProfile | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
@@ -23,11 +33,24 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  
   // 🔥 This is the core (persistent auth)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
+
+      if (user) {
+        const ref = doc(db, "users", user.uid);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+          setProfile(snap.data() as UserProfile);
+        }
+      } else {
+        setProfile(null);
+      }
+
       setLoading(false);
     });
 
@@ -55,6 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        profile,
         loading,
         login,
         signup,
