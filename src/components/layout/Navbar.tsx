@@ -65,7 +65,7 @@ export default function Navbar() {
           </div>
         ) : (
           <Link
-            to="/login"
+            to="/Auth"
             className="px-4 py-1.5 text-sm rounded-lg bg-(--accent) text-(--bg-primary) hover:opacity-90 transition-opacity font-medium"
           >
             Login

@@ -1,47 +1,67 @@
-import { createContext, useContext, useState } from "react";
-
-type User = {
-  id: string;
-  name: string;
-  email: string;
-};
+import { createContext, useContext, useEffect, useState } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import type { User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import {
+  signInWithGoogle,
+  login as firebaseLogin,
+  signUp as firebaseSignup,
+  logout as firebaseLogout,
+} from "./authService";
 
 type AuthContextType = {
   user: User | null;
-  login: (email: string, password: string) => boolean;
-  logout: () => void;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  signup: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const PREDEFINED_USER = {
-  email: "testuser",
-  password: "123456",
-  name: "Buzz User",
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (email: string, password: string) => {
-    if (
-      email === PREDEFINED_USER.email &&
-      password === PREDEFINED_USER.password
-    ) {
-      setUser({
-        id: "1",
-        name: PREDEFINED_USER.name,
-        email,
-      });
-      return true;
-    }
-    return false;
+  // 🔥 This is the core (persistent auth)
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // 🔹 Wrap service functions (clean API)
+  const login = async (email: string, password: string) => {
+    await firebaseLogin(email, password);
   };
 
-  const logout = () => setUser(null);
+  const signup = async (email: string, password: string) => {
+    await firebaseSignup(email, password);
+  };
+
+  const loginWithGoogle = async () => {
+    await signInWithGoogle();
+  };
+
+  const logout = async () => {
+    await firebaseLogout();
+  };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        signup,
+        loginWithGoogle,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
