@@ -14,7 +14,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post }: PostCardProps) {
-    const { user, profile } = useAuth();
+  const { user, profile } = useAuth();
   const { toggleLike, likePost } = usePosts();
   const { openComments } = useUI();
 

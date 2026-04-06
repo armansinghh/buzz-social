@@ -13,7 +13,7 @@ import {
 import { useNotifications } from "@/features/notifications/NotificationContext";
 
 export default function LeftSidebar() {
-  const { user } = useAuth();
+    const { user, profile } = useAuth();
   const { openModal } = useUI();
   const { unreadCount } = useNotifications();
 
@@ -71,7 +71,7 @@ export default function LeftSidebar() {
 
       {user && (
         <NavLink
-          to={`/profile/${user.id}`}
+          to={`/profile/${profile?.username || "User"}`}
           className={navLinkClass}
         >
           <FontAwesomeIcon icon={faUser} className="w-4 h-4" />

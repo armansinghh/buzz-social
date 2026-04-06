@@ -12,7 +12,7 @@ import {
 import { useNotifications } from "@/features/notifications/NotificationContext";
 
 export default function BottomNav() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { openModal } = useUI();
   const { unreadCount } = useNotifications();
 
@@ -61,7 +61,7 @@ export default function BottomNav() {
       </button>
 
       {user ? (
-        <NavLink to={`/profile/${user.id}`} className={linkClass}>
+        <NavLink to={`/profile/${profile?.username || "User"}`} className={linkClass}>
           <FontAwesomeIcon icon={faUser} className="w-5 h-5" />
           <span>Profile</span>
         </NavLink>
