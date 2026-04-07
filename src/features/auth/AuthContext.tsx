@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, getRedirectResult } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import {
@@ -7,6 +7,7 @@ import {
   login as firebaseLogin,
   signUp as firebaseSignup,
   logout as firebaseLogout,
+  saveUser,
 } from "./authService";
 
 import { doc, getDoc } from "firebase/firestore";
@@ -15,7 +16,7 @@ import { db } from "@/lib/firebase";
 type UserProfile = {
   username?: string;
   name?: string;
-  avatar?: string;
+  photoURL?: string;
 };
 
 type AuthContextType = {
@@ -34,8 +35,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  
-  // 🔥 This is the core (persistent auth)
+
+  // Handle Google redirect result (prod only)
+  // Runs once on mount after returning from Google's sign-in redirect page
+  useEffect(() => {
+    if (import.meta.env.DEV) return; // popup handles it in dev
+
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (result?.user) {
+          await saveUser(result.user);
+        }
+      })
+      .catch((err) => {
+        console.error("Redirect sign-in error:", err);
+      });
+  }, []);
+
+  // Core persistent auth listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
@@ -45,7 +62,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const snap = await getDoc(ref);
 
         if (snap.exists()) {
-          setProfile(snap.data() as UserProfile);
+          const data = snap.data() as UserProfile;
+          setProfile({
+            ...data,
+            photoURL: data.photoURL ?? user.photoURL ?? "",
+          });
         }
       } else {
         setProfile(null);
@@ -57,7 +78,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  // 🔹 Wrap service functions (clean API)
   const login = async (email: string, password: string) => {
     await firebaseLogin(email, password);
   };
@@ -76,15 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{
-        user,
-        profile,
-        loading,
-        login,
-        signup,
-        loginWithGoogle,
-        logout,
-      }}
+      value={{ user, profile, loading, login, signup, loginWithGoogle, logout }}
     >
       {children}
     </AuthContext.Provider>

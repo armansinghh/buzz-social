@@ -71,11 +71,12 @@ export default function Navbar() {
         {user ? (
           <div className="flex items-center gap-3">
             <Avatar
-              name={profile?.username || user.email || "User"}
+              src={profile?.photoURL}
+              // name={profile?.name || "User Avatar"}
               size="sm"
             />
 
-            <span>{profile?.username || user.email || "User"}</span>
+            <span>{profile?.username}</span>
             <button
               onClick={handleLogout}
               className="px-3 py-1.5 text-sm rounded-lg border border-(--border-color) text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors font-medium"
