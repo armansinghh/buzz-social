@@ -1,14 +1,39 @@
+import { useAuth } from "@/features/auth/AuthContext";
+import Avatar from "@/components/ui/Avatar";
+
 export default function Profile() {
+  const { user, profile } = useAuth();
+
+  const displayName =
+    profile?.name || profile?.username || user?.email || "User";
+
+  const username =
+    profile?.username ||
+    displayName.toLowerCase().replace(/\s+/g, "");
+
+  const bio = "Building something cool 🚀"; // temporary
+
   return (
     <div className="flex flex-col gap-6">
       {/* Profile Header */}
       <div className="flex items-center gap-6">
-        <div className="w-20 h-20 rounded-full bg-[var(--bg-tertiary)]" />
-        
+        <Avatar
+          name={displayName}
+          src={profile?.photoURL}
+          size="lg"
+        />
+
         <div className="flex flex-col">
-          <h2 className="text-xl font-semibold">Username</h2>
+          <h2 className="text-xl font-semibold">
+            {displayName}
+          </h2>
+
           <p className="text-sm text-[var(--text-muted)]">
-            Bio goes here...
+            @{username}
+          </p>
+
+          <p className="text-sm mt-1 text-[var(--text-secondary)]">
+            {bio}
           </p>
         </div>
       </div>
@@ -38,7 +63,6 @@ export default function Profile() {
           Posts
         </h3>
 
-        {/* Placeholder for posts */}
         <div className="text-sm text-[var(--text-muted)]">
           No posts yet.
         </div>
