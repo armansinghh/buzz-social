@@ -18,6 +18,7 @@ type UserProfile = {
   username?: string;
   name?: string;
   avatar?: string;
+  photoURL?: string;
 };
 
 type AuthContextType = {
