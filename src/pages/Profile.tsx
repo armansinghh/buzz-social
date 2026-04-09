@@ -36,11 +36,11 @@ export default function Profile() {
             {displayName}
           </h2>
 
-          <p className="text-sm text-[var(--text-muted)]">
+          <p className="text-sm text-(--text-muted)">
             @{username}
           </p>
 
-          <p className="text-sm mt-1 text-[var(--text-secondary)] max-w-md">
+          <p className="text-sm mt-1 text-(--text-secondary) max-w-md">
             {bio}
           </p>
 
@@ -48,15 +48,15 @@ export default function Profile() {
           <div className="flex gap-5 mt-3 text-sm sm:hidden">
             <span>
               <span className="font-semibold">{userPosts.length}</span>{" "}
-              <span className="text-[var(--text-muted)]">Posts</span>
+              <span className="text-(--text-muted)">Posts</span>
             </span>
             <span>
               <span className="font-semibold">0</span>{" "}
-              <span className="text-[var(--text-muted)]">Followers</span>
+              <span className="text-(--text-muted)">Followers</span>
             </span>
             <span>
               <span className="font-semibold">0</span>{" "}
-              <span className="text-[var(--text-muted)]">Following</span>
+              <span className="text-(--text-muted)">Following</span>
             </span>
           </div>
         </div>
@@ -66,29 +66,29 @@ export default function Profile() {
       <div className="hidden sm:flex gap-8 text-sm mt-6">
         <div>
           <span className="font-semibold">{userPosts.length}</span>{" "}
-          <span className="text-[var(--text-muted)]">Posts</span>
+          <span className="text-(--text-muted)">Posts</span>
         </div>
         <div>
           <span className="font-semibold">0</span>{" "}
-          <span className="text-[var(--text-muted)]">Followers</span>
+          <span className="text-(--text-muted)">Followers</span>
         </div>
         <div>
           <span className="font-semibold">0</span>{" "}
-          <span className="text-[var(--text-muted)]">Following</span>
+          <span className="text-(--text-muted)">Following</span>
         </div>
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[var(--border-color)] mt-6" />
+      <div className="border-t border-(--border-color) mt-6" />
 
       {/* Posts */}
       <div className="flex flex-col gap-6 mt-6">
-        <h3 className="text-sm font-semibold text-[var(--text-muted)] tracking-wide">
+        <h3 className="text-sm font-semibold text-(--text-muted) tracking-wide">
           POSTS
         </h3>
 
         {userPosts.length === 0 ? (
-          <div className="text-sm text-[var(--text-muted)] text-center py-10">
+          <div className="text-sm text-(--text-muted) text-center py-10">
             No posts yet.
           </div>
         ) : (
