@@ -32,7 +32,7 @@ export default function ProtectedRoute({ children }: any) {
 
   // ⏳ still loading auth OR checking Firestore
   if (loading || checking) {
-    return <div>Loading...</div>;
+    return <div></div>;
   }
 
   // ❌ not logged in
