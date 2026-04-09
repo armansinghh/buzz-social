@@ -21,17 +21,18 @@ export default function Profile() {
   const userPosts = posts.filter((post) => post.authorId === userId);
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Profile Header */}
-      <div className="flex items-center gap-6">
+    <div className="flex flex-col">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
         <Avatar
           name={displayName}
           src={profile?.photoURL}
           size="lg"
+          className="self-start sm:self-auto"
         />
 
-        <div className="flex flex-col">
-          <h2 className="text-xl font-semibold">
+        <div className="flex flex-col gap-1">
+          <h2 className="text-xl sm:text-2xl font-semibold leading-tight">
             {displayName}
           </h2>
 
@@ -39,14 +40,30 @@ export default function Profile() {
             @{username}
           </p>
 
-          <p className="text-sm mt-1 text-[var(--text-secondary)]">
+          <p className="text-sm mt-1 text-[var(--text-secondary)] max-w-md">
             {bio}
           </p>
+
+          {/* Stats (mobile inline) */}
+          <div className="flex gap-5 mt-3 text-sm sm:hidden">
+            <span>
+              <span className="font-semibold">{userPosts.length}</span>{" "}
+              <span className="text-[var(--text-muted)]">Posts</span>
+            </span>
+            <span>
+              <span className="font-semibold">0</span>{" "}
+              <span className="text-[var(--text-muted)]">Followers</span>
+            </span>
+            <span>
+              <span className="font-semibold">0</span>{" "}
+              <span className="text-[var(--text-muted)]">Following</span>
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Stats Section */}
-      <div className="flex gap-6 text-sm">
+      {/* Stats (desktop) */}
+      <div className="hidden sm:flex gap-8 text-sm mt-6">
         <div>
           <span className="font-semibold">{userPosts.length}</span>{" "}
           <span className="text-[var(--text-muted)]">Posts</span>
@@ -62,16 +79,16 @@ export default function Profile() {
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[var(--border-color)]" />
+      <div className="border-t border-[var(--border-color)] mt-6" />
 
-      {/* Posts Section */}
-      <div className="flex flex-col gap-6">
-        <h3 className="text-sm font-semibold text-[var(--text-muted)]">
-          Posts
+      {/* Posts */}
+      <div className="flex flex-col gap-6 mt-6">
+        <h3 className="text-sm font-semibold text-[var(--text-muted)] tracking-wide">
+          POSTS
         </h3>
 
         {userPosts.length === 0 ? (
-          <div className="text-sm text-[var(--text-muted)]">
+          <div className="text-sm text-[var(--text-muted)] text-center py-10">
             No posts yet.
           </div>
         ) : (
