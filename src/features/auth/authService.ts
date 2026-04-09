@@ -1,8 +1,6 @@
 import {
   GoogleAuthProvider,
   signInWithPopup,
-  signInWithRedirect,
-  getRedirectResult,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
@@ -32,19 +30,6 @@ export const signInWithGoogle = async () => {
   const result = await signInWithPopup(auth, provider);
   await saveUser(result.user);
   return result.user;
-};
-
-export const signInWithGoogleRedirect = async () => {
-  await signInWithRedirect(auth, provider);
-};
-
-export const handleRedirectResult = async () => {
-  const result = await getRedirectResult(auth);
-  if (result?.user) {
-    await saveUser(result.user);
-    return result.user;
-  }
-  return null;
 };
 
 export const signUp = async (email: string, password: string) => {

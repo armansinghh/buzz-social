@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
 
 export default function AuthPage() {
-  const { login, signup, loginWithGoogle, loginWithGoogleRedirect } = useAuth();
+  const { login, signup, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -35,20 +35,14 @@ export default function AuthPage() {
     }
   };
 
-  const handleGoogle = async () => {
-    try {
-      if (import.meta.env.PROD) {
-        await loginWithGoogleRedirect();
-        // no navigate() here — Firebase redirects to Google
-        // then back to app, onAuthStateChanged handles the rest
-      } else {
-        await loginWithGoogle();
-        navigate("/");
-      }
-    } catch (err: any) {
-      setError("Google sign-in failed");
-    }
-  };
+const handleGoogle = async () => {
+  try {
+    await loginWithGoogle();
+    navigate("/");
+  } catch (err: any) {
+    setError("Google sign-in failed");
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-(--bg-secondary) px-4">

@@ -4,8 +4,6 @@ import type { User } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 import {
   signInWithGoogle,
-  signInWithGoogleRedirect,
-  handleRedirectResult,
   login as firebaseLogin,
   signUp as firebaseSignup,
   logout as firebaseLogout,
@@ -28,7 +26,6 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
-  loginWithGoogleRedirect: () => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -40,8 +37,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    handleRedirectResult().catch(console.error);
-
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
 
@@ -73,10 +68,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await signInWithGoogle();
   };
 
-  const loginWithGoogleRedirect = async () => {
-    await signInWithGoogleRedirect();
-  };
-
   const logout = async () => {
     await firebaseLogout();
   };
@@ -90,7 +81,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         signup,
         loginWithGoogle,
-        loginWithGoogleRedirect,
         logout,
       }}
     >
