@@ -1,6 +1,7 @@
 import { useAuth } from "@/features/auth/AuthContext";
 import { usePosts } from "@/features/posts/PostContext";
 import Avatar from "@/components/ui/Avatar";
+import PostCard from "@/features/posts/PostCard";
 
 export default function Profile() {
   const { user, profile } = useAuth();
@@ -17,7 +18,6 @@ export default function Profile() {
 
   const bio = "Building something cool 🚀";
 
-  // ✅ Filter user's posts
   const userPosts = posts.filter((post) => post.authorId === userId);
 
   return (
@@ -65,7 +65,7 @@ export default function Profile() {
       <div className="border-t border-[var(--border-color)]" />
 
       {/* Posts Section */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-6">
         <h3 className="text-sm font-semibold text-[var(--text-muted)]">
           Posts
         </h3>
@@ -75,9 +75,9 @@ export default function Profile() {
             No posts yet.
           </div>
         ) : (
-          <div className="text-sm text-[var(--text-muted)]">
-            {userPosts.length} post(s) found.
-          </div>
+          userPosts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))
         )}
       </div>
     </div>
