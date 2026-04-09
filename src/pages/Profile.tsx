@@ -1,8 +1,12 @@
 import { useAuth } from "@/features/auth/AuthContext";
+import { usePosts } from "@/features/posts/PostContext";
 import Avatar from "@/components/ui/Avatar";
 
 export default function Profile() {
   const { user, profile } = useAuth();
+  const { posts } = usePosts();
+
+  const userId = user?.uid || "guest";
 
   const displayName =
     profile?.name || profile?.username || user?.email || "User";
@@ -11,7 +15,10 @@ export default function Profile() {
     profile?.username ||
     displayName.toLowerCase().replace(/\s+/g, "");
 
-  const bio = "Building something cool 🚀"; // temporary
+  const bio = "Building something cool 🚀";
+
+  // ✅ Filter user's posts
+  const userPosts = posts.filter((post) => post.authorId === userId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -41,7 +48,7 @@ export default function Profile() {
       {/* Stats Section */}
       <div className="flex gap-6 text-sm">
         <div>
-          <span className="font-semibold">0</span>{" "}
+          <span className="font-semibold">{userPosts.length}</span>{" "}
           <span className="text-[var(--text-muted)]">Posts</span>
         </div>
         <div>
@@ -63,9 +70,15 @@ export default function Profile() {
           Posts
         </h3>
 
-        <div className="text-sm text-[var(--text-muted)]">
-          No posts yet.
-        </div>
+        {userPosts.length === 0 ? (
+          <div className="text-sm text-[var(--text-muted)]">
+            No posts yet.
+          </div>
+        ) : (
+          <div className="text-sm text-[var(--text-muted)]">
+            {userPosts.length} post(s) found.
+          </div>
+        )}
       </div>
     </div>
   );
