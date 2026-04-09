@@ -37,19 +37,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
 
   // Handle Google redirect result (prod only)
-  // Runs once on mount after returning from Google's sign-in redirect page
   useEffect(() => {
-    if (import.meta.env.DEV) return; // popup handles it in dev
+    if (import.meta.env.DEV) return;
 
-    getRedirectResult(auth)
-      .then(async (result) => {
+    const handleRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+
         if (result?.user) {
           await saveUser(result.user);
+
+          // redirect to home after successful login
+          window.location.replace("/");
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         console.error("Redirect sign-in error:", err);
-      });
+      }
+    };
+
+    handleRedirect();
   }, []);
 
   // Core persistent auth listener
