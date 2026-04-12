@@ -19,10 +19,19 @@ type ViewedProfile = {
 
 export default function Profile() {
   const { id } = useParams();
-  const { user } = useAuth();
+
+  const {
+    user,
+    followUser,
+    unfollowUser,
+    isFollowing,
+  } = useAuth();
+
   const { posts } = usePosts();
 
-  const [viewedProfile, setViewedProfile] = useState<ViewedProfile | null>(null);
+  const [viewedProfile, setViewedProfile] =
+    useState<ViewedProfile | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   const isOwnProfile = user?.uid === id;
@@ -51,6 +60,20 @@ export default function Profile() {
 
     fetchProfile();
   }, [id]);
+
+  const handleFollowToggle = async () => {
+    if (!id) return;
+
+    try {
+      if (isFollowing(id)) {
+        await unfollowUser(id);
+      } else {
+        await followUser(id);
+      }
+    } catch (err) {
+      console.error("Follow toggle failed:", err);
+    }
+  };
 
   const displayName =
     viewedProfile?.name ||
@@ -83,11 +106,10 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
         <Avatar
           name={displayName}
-          src={viewedProfile?.photoURL}
+          src={viewedProfile.photoURL}
           size="lg"
           className="self-start sm:self-auto"
         />
@@ -106,12 +128,18 @@ export default function Profile() {
           </p>
 
           {!isOwnProfile && (
-            <button className="mt-3 px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition">
-              Follow
+            <button
+              onClick={handleFollowToggle}
+              className={`mt-3 px-4 py-2 rounded-lg text-sm font-medium transition ${
+                isFollowing(id!)
+                  ? "bg-(--bg-tertiary) text-(--text-primary)"
+                  : "bg-blue-500 text-white hover:bg-blue-600"
+              }`}
+            >
+              {isFollowing(id!) ? "Following" : "Follow"}
             </button>
           )}
 
-          {/* Mobile Stats */}
           <div className="flex gap-5 mt-3 text-sm sm:hidden">
             <span>
               <span className="font-semibold">{userPosts.length}</span>{" "}
@@ -133,7 +161,6 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Desktop Stats */}
       <div className="hidden sm:flex gap-8 text-sm mt-6">
         <div>
           <span className="font-semibold">{userPosts.length}</span>{" "}
@@ -153,10 +180,8 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* Divider */}
       <div className="border-t border-(--border-color) mt-6" />
 
-      {/* Posts */}
       <div className="flex flex-col gap-6 mt-6">
         <h3 className="text-sm font-semibold text-(--text-muted) tracking-wide">
           POSTS
