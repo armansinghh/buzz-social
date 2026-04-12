@@ -24,7 +24,7 @@ export default function PostCard({ post }: PostCardProps) {
   const clickTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const likeCount = post.likes.length;
-  const isLiked = user ? post.likes.includes(profile?.username || "") : false;
+  const isLiked = user ? post.likes.includes(user.uid) : false;
 
   const triggerHeart = () => {
     setShowHeart(true);

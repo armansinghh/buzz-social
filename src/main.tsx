@@ -6,6 +6,7 @@ import { UIProvider } from "@/features/ui/UIContext";
 import { NotificationProvider } from "@/features/notifications/NotificationContext";
 import { PostProvider } from "@/features/posts/PostContext";
 import { ToastProvider } from "@/features/ui/ToastContext";
+import { FollowProvider } from "@/features/follow/FollowContext";
 import "@/index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -15,7 +16,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <ToastProvider>
           <NotificationProvider>
             <PostProvider>
-              <App />
+              <FollowProvider>
+                <App />
+              </FollowProvider>
             </PostProvider>
           </NotificationProvider>
         </ToastProvider>

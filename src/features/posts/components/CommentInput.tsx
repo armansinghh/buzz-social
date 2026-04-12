@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { usePosts } from "@/features/posts/PostContext";
-import { useAuth } from "@/features/auth/useAuth";
+import { useAuth } from "@/features/auth/AuthContext";
 import Avatar from "@/components/ui/Avatar";
 
 interface CommentInputProps {
@@ -21,7 +21,7 @@ export default function CommentInput({ postId }: CommentInputProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <Avatar name={user?.id ?? "guest"} size="xs" />
+      <Avatar name={user?.uid ?? "guest"} size="xs" />
       <input
         type="text"
         placeholder="Add a comment…"

@@ -2,7 +2,7 @@ import { useRef } from "react";
 import type { Comment } from "@/features/posts/posts.types";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { usePosts } from "@/features/posts/PostContext";
-import { useAuth } from "@/features/auth/useAuth";
+import { useAuth } from "@/features/auth/AuthContext";
 import { useUI } from "@/features/ui/UIContext";
 import Avatar from "@/components/ui/Avatar";
 
@@ -18,7 +18,7 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
 
   const buttonRef = useRef<HTMLButtonElement | null>(null);
 
-  const userId = user?.id ?? "guest";
+  const userId = user?.uid ?? "guest";
 
   const handleOpenPicker = () => {
     if (!buttonRef.current) return;
