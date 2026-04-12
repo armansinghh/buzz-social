@@ -1,24 +1,85 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { doc, getDoc } from "firebase/firestore";
+
+import { db } from "@/lib/firebase";
 import { useAuth } from "@/features/auth/AuthContext";
 import { usePosts } from "@/features/posts/PostContext";
+
 import Avatar from "@/components/ui/Avatar";
 import PostCard from "@/features/posts/PostCard";
 
+type ViewedProfile = {
+  username?: string;
+  name?: string;
+  photoURL?: string;
+  followers?: string[];
+  following?: string[];
+};
+
 export default function Profile() {
-  const { user, profile } = useAuth();
+  const { id } = useParams();
+  const { user } = useAuth();
   const { posts } = usePosts();
 
-  const userId = user?.uid || "guest";
+  const [viewedProfile, setViewedProfile] = useState<ViewedProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const isOwnProfile = user?.uid === id;
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!id) return;
+
+      setLoading(true);
+
+      try {
+        const ref = doc(db, "users", id);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+          setViewedProfile(snap.data() as ViewedProfile);
+        } else {
+          setViewedProfile(null);
+        }
+      } catch (err) {
+        console.error("Failed to fetch profile:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [id]);
 
   const displayName =
-    profile?.name || profile?.username || user?.email || "User";
+    viewedProfile?.name ||
+    viewedProfile?.username ||
+    "User";
 
   const username =
-    profile?.username ||
+    viewedProfile?.username ||
     displayName.toLowerCase().replace(/\s+/g, "");
 
   const bio = "Building something cool 🚀";
 
-  const userPosts = posts.filter((post) => post.authorId === userId);
+  const userPosts = posts.filter((post) => post.authorId === id);
+
+  if (loading) {
+    return (
+      <div className="text-center py-10 text-(--text-muted)">
+        Loading profile...
+      </div>
+    );
+  }
+
+  if (!viewedProfile) {
+    return (
+      <div className="text-center py-10 text-(--text-muted)">
+        User not found.
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col">
@@ -26,7 +87,7 @@ export default function Profile() {
       <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
         <Avatar
           name={displayName}
-          src={profile?.photoURL}
+          src={viewedProfile?.photoURL}
           size="lg"
           className="self-start sm:self-auto"
         />
@@ -44,36 +105,50 @@ export default function Profile() {
             {bio}
           </p>
 
-          {/* Stats (mobile inline) */}
+          {!isOwnProfile && (
+            <button className="mt-3 px-4 py-2 rounded-lg bg-blue-500 text-white text-sm font-medium hover:bg-blue-600 transition">
+              Follow
+            </button>
+          )}
+
+          {/* Mobile Stats */}
           <div className="flex gap-5 mt-3 text-sm sm:hidden">
             <span>
               <span className="font-semibold">{userPosts.length}</span>{" "}
               <span className="text-(--text-muted)">Posts</span>
             </span>
             <span>
-              <span className="font-semibold">0</span>{" "}
+              <span className="font-semibold">
+                {viewedProfile.followers?.length ?? 0}
+              </span>{" "}
               <span className="text-(--text-muted)">Followers</span>
             </span>
             <span>
-              <span className="font-semibold">0</span>{" "}
+              <span className="font-semibold">
+                {viewedProfile.following?.length ?? 0}
+              </span>{" "}
               <span className="text-(--text-muted)">Following</span>
             </span>
           </div>
         </div>
       </div>
 
-      {/* Stats (desktop) */}
+      {/* Desktop Stats */}
       <div className="hidden sm:flex gap-8 text-sm mt-6">
         <div>
           <span className="font-semibold">{userPosts.length}</span>{" "}
           <span className="text-(--text-muted)">Posts</span>
         </div>
         <div>
-          <span className="font-semibold">0</span>{" "}
+          <span className="font-semibold">
+            {viewedProfile.followers?.length ?? 0}
+          </span>{" "}
           <span className="text-(--text-muted)">Followers</span>
         </div>
         <div>
-          <span className="font-semibold">0</span>{" "}
+          <span className="font-semibold">
+            {viewedProfile.following?.length ?? 0}
+          </span>{" "}
           <span className="text-(--text-muted)">Following</span>
         </div>
       </div>
