@@ -20,17 +20,13 @@ type ViewedProfile = {
 export default function Profile() {
   const { id } = useParams();
 
-  const {
-    user,
-    followUser,
-    unfollowUser,
-    isFollowing,
-  } = useAuth();
+  const { user, followUser, unfollowUser, isFollowing } = useAuth();
 
   const { posts } = usePosts();
 
-  const [viewedProfile, setViewedProfile] =
-    useState<ViewedProfile | null>(null);
+  const [viewedProfile, setViewedProfile] = useState<ViewedProfile | null>(
+    null,
+  );
 
   const [loading, setLoading] = useState(true);
 
@@ -62,27 +58,44 @@ export default function Profile() {
   }, [id]);
 
   const handleFollowToggle = async () => {
-    if (!id) return;
+    if (!id || !user || !viewedProfile) return;
 
     try {
       if (isFollowing(id)) {
         await unfollowUser(id);
+
+        setViewedProfile((prev) =>
+          prev
+            ? {
+                ...prev,
+                followers:
+                  prev.followers?.filter(
+                    (followerId) => followerId !== user.uid,
+                  ) ?? [],
+              }
+            : prev,
+        );
       } else {
         await followUser(id);
+
+        setViewedProfile((prev) =>
+          prev
+            ? {
+                ...prev,
+                followers: [...(prev.followers ?? []), user.uid],
+              }
+            : prev,
+        );
       }
     } catch (err) {
       console.error("Follow toggle failed:", err);
     }
   };
 
-  const displayName =
-    viewedProfile?.name ||
-    viewedProfile?.username ||
-    "User";
+  const displayName = viewedProfile?.name || viewedProfile?.username || "User";
 
   const username =
-    viewedProfile?.username ||
-    displayName.toLowerCase().replace(/\s+/g, "");
+    viewedProfile?.username || displayName.toLowerCase().replace(/\s+/g, "");
 
   const bio = "Building something cool 🚀";
 
@@ -119,13 +132,9 @@ export default function Profile() {
             {displayName}
           </h2>
 
-          <p className="text-sm text-(--text-muted)">
-            @{username}
-          </p>
+          <p className="text-sm text-(--text-muted)">@{username}</p>
 
-          <p className="text-sm mt-1 text-(--text-secondary) max-w-md">
-            {bio}
-          </p>
+          <p className="text-sm mt-1 text-(--text-secondary) max-w-md">{bio}</p>
 
           {!isOwnProfile && (
             <button
@@ -192,9 +201,7 @@ export default function Profile() {
             No posts yet.
           </div>
         ) : (
-          userPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))
+          userPosts.map((post) => <PostCard key={post.id} post={post} />)
         )}
       </div>
     </div>
