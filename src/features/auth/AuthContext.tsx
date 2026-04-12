@@ -17,12 +17,17 @@ type UserProfile = {
   name?: string;
   avatar?: string;
   photoURL?: string;
+
+  // ✅ Follow system
+  followers?: string[];
+  following?: string[];
 };
 
 type AuthContextType = {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
+
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -43,8 +48,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (firebaseUser) {
         const ref = doc(db, "users", firebaseUser.uid);
         const snap = await getDoc(ref);
+
         if (snap.exists()) {
-          setProfile(snap.data() as UserProfile);
+          const data = snap.data() as UserProfile;
+
+          // Ensure arrays always exist
+          setProfile({
+            ...data,
+            followers: data.followers ?? [],
+            following: data.following ?? [],
+          });
         }
       } else {
         setProfile(null);
@@ -91,8 +104,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
+
   if (!ctx) {
     throw new Error("useAuth must be used inside AuthProvider");
   }
+
   return ctx;
 }
