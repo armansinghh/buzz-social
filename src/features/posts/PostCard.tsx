@@ -68,9 +68,9 @@ export default function PostCard({ post }: PostCardProps) {
           {/* Options button */}
           <button className="w-8 h-8 flex items-center justify-center rounded-lg text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="5" r="1.5"/>
-              <circle cx="12" cy="12" r="1.5"/>
-              <circle cx="12" cy="19" r="1.5"/>
+              <circle cx="12" cy="5" r="1.5" />
+              <circle cx="12" cy="12" r="1.5" />
+              <circle cx="12" cy="19" r="1.5" />
             </svg>
           </button>
         </div>
@@ -115,12 +115,14 @@ export default function PostCard({ post }: PostCardProps) {
             <button
               onClick={(e) => {
                 e.stopPropagation();
+                if (!isLiked) triggerHeart(); // only burst when liking, not unliking
                 toggleLike(post.id);
               }}
               className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium transition-all
-                ${isLiked
-                  ? "text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
-                  : "text-(--text-secondary) hover:bg-(--bg-tertiary)"
+                ${
+                  isLiked
+                    ? "text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                    : "text-(--text-secondary) hover:bg-(--bg-tertiary)"
                 }`}
             >
               <svg
@@ -145,7 +147,16 @@ export default function PostCard({ post }: PostCardProps) {
               }}
               className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               </svg>
               <span>{post.comments.length}</span>
@@ -154,7 +165,10 @@ export default function PostCard({ post }: PostCardProps) {
 
           {/* Latest comment */}
           {post.comments.length > 0 && (
-            <div className="mt-2 space-y-1.5" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="mt-2 space-y-1.5"
+              onClick={(e) => e.stopPropagation()}
+            >
               <CommentItem
                 comment={post.comments[post.comments.length - 1]}
                 postId={post.id}
@@ -185,7 +199,9 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Heart burst overlay */}
         {showHeart && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="text-7xl animate-heart-burst drop-shadow-lg">❤️</span>
+            <span className="text-7xl animate-heart-burst drop-shadow-lg">
+              ❤️
+            </span>
           </div>
         )}
       </article>

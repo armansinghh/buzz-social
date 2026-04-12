@@ -51,7 +51,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       const newPost: Post = {
         id: crypto.randomUUID(),
-        authorId: user.uid,
+        authorId: profile.username ?? user.uid,
         caption,
         media,
         likes: [],
@@ -117,7 +117,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       const newComment: Comment = {
         id: crypto.randomUUID(),
-        authorId: user.uid,
+        authorId: profile.username ?? user.uid,
         text,
         reactions: [],
         createdAt: new Date().toISOString(),

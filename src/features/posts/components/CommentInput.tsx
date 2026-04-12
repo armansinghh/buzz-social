@@ -9,7 +9,7 @@ interface CommentInputProps {
 
 export default function CommentInput({ postId }: CommentInputProps) {
   const { addComment } = usePosts();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [text, setText] = useState("");
 
   const handleSubmit = () => {
@@ -21,7 +21,7 @@ export default function CommentInput({ postId }: CommentInputProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <Avatar name={user?.uid ?? "guest"} size="xs" />
+      <Avatar name={profile?.username ?? "guest"} size="xs" />
       <input
         type="text"
         placeholder="Add a comment…"
