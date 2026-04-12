@@ -9,7 +9,7 @@ interface CommentInputProps {
 
 export default function CommentInput({ postId }: CommentInputProps) {
   const { addComment } = usePosts();
-  const { user, profile } = useAuth();
+  const { profile } = useAuth();
   const [text, setText] = useState("");
 
   const handleSubmit = () => {

@@ -21,8 +21,6 @@ export default function PostCard({ post }: PostCardProps) {
   const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [showHeart, setShowHeart] = useState(false);
 
-  const clickTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-
   const likeCount = post.likes.length;
   const isLiked = user ? post.likes.includes(user.uid) : false;
 
@@ -31,18 +29,21 @@ export default function PostCard({ post }: PostCardProps) {
     setTimeout(() => setShowHeart(false), 700);
   };
 
+  const clickTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clickCount = useRef(0);
   const handleCardClick = () => {
-    if (!post.media) return;
-    if (clickTimeout.current) {
-      clearTimeout(clickTimeout.current);
-      clickTimeout.current = null;
+    clickCount.current += 1;
+
+    if (clickCount.current === 1) {
+      clickTimeout.current = setTimeout(() => {
+        clickCount.current = 0;
+        setIsViewerOpen(true);
+      }, 250);
+    } else if (clickCount.current === 2) {
+      clearTimeout(clickTimeout.current!);
+      clickCount.current = 0;
       triggerHeart();
       likePost(post.id);
-    } else {
-      clickTimeout.current = setTimeout(() => {
-        setIsViewerOpen(true);
-        clickTimeout.current = null;
-      }, 250);
     }
   };
 
@@ -104,8 +105,13 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="px-4 pb-4">
           {/* Caption */}
           {post.caption && (
-            <p className="text-sm text-(--text-primary) mt-3 leading-relaxed">
-              {/* <span className="font-semibold mr-1.5">{post.authorId}</span> */}
+            <p
+              className="text-sm text-(--text-primary) mt-3 leading-relaxed cursor-pointer"
+              onDoubleClick={() => {
+                triggerHeart();
+                likePost(post.id);
+              }}
+            >
               {post.caption}
             </p>
           )}
