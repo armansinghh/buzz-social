@@ -1,7 +1,10 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
+
 import { auth } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
+
 import {
   signInWithGoogle,
   login as firebaseLogin,
@@ -9,8 +12,13 @@ import {
   logout as firebaseLogout,
 } from "./authService";
 
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore";
 
 type UserProfile = {
   username?: string;
@@ -18,7 +26,6 @@ type UserProfile = {
   avatar?: string;
   photoURL?: string;
 
-  // ✅ Follow system
   followers?: string[];
   following?: string[];
 };
@@ -32,6 +39,10 @@ type AuthContextType = {
   signup: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
+
+  followUser: (targetUserId: string) => Promise<void>;
+  unfollowUser: (targetUserId: string) => Promise<void>;
+  isFollowing: (targetUserId: string) => boolean;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -52,7 +63,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (snap.exists()) {
           const data = snap.data() as UserProfile;
 
-          // Ensure arrays always exist
           setProfile({
             ...data,
             followers: data.followers ?? [],
@@ -85,6 +95,59 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await firebaseLogout();
   };
 
+  const followUser = async (targetUserId: string) => {
+    if (!user || user.uid === targetUserId) return;
+
+    const currentUserRef = doc(db, "users", user.uid);
+    const targetUserRef = doc(db, "users", targetUserId);
+
+    await updateDoc(currentUserRef, {
+      following: arrayUnion(targetUserId),
+    });
+
+    await updateDoc(targetUserRef, {
+      followers: arrayUnion(user.uid),
+    });
+
+    setProfile((prev) =>
+      prev
+        ? {
+            ...prev,
+            following: [...(prev.following ?? []), targetUserId],
+          }
+        : prev
+    );
+  };
+
+  const unfollowUser = async (targetUserId: string) => {
+    if (!user) return;
+
+    const currentUserRef = doc(db, "users", user.uid);
+    const targetUserRef = doc(db, "users", targetUserId);
+
+    await updateDoc(currentUserRef, {
+      following: arrayRemove(targetUserId),
+    });
+
+    await updateDoc(targetUserRef, {
+      followers: arrayRemove(user.uid),
+    });
+
+    setProfile((prev) =>
+      prev
+        ? {
+            ...prev,
+            following:
+              prev.following?.filter((id) => id !== targetUserId) ?? [],
+          }
+        : prev
+    );
+  };
+
+  const isFollowing = (targetUserId: string) => {
+    return profile?.following?.includes(targetUserId) ?? false;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -95,6 +158,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         signup,
         loginWithGoogle,
         logout,
+        followUser,
+        unfollowUser,
+        isFollowing,
       }}
     >
       {children}
