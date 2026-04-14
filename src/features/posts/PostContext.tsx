@@ -72,11 +72,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         id: "",
         authorId: user.uid,
         caption,
-        media: media || undefined,
         likes: [],
         comments: [],
         createdAt: new Date().toISOString(),
       };
+
+      if (media) {
+        newPost.media = media;
+      }
       try {
         const docRef = await addDoc(collection(db, "posts"), newPost);
 
