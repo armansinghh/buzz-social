@@ -12,6 +12,10 @@ import {
   getDocs,
   orderBy,
   query,
+  doc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
@@ -49,10 +53,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
         const snapshot = await getDocs(q);
 
-        const fetchedPosts = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Post[];
+        const fetchedPosts = snapshot.docs.map((docSnap) => ({
+          ...(docSnap.data() as Omit<Post, "id">),
+          id: docSnap.id,
+        }));
 
         setPosts(fetchedPosts);
       } catch (err) {
@@ -97,9 +101,79 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     [user, profile],
   );
 
-  const toggleLike = useCallback((postId: string) => {}, []);
+  const toggleLike = useCallback(
+    async (postId: string) => {
+      if (!user) return;
 
-  const likePost = useCallback((postId: string) => {}, []);
+      const userId = user.uid;
+
+      const targetPost = posts.find((post) => post.id === postId);
+
+      if (!targetPost) return;
+
+      const postRef = doc(db, "posts", postId);
+
+      const isLiked = targetPost.likes.includes(userId);
+
+      try {
+        await updateDoc(postRef, {
+          likes: isLiked ? arrayRemove(userId) : arrayUnion(userId),
+        });
+
+        setPosts((prev) =>
+          prev.map((post) => {
+            if (post.id !== postId) return post;
+
+            return {
+              ...post,
+              likes: isLiked
+                ? post.likes.filter((id) => id !== userId)
+                : [...post.likes, userId],
+            };
+          }),
+        );
+      } catch (err) {
+        console.error("Failed to toggle like:", err);
+      }
+    },
+    [user, posts],
+  );
+
+  const likePost = useCallback(
+    async (postId: string) => {
+      if (!user) return;
+
+      const userId = user.uid;
+
+      const targetPost = posts.find((post) => post.id === postId);
+
+      if (!targetPost) return;
+
+      if (targetPost.likes.includes(userId)) return;
+
+      const postRef = doc(db, "posts", postId);
+
+      try {
+        await updateDoc(postRef, {
+          likes: arrayUnion(userId),
+        });
+
+        setPosts((prev) =>
+          prev.map((post) => {
+            if (post.id !== postId) return post;
+
+            return {
+              ...post,
+              likes: [...post.likes, userId],
+            };
+          }),
+        );
+      } catch (err) {
+        console.error("Failed to like post:", err);
+      }
+    },
+    [user, posts],
+  );
 
   const addComment = useCallback((postId: string, text: string) => {}, []);
 
