@@ -57,13 +57,13 @@ export default function PostCard({ post }: PostCardProps) {
         <div className="flex items-center justify-between px-4 pt-4 pb-3">
           <div className="flex items-center gap-2.5">
             <Avatar
-              name={post.authorName || "User"}
+              name={post.authorUsername || "User"}
               src={post.authorPhoto}
               size="sm"
             />
             <div>
               <p className="text-sm font-semibold text-(--text-primary) leading-tight">
-                {post.authorName || "User"}
+                {post.authorUsername || "User"}
               </p>
               <p className="text-xs text-(--text-muted)">
                 {formatRelativeTime(post.createdAt)}
