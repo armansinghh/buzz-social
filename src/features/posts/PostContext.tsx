@@ -53,10 +53,17 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
         const snapshot = await getDocs(q);
 
-        const fetchedPosts = snapshot.docs.map((docSnap) => ({
-          ...(docSnap.data() as Omit<Post, "id">),
-          id: docSnap.id,
-        }));
+        const fetchedPosts = snapshot.docs.map((docSnap) => {
+          const data = docSnap.data() as Omit<Post, "id">;
+
+          return {
+            ...data,
+            id: docSnap.id,
+
+            authorName: data.authorName || "User",
+            authorPhoto: data.authorPhoto || undefined,
+          };
+        });
 
         setPosts(fetchedPosts);
       } catch (err) {

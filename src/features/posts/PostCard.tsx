@@ -56,11 +56,14 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-3">
           <div className="flex items-center gap-2.5">
-            <Avatar name={post.authorName} src={post.authorPhoto} size="sm" />
-
+            <Avatar
+              name={post.authorName || "User"}
+              src={post.authorPhoto}
+              size="sm"
+            />
             <div>
               <p className="text-sm font-semibold text-(--text-primary) leading-tight">
-                {post.authorName}
+                {post.authorName || "User"}
               </p>
               <p className="text-xs text-(--text-muted)">
                 {formatRelativeTime(post.createdAt)}
