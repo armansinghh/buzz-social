@@ -59,7 +59,6 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
           return {
             ...data,
             id: docSnap.id,
-
             authorName: data.authorName || "User",
             authorPhoto: data.authorPhoto || undefined,
           };
@@ -74,20 +73,33 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     fetchPosts();
   }, []);
 
-  // ADD POST
+  // ADD POST — fixed: don't gate on profile, fall back gracefully
   const addPost = useCallback(
     async (caption: string, media?: Media) => {
-      if (!user || !profile) return;
+      if (!user) {
+        console.warn("addPost: no user");
+        return;
+      }
+
+      // Build display name from whatever is available
+      const authorName =
+        profile?.name ||
+        profile?.username ||
+        user.displayName ||
+        "User";
+
+      // Support both photoURL (Google) and avatar (custom upload)
+      const authorPhoto =
+        profile?.photoURL ||
+        profile?.avatar ||
+        user.photoURL ||
+        undefined;
 
       const newPost: Omit<Post, "id"> = {
         authorId: user.uid,
-
-        authorName: profile.name || profile.username || "User",
-
-        authorPhoto: profile.photoURL || undefined,
-
+        authorName,
+        authorPhoto: authorPhoto ?? undefined,
         caption,
-
         likes: [],
         comments: [],
         createdAt: new Date().toISOString(),
@@ -96,6 +108,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       if (media) {
         newPost.media = media;
       }
+
       try {
         const docRef = await addDoc(collection(db, "posts"), newPost);
 
@@ -108,6 +121,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         ]);
       } catch (err) {
         console.error("Failed to save post:", err);
+        throw err; // re-throw so CreatePostModal can catch it
       }
     },
     [user, profile],
@@ -118,13 +132,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       if (!user) return;
 
       const userId = user.uid;
-
       const targetPost = posts.find((post) => post.id === postId);
-
       if (!targetPost) return;
 
       const postRef = doc(db, "posts", postId);
-
       const isLiked = targetPost.likes.includes(userId);
 
       try {
@@ -135,7 +146,6 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         setPosts((prev) =>
           prev.map((post) => {
             if (post.id !== postId) return post;
-
             return {
               ...post,
               likes: isLiked
@@ -156,11 +166,8 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       if (!user) return;
 
       const userId = user.uid;
-
       const targetPost = posts.find((post) => post.id === postId);
-
       if (!targetPost) return;
-
       if (targetPost.likes.includes(userId)) return;
 
       const postRef = doc(db, "posts", postId);
@@ -173,7 +180,6 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         setPosts((prev) =>
           prev.map((post) => {
             if (post.id !== postId) return post;
-
             return {
               ...post,
               likes: [...post.likes, userId],
@@ -189,15 +195,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
   const addComment = useCallback(
     async (postId: string, text: string) => {
-      if (!user || !profile) return;
+      if (!user) return;
 
       const targetPost = posts.find((post) => post.id === postId);
-
       if (!targetPost) return;
 
       const newComment: Comment = {
         id: crypto.randomUUID(),
-        authorId: profile.username ?? user.uid,
+        authorId: profile?.username ?? user.uid,
         text,
         reactions: [],
         createdAt: new Date().toISOString(),
@@ -207,19 +212,12 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       try {
         const postRef = doc(db, "posts", postId);
-
-        await updateDoc(postRef, {
-          comments: updatedComments,
-        });
+        await updateDoc(postRef, { comments: updatedComments });
 
         setPosts((prev) =>
           prev.map((post) => {
             if (post.id !== postId) return post;
-
-            return {
-              ...post,
-              comments: updatedComments,
-            };
+            return { ...post, comments: updatedComments };
           }),
         );
       } catch (err) {
@@ -228,14 +226,13 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     },
     [user, profile, posts],
   );
+
   const toggleReaction = useCallback(
     async (postId: string, commentId: string, emoji: string) => {
       if (!user) return;
 
       const userId = user.uid;
-
       const targetPost = posts.find((post) => post.id === postId);
-
       if (!targetPost) return;
 
       const updatedComments = targetPost.comments.map((comment) => {
@@ -247,9 +244,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
         if (reactionIndex !== -1) {
           const reaction = comment.reactions[reactionIndex];
-
           const hasReacted = reaction.users.includes(userId);
-
           const updatedUsers = hasReacted
             ? reaction.users.filter((u) => u !== userId)
             : [...reaction.users, userId];
@@ -264,12 +259,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
           return {
             ...comment,
             reactions: comment.reactions.map((r) =>
-              r.emoji === emoji
-                ? {
-                    ...r,
-                    users: updatedUsers,
-                  }
-                : r,
+              r.emoji === emoji ? { ...r, users: updatedUsers } : r,
             ),
           };
         }
@@ -278,29 +268,19 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
           ...comment,
           reactions: [
             ...comment.reactions,
-            {
-              emoji,
-              users: [userId],
-            },
+            { emoji, users: [userId] },
           ],
         };
       });
 
       try {
         const postRef = doc(db, "posts", postId);
-
-        await updateDoc(postRef, {
-          comments: updatedComments,
-        });
+        await updateDoc(postRef, { comments: updatedComments });
 
         setPosts((prev) =>
           prev.map((post) => {
             if (post.id !== postId) return post;
-
-            return {
-              ...post,
-              comments: updatedComments,
-            };
+            return { ...post, comments: updatedComments };
           }),
         );
       } catch (err) {
