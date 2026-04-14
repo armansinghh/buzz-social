@@ -1,30 +1,75 @@
+import { useState } from "react";
+
 import PostCard from "@/features/posts/PostCard";
 import { usePosts } from "@/features/posts/PostContext";
 import { useAuth } from "@/features/auth/AuthContext";
+import { useFollow } from "@/features/follow/FollowContext";
+
+type FeedTab = "feed" | "following";
 
 export default function Home() {
   const { posts } = usePosts();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
+  const { following } = useFollow();
+
+  const [activeTab, setActiveTab] =
+    useState<FeedTab>("feed");
 
   const currentUserId = user?.uid;
 
-  const followingIds = profile?.following ?? [];
-
-  const personalizedPosts = posts.filter(
+  const followingPosts = posts.filter(
     (post) =>
       post.authorId === currentUserId ||
-      followingIds.includes(post.authorId)
+      following.includes(post.authorId)
   );
+
+  const displayedPosts =
+    activeTab === "feed"
+      ? posts
+      : followingPosts;
 
   return (
     <div className="space-y-6">
-      {personalizedPosts.length === 0 ? (
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-(--border-color)">
+        <button
+          onClick={() => setActiveTab("feed")}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
+            activeTab === "feed"
+              ? "border-blue-500 text-(--text-primary)"
+              : "border-transparent text-(--text-muted)"
+          }`}
+        >
+          Feed
+        </button>
+
+        <button
+          onClick={() =>
+            setActiveTab("following")
+          }
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
+            activeTab === "following"
+              ? "border-blue-500 text-(--text-primary)"
+              : "border-transparent text-(--text-muted)"
+          }`}
+        >
+          Following 
+        </button>
+      </div>
+
+      {/* Posts */}
+      {displayedPosts.length === 0 ? (
         <div className="text-center py-10 text-(--text-muted)">
-          No posts from people you follow yet.
+          {activeTab === "following"
+            ? "No posts from people you follow yet."
+            : "No posts available."}
         </div>
       ) : (
-        personalizedPosts.map((post) => (
-          <PostCard key={post.id} post={post} />
+        displayedPosts.map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+          />
         ))
       )}
     </div>
