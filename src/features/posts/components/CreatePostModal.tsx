@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useUI } from "@/features/ui/UIContext";
 import { usePosts } from "@/features/posts/PostContext";
+import { uploadToCloudinary } from "@/services/cloudinary";
 
 export default function CreatePostModal() {
   const { activeModal, closeModal } = useUI();
@@ -11,14 +12,19 @@ export default function CreatePostModal() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
 
+  const [uploading, setUploading] = useState(false);
+
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
+
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === "Escape") handleClose();
     };
+
     window.addEventListener("keydown", handleEsc);
+
     return () => window.removeEventListener("keydown", handleEsc);
   }, [isOpen]);
 
@@ -29,22 +35,31 @@ export default function CreatePostModal() {
     } else {
       document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ""; };
+
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   const handleClose = () => {
+    if (uploading) return;
+
     setCaption("");
     setSelectedFile(null);
     setPreview(null);
+
     closeModal();
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setPreview(URL.createObjectURL(file));
-    }
+
+    if (!file) return;
+
+    setSelectedFile(file);
+    setPreview(URL.createObjectURL(file));
   };
 
   const removeFile = () => {
@@ -56,17 +71,28 @@ export default function CreatePostModal() {
 
   const canPost = caption.trim() || selectedFile;
 
-  const handlePost = () => {
-    if (!canPost) return;
-    let media: { url: string; type: "image" | "video" } | undefined;
-    if (selectedFile && preview) {
-      media = {
-        url: preview,
-        type: selectedFile.type.startsWith("video") ? "video" : "image",
-      };
+  const handlePost = async () => {
+    if (!canPost || uploading) return;
+
+    try {
+      setUploading(true);
+
+      let media:
+        | { url: string; type: "image" | "video" }
+        | undefined;
+
+      if (selectedFile) {
+        media = await uploadToCloudinary(selectedFile);
+      }
+
+      addPost(caption.trim(), media);
+
+      handleClose();
+    } catch (err) {
+      console.error("Post upload failed:", err);
+    } finally {
+      setUploading(false);
     }
-    addPost(caption.trim(), media);
-    handleClose();
   };
 
   return (
@@ -87,20 +113,27 @@ export default function CreatePostModal() {
           >
             Cancel
           </button>
-          <h2 className="text-sm font-semibold text-(--text-primary)">Create post</h2>
+
+          <h2 className="text-sm font-semibold text-(--text-primary)">
+            Create post
+          </h2>
+
           <button
             onClick={handlePost}
-            disabled={!canPost}
+            disabled={!canPost || uploading}
             className={`text-sm font-semibold transition-opacity
-              ${canPost ? "text-blue-500 hover:text-blue-400" : "text-(--text-muted) cursor-not-allowed opacity-50"}`}
+              ${
+                canPost
+                  ? "text-blue-500 hover:text-blue-400"
+                  : "text-(--text-muted) cursor-not-allowed opacity-50"
+              }`}
           >
-            Share
+            {uploading ? "Uploading..." : "Share"}
           </button>
         </div>
 
         {/* Body */}
         <div className="px-5 py-4">
-          {/* Caption */}
           <textarea
             ref={textareaRef}
             value={caption}
@@ -110,14 +143,22 @@ export default function CreatePostModal() {
             rows={4}
           />
 
-          {/* File preview */}
           {preview && (
             <div className="relative mt-3 rounded-xl overflow-hidden bg-(--bg-tertiary)">
               {selectedFile?.type.startsWith("video") ? (
-                <video src={preview} controls className="w-full max-h-64 object-contain" />
+                <video
+                  src={preview}
+                  controls
+                  className="w-full max-h-64 object-contain"
+                />
               ) : (
-                <img src={preview} alt="Preview" className="w-full max-h-64 object-contain" />
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-full max-h-64 object-contain"
+                />
               )}
+
               <button
                 onClick={removeFile}
                 className="absolute top-2 right-2 w-7 h-7 bg-black/60 rounded-full text-white flex items-center justify-center text-xs hover:bg-black/80 transition-colors"
@@ -131,16 +172,23 @@ export default function CreatePostModal() {
         {/* Footer */}
         <div className="flex items-center justify-between px-5 py-3 border-t border-(--border-color)">
           <label className="flex items-center gap-2 text-sm text-(--text-secondary) hover:text-(--text-primary) transition-colors cursor-pointer">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-              <circle cx="8.5" cy="8.5" r="1.5"/>
-              <polyline points="21 15 16 10 5 21"/>
-            </svg>
             <span>Photo / Video</span>
-            <input type="file" accept="image/*,video/*" onChange={handleFileChange} className="sr-only" />
+
+            <input
+              type="file"
+              accept="image/*,video/*"
+              onChange={handleFileChange}
+              className="sr-only"
+            />
           </label>
 
-          <span className={`text-xs font-medium transition-colors ${caption.length > 2000 ? "text-red-500" : "text-(--text-muted)"}`}>
+          <span
+            className={`text-xs font-medium transition-colors ${
+              caption.length > 2200
+                ? "text-red-500"
+                : "text-(--text-muted)"
+            }`}
+          >
             {caption.length} / 2200
           </span>
         </div>

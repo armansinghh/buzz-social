@@ -1,4 +1,6 @@
-export async function uploadToCloudinary(file: File) {
+export async function uploadToCloudinary(
+  file: File
+): Promise<{ url: string; type: "image" | "video" }> {
   const formData = new FormData();
 
   formData.append("file", file);
@@ -25,6 +27,9 @@ export async function uploadToCloudinary(file: File) {
 
   return {
     url: data.secure_url,
-    type: data.resource_type === "video" ? "video" : "image",
+    type:
+      data.resource_type === "video"
+        ? "video"
+        : "image",
   };
 }
