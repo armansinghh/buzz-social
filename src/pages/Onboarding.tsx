@@ -12,7 +12,7 @@ import {
 } from "firebase/firestore";
 
 export default function Onboarding() {
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -22,10 +22,7 @@ export default function Onboarding() {
   if (!user) return null;
 
   const checkUsername = async (username: string) => {
-    const q = query(
-      collection(db, "users"),
-      where("username", "==", username)
-    );
+    const q = query(collection(db, "users"), where("username", "==", username));
     const snap = await getDocs(q);
     return snap.empty;
   };
@@ -52,9 +49,10 @@ export default function Onboarding() {
       {
         username,
       },
-      { merge: true }
+      { merge: true },
     );
 
+    await refreshProfile();
     navigate("/");
   };
 

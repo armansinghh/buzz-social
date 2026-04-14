@@ -35,6 +35,8 @@ type AuthContextType = {
   profile: UserProfile | null;
   loading: boolean;
 
+  refreshProfile: () => Promise<void>;
+
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
@@ -95,6 +97,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return () => unsubscribe();
   }, []);
+
+  const refreshProfile = async () => {
+    if (!auth.currentUser) return;
+
+    const ref = doc(db, "users", auth.currentUser.uid);
+    const snap = await getDoc(ref);
+
+    if (snap.exists()) {
+      const data = snap.data() as UserProfile;
+
+      setProfile({
+        ...data,
+        followers: data.followers ?? [],
+        following: data.following ?? [],
+      });
+    }
+  };
 
   const login = async (email: string, password: string) => {
     await firebaseLogin(email, password);
@@ -171,10 +190,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         profile,
         loading,
+        refreshProfile,
+
         login,
         signup,
         loginWithGoogle,
         logout,
+        
         followUser,
         unfollowUser,
         isFollowing,
