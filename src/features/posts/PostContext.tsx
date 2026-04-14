@@ -1,4 +1,21 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
+
+import {
+  collection,
+  addDoc,
+  getDocs,
+  orderBy,
+  query,
+} from "firebase/firestore";
+
+import { db } from "@/lib/firebase";
+
 import type { Post, Comment } from "./posts.types";
 import { useAuth } from "@/features/auth/AuthContext";
 
@@ -9,7 +26,8 @@ interface Media {
 
 interface PostContextType {
   posts: Post[];
-  addPost: (caption: string, media?: Media) => void;
+  addPost: (caption: string, media?: Media) => Promise<void>;
+
   toggleLike: (postId: string) => void;
   likePost: (postId: string) => void;
   addComment: (postId: string, text: string) => void;
@@ -21,179 +39,70 @@ const PostContext = createContext<PostContextType | undefined>(undefined);
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, profile } = useAuth();
 
-  const [posts, setPosts] = useState<Post[]>([
-    {
-      id: "1",
-      authorId: "demo-user",
-      caption: "Welcome to Buzz 🚀",
-      media: undefined,
-      likes: ["demo-user", "riya", "alex", "john"],
-      comments: [
-        {
-          id: "c1",
-          authorId: "riya",
-          text: "This looks cool!",
-          reactions: [
-            { emoji: "🔥", users: ["riya"] },
-            { emoji: "😂", users: ["demo-user"] },
-          ],
-          createdAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
-        },
-      ],
-      createdAt: new Date(Date.now() - 1000 * 60 * 40).toISOString(),
-    },
-  ]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
-  // 🔹 Add Post
+  // FETCH POSTS
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+
+        const snapshot = await getDocs(q);
+
+        const fetchedPosts = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Post[];
+
+        setPosts(fetchedPosts);
+      } catch (err) {
+        console.error("Failed to fetch posts:", err);
+      }
+    };
+
+    fetchPosts();
+  }, []);
+
+  // ADD POST
   const addPost = useCallback(
-    (caption: string, media?: Media) => {
+    async (caption: string, media?: Media) => {
       if (!user || !profile) return;
 
       const newPost: Post = {
-        id: crypto.randomUUID(),
-        authorId: profile.username ?? user.uid,
+        id: "",
+        authorId: user.uid,
         caption,
-        media,
+        media: media || undefined,
         likes: [],
         comments: [],
         createdAt: new Date().toISOString(),
       };
+      try {
+        const docRef = await addDoc(collection(db, "posts"), newPost);
 
-      setPosts((prev) => [newPost, ...prev]);
+        setPosts((prev) => [
+          {
+            ...newPost,
+            id: docRef.id,
+          },
+          ...prev,
+        ]);
+      } catch (err) {
+        console.error("Failed to save post:", err);
+      }
     },
-    [user, profile]
+    [user, profile],
   );
 
-  // 🔹 Toggle Like
-  const toggleLike = useCallback(
-    (postId: string) => {
-      if (!user) return;
-      const userId = user.uid;
+  const toggleLike = useCallback((postId: string) => {}, []);
 
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => {
-          if (post.id !== postId) return post;
+  const likePost = useCallback((postId: string) => {}, []);
 
-          const isLiked = post.likes.includes(userId);
+  const addComment = useCallback((postId: string, text: string) => {}, []);
 
-          return {
-            ...post,
-            likes: isLiked
-              ? post.likes.filter((id) => id !== userId)
-              : [...post.likes, userId],
-          };
-        })
-      );
-    },
-    [user]
-  );
-
-  // 🔹 Like (one-way)
-  const likePost = useCallback(
-    (postId: string) => {
-      if (!user) return;
-      const userId = user.uid;
-
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => {
-          if (post.id !== postId) return post;
-
-          if (post.likes.includes(userId)) return post;
-
-          return {
-            ...post,
-            likes: [...post.likes, userId],
-          };
-        })
-      );
-    },
-    [user]
-  );
-
-  // 🔹 Add Comment
-  const addComment = useCallback(
-    (postId: string, text: string) => {
-      if (!user || !profile) return;
-
-      const newComment: Comment = {
-        id: crypto.randomUUID(),
-        authorId: profile.username ?? user.uid,
-        text,
-        reactions: [],
-        createdAt: new Date().toISOString(),
-      };
-
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => {
-          if (post.id !== postId) return post;
-
-          return {
-            ...post,
-            comments: [...post.comments, newComment],
-          };
-        })
-      );
-    },
-    [user, profile]
-  );
-
-  // 🔹 Toggle Reaction
   const toggleReaction = useCallback(
-    (postId: string, commentId: string, emoji: string) => {
-      if (!user) return;
-      const userId = user.uid;
-
-      setPosts((prevPosts) =>
-        prevPosts.map((post) => {
-          if (post.id !== postId) return post;
-
-          return {
-            ...post,
-            comments: post.comments.map((comment) => {
-              if (comment.id !== commentId) return comment;
-
-              const reactionIndex = comment.reactions.findIndex(
-                (r) => r.emoji === emoji
-              );
-
-              if (reactionIndex !== -1) {
-                const reaction = comment.reactions[reactionIndex];
-                const hasReacted = reaction.users.includes(userId);
-
-                const updatedUsers = hasReacted
-                  ? reaction.users.filter((u) => u !== userId)
-                  : [...reaction.users, userId];
-
-                if (updatedUsers.length === 0) {
-                  return {
-                    ...comment,
-                    reactions: comment.reactions.filter(
-                      (r) => r.emoji !== emoji
-                    ),
-                  };
-                }
-
-                return {
-                  ...comment,
-                  reactions: comment.reactions.map((r) =>
-                    r.emoji === emoji ? { ...r, users: updatedUsers } : r
-                  ),
-                };
-              }
-
-              return {
-                ...comment,
-                reactions: [
-                  ...comment.reactions,
-                  { emoji, users: [userId] },
-                ],
-              };
-            }),
-          };
-        })
-      );
-    },
-    [user]
+    (postId: string, commentId: string, emoji: string) => {},
+    [],
   );
 
   return (
@@ -214,8 +123,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const usePosts = () => {
   const context = useContext(PostContext);
+
   if (!context) {
     throw new Error("usePosts must be used within PostProvider");
   }
+
   return context;
 };
