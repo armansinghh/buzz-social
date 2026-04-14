@@ -14,7 +14,7 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post }: PostCardProps) {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { toggleLike, likePost } = usePosts();
   const { openComments } = useUI();
 
@@ -56,10 +56,11 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-3">
           <div className="flex items-center gap-2.5">
-            <Avatar name={profile?.username || "User"} size="sm" />
+            <Avatar name={post.authorName} src={post.authorPhoto} size="sm" />
+
             <div>
               <p className="text-sm font-semibold text-(--text-primary) leading-tight">
-                {profile?.username || "User"}
+                {post.authorName}
               </p>
               <p className="text-xs text-(--text-muted)">
                 {formatRelativeTime(post.createdAt)}

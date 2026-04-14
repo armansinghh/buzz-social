@@ -72,10 +72,15 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     async (caption: string, media?: Media) => {
       if (!user || !profile) return;
 
-      const newPost: Post = {
-        id: "",
+      const newPost: Omit<Post, "id"> = {
         authorId: user.uid,
+
+        authorName: profile.name || profile.username || "User",
+
+        authorPhoto: profile.photoURL || undefined,
+
         caption,
+
         likes: [],
         comments: [],
         createdAt: new Date().toISOString(),
