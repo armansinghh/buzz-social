@@ -16,6 +16,13 @@ import {
   updateDoc,
   arrayUnion,
   arrayRemove,
+  limit,
+  startAfter,
+} from "firebase/firestore";
+
+import type {
+  QueryDocumentSnapshot,
+  DocumentData,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
@@ -30,6 +37,10 @@ interface Media {
 
 interface PostContextType {
   posts: Post[];
+  hasMore: boolean;
+
+  loadMorePosts: () => Promise<void>;
+
   addPost: (caption: string, media?: Media) => Promise<void>;
 
   toggleLike: (postId: string) => void;
@@ -38,17 +49,27 @@ interface PostContextType {
   toggleReaction: (postId: string, commentId: string, emoji: string) => void;
 }
 
+const POSTS_PER_PAGE = 10;
+
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, profile } = useAuth();
 
   const [posts, setPosts] = useState<Post[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+
+  const [lastDoc, setLastDoc] =
+    useState<QueryDocumentSnapshot<DocumentData> | null>(null);
 
   useEffect(() => {
-    const fetchPosts = async () => {
+    const fetchInitialPosts = async () => {
       try {
-        const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+        const q = query(
+          collection(db, "posts"),
+          orderBy("createdAt", "desc"),
+          limit(POSTS_PER_PAGE),
+        );
 
         const snapshot = await getDocs(q);
 
@@ -66,13 +87,53 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         }) as Post[];
 
         setPosts(fetchedPosts);
+
+        setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
+
+        setHasMore(snapshot.docs.length === POSTS_PER_PAGE);
       } catch (err) {
         console.error("Failed to fetch posts:", err);
       }
     };
 
-    fetchPosts();
+    fetchInitialPosts();
   }, []);
+
+  const loadMorePosts = useCallback(async () => {
+    if (!lastDoc || !hasMore) return;
+
+    try {
+      const q = query(
+        collection(db, "posts"),
+        orderBy("createdAt", "desc"),
+        startAfter(lastDoc),
+        limit(POSTS_PER_PAGE),
+      );
+
+      const snapshot = await getDocs(q);
+
+      const newPosts = snapshot.docs.map((docSnap) => {
+        const data = docSnap.data();
+
+        return {
+          ...data,
+          id: docSnap.id,
+
+          authorUsername: data.authorUsername || data.authorName || "User",
+
+          authorPhoto: data.authorPhoto || undefined,
+        };
+      }) as Post[];
+
+      setPosts((prev) => [...prev, ...newPosts]);
+
+      setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
+
+      setHasMore(snapshot.docs.length === POSTS_PER_PAGE);
+    } catch (err) {
+      console.error("Failed loading more posts:", err);
+    }
+  }, [lastDoc, hasMore]);
 
   const addPost = useCallback(
     async (caption: string, media?: Media) => {
@@ -317,7 +378,11 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     <PostContext.Provider
       value={{
         posts,
+        hasMore,
+        loadMorePosts,
+
         addPost,
+
         toggleLike,
         likePost,
         addComment,
