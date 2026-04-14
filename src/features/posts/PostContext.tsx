@@ -175,8 +175,47 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     [user, posts],
   );
 
-  const addComment = useCallback((postId: string, text: string) => {}, []);
+  const addComment = useCallback(
+    async (postId: string, text: string) => {
+      if (!user || !profile) return;
 
+      const targetPost = posts.find((post) => post.id === postId);
+
+      if (!targetPost) return;
+
+      const newComment: Comment = {
+        id: crypto.randomUUID(),
+        authorId: profile.username ?? user.uid,
+        text,
+        reactions: [],
+        createdAt: new Date().toISOString(),
+      };
+
+      const updatedComments = [...targetPost.comments, newComment];
+
+      try {
+        const postRef = doc(db, "posts", postId);
+
+        await updateDoc(postRef, {
+          comments: updatedComments,
+        });
+
+        setPosts((prev) =>
+          prev.map((post) => {
+            if (post.id !== postId) return post;
+
+            return {
+              ...post,
+              comments: updatedComments,
+            };
+          }),
+        );
+      } catch (err) {
+        console.error("Failed to add comment:", err);
+      }
+    },
+    [user, profile, posts],
+  );
   const toggleReaction = useCallback(
     (postId: string, commentId: string, emoji: string) => {},
     [],
