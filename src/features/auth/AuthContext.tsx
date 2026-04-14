@@ -54,26 +54,43 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
+      setLoading(true);
 
-      if (firebaseUser) {
+      if (!firebaseUser) {
+        setUser(null);
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
+
+      try {
         const ref = doc(db, "users", firebaseUser.uid);
+
         const snap = await getDoc(ref);
+
+        let fetchedProfile = null;
 
         if (snap.exists()) {
           const data = snap.data() as UserProfile;
 
-          setProfile({
+          fetchedProfile = {
             ...data,
             followers: data.followers ?? [],
             following: data.following ?? [],
-          });
+          };
         }
-      } else {
-        setProfile(null);
-      }
 
-      setLoading(false);
+        // SET TOGETHER ONLY AFTER EVERYTHING READY
+        setUser(firebaseUser);
+        setProfile(fetchedProfile);
+      } catch (err) {
+        console.error("Failed loading profile:", err);
+
+        setUser(firebaseUser);
+        setProfile(null);
+      } finally {
+        setLoading(false);
+      }
     });
 
     return () => unsubscribe();
@@ -115,7 +132,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             ...prev,
             following: [...(prev.following ?? []), targetUserId],
           }
-        : prev
+        : prev,
     );
   };
 
@@ -140,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             following:
               prev.following?.filter((id) => id !== targetUserId) ?? [],
           }
-        : prev
+        : prev,
     );
   };
 
