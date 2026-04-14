@@ -217,8 +217,85 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     [user, profile, posts],
   );
   const toggleReaction = useCallback(
-    (postId: string, commentId: string, emoji: string) => {},
-    [],
+    async (postId: string, commentId: string, emoji: string) => {
+      if (!user) return;
+
+      const userId = user.uid;
+
+      const targetPost = posts.find((post) => post.id === postId);
+
+      if (!targetPost) return;
+
+      const updatedComments = targetPost.comments.map((comment) => {
+        if (comment.id !== commentId) return comment;
+
+        const reactionIndex = comment.reactions.findIndex(
+          (r) => r.emoji === emoji,
+        );
+
+        if (reactionIndex !== -1) {
+          const reaction = comment.reactions[reactionIndex];
+
+          const hasReacted = reaction.users.includes(userId);
+
+          const updatedUsers = hasReacted
+            ? reaction.users.filter((u) => u !== userId)
+            : [...reaction.users, userId];
+
+          if (updatedUsers.length === 0) {
+            return {
+              ...comment,
+              reactions: comment.reactions.filter((r) => r.emoji !== emoji),
+            };
+          }
+
+          return {
+            ...comment,
+            reactions: comment.reactions.map((r) =>
+              r.emoji === emoji
+                ? {
+                    ...r,
+                    users: updatedUsers,
+                  }
+                : r,
+            ),
+          };
+        }
+
+        return {
+          ...comment,
+          reactions: [
+            ...comment.reactions,
+            {
+              emoji,
+              users: [userId],
+            },
+          ],
+        };
+      });
+
+      try {
+        const postRef = doc(db, "posts", postId);
+
+        await updateDoc(postRef, {
+          comments: updatedComments,
+        });
+
+        setPosts((prev) =>
+          prev.map((post) => {
+            if (post.id !== postId) return post;
+
+            return {
+              ...post,
+              comments: updatedComments,
+            };
+          }),
+        );
+      } catch (err) {
+        console.error("Failed to toggle reaction:", err);
+      }
+    },
+    [user, posts],
   );
 
   return (
