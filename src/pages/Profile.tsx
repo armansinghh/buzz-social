@@ -5,7 +5,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/features/auth/AuthContext";
 import { usePosts } from "@/features/posts/PostContext";
 import { useFollow } from "@/features/follow/FollowContext";
-import PostCard from "@/features/posts/PostCard";
+import PostCard from "@/features/posts/components/PostCard";
 import Avatar from "@/components/ui/Avatar";
 
 type UserProfile = {

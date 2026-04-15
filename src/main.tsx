@@ -2,10 +2,10 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "@/app/App";
 import { AuthProvider } from "@/features/auth/AuthContext";
-import { UIProvider } from "@/features/ui/UIContext";
+import { UIProvider } from "@/contexts/UIContext";
 import { NotificationProvider } from "@/features/notifications/NotificationContext";
 import { PostProvider } from "@/features/posts/PostContext";
-import { ToastProvider } from "@/features/ui/ToastContext";
+import { ToastProvider } from "@/contexts/ToastContext";
 import { FollowProvider } from "@/features/follow/FollowContext";
 import "@/styles/index.css";
 

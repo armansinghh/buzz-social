@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import PostCard from "@/features/posts/PostCard";
+import PostCard from "@/features/posts/components/PostCard";
 import { usePosts } from "@/features/posts/PostContext";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useFollow } from "@/features/follow/FollowContext";

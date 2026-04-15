@@ -5,8 +5,8 @@ import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
 import CommentInput from "@/features/posts/components/CommentInput";
 import CommentItem from "@/features/posts/components/CommentItem";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
-import { usePosts } from "./PostContext";
-import { useUI } from "@/features/ui/UIContext";
+import { usePosts } from "../PostContext";
+import { useUI } from "@/contexts/UIContext";
 import Avatar from "@/components/ui/Avatar";
 
 interface PostCardProps {

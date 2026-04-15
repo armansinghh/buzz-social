@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import EmojiPicker from "emoji-picker-react";
-import { useUI } from "@/features/ui/UIContext";
+import { useUI } from "@/contexts/UIContext";
 import { usePosts } from "@/features/posts/PostContext";
 
 export default function EmojiPickerPortal() {

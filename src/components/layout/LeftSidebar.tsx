@@ -1,6 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
-import { useUI } from "@/features/ui/UIContext";
+import { useUI } from "@/contexts/UIContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHouse,

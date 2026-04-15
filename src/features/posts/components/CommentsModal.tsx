@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useUI } from "@/features/ui/UIContext";
+import { useUI } from "@/contexts/UIContext";
 import { usePosts } from "@/features/posts/PostContext";
 import CommentItem from "./CommentItem";
 import CommentInput from "./CommentInput";

@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
-import { useUI } from "@/features/ui/UIContext";
+import { useUI } from "@/contexts/UIContext";
 import { usePosts } from "@/features/posts/PostContext";
-import { uploadToCloudinary } from "@/services/cloudinary";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export default function CreatePostModal() {
   const { activeModal, closeModal } = useUI();

@@ -3,7 +3,7 @@ import type { Comment } from "@/features/posts/posts.types";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { usePosts } from "@/features/posts/PostContext";
 import { useAuth } from "@/features/auth/AuthContext";
-import { useUI } from "@/features/ui/UIContext";
+import { useUI } from "@/contexts/UIContext";
 import Avatar from "@/components/ui/Avatar";
 
 interface CommentItemProps {

@@ -1,5 +1,5 @@
 import { useAuth } from "@/features/auth/AuthContext";
-import { useUI } from "@/features/ui/UIContext";
+import { useUI } from "@/contexts/UIContext";
 import { Link, useNavigate } from "react-router-dom";
 import Avatar from "@/components/ui/Avatar";
 
