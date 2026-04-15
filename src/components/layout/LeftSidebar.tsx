@@ -13,7 +13,7 @@ import {
 import { useNotifications } from "@/features/notifications/NotificationContext";
 
 export default function LeftSidebar() {
-    const { user, profile } = useAuth();
+  const { user, profile } = useAuth();
   const { openModal } = useUI();
   const { unreadCount } = useNotifications();
 
@@ -45,10 +45,7 @@ export default function LeftSidebar() {
         <span>Search</span>
       </NavLink>
 
-      <button
-        onClick={() => openModal("notifications")}
-        className={btnClass}
-      >
+      <button onClick={() => openModal("notifications")} className={btnClass}>
         <div className="relative">
           <FontAwesomeIcon icon={faHeart} className="w-4 h-4" />
           {unreadCount > 0 && (
@@ -62,8 +59,7 @@ export default function LeftSidebar() {
 
       <button
         onClick={() => openModal("createPost")}
-        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
-          bg-(--bg-primary) text-(--text-primary) hover:opacity-90 w-full text-left mt-2"
+        className={`${btnClass}`}
       >
         <FontAwesomeIcon icon={faPlus} className="w-4 h-4" />
         <span>Create Post</span>
