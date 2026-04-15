@@ -7,7 +7,7 @@ import { NotificationProvider } from "@/features/notifications/NotificationConte
 import { PostProvider } from "@/features/posts/PostContext";
 import { ToastProvider } from "@/features/ui/ToastContext";
 import { FollowProvider } from "@/features/follow/FollowContext";
-import "@/index.css";
+import "@/styles/index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
