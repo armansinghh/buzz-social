@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Dark background circle -->
+  <rect width="32" height="32" rx="8" fill="#0f0f11"/>
+
+  <!-- "b" lettermark in white -->
+  <text
+    x="5"
+    y="24"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="24"
+    font-weight="700"
+    fill="#fafafa"
+    letter-spacing="-1"
+  >b</text>
+
+  <!-- Amber dot accent -->
+  <circle cx="26" cy="9" r="4" fill="#fbbf24"/>
+</svg>
