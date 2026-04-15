@@ -37,10 +37,7 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
     if (x < 8) x = 8;
 
     // Toggle behavior
-    if (
-      emojiPicker &&
-      emojiPicker.commentId === comment.id
-    ) {
+    if (emojiPicker && emojiPicker.commentId === comment.id) {
       closeEmojiPicker();
       return;
     }
@@ -50,12 +47,17 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
 
   return (
     <div className="flex gap-2">
-      <Avatar name={comment.authorId} size="xs" className="mt-0.5 shrink-0" />
+      <Avatar
+        name={comment.authorUsername}
+        src={comment.authorAvatar}
+        size="xs"
+        className="mt-0.5 shrink-0"
+      />
 
       <div className="flex-1 min-w-0">
         <div className="text-sm">
           <span className="font-semibold text-(--text-primary) mr-1.5">
-            {comment.authorId}
+            {comment.authorUsername}
           </span>
           <span className="text-(--text-primary)">{comment.text}</span>
         </div>
@@ -83,9 +85,7 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
                   }`}
               >
                 <span>{reaction.emoji}</span>
-                <span className="font-medium">
-                  {reaction.users.length}
-                </span>
+                <span className="font-medium">{reaction.users.length}</span>
               </button>
             );
           })}

@@ -5,9 +5,17 @@ export interface Reaction {
 
 export interface Comment {
   id: string;
+
   authorId: string;
+
+  authorUsername: string;
+
+  authorAvatar?: string;
+
   text: string;
+
   reactions: Reaction[];
+
   createdAt: string;
 }
 

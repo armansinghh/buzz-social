@@ -261,6 +261,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
         authorId: user.uid,
 
+        authorUsername: profile?.username || user.displayName || "User",
+
+        authorAvatar: profile?.avatar || user.photoURL || "",
+
         text,
 
         reactions: [],
