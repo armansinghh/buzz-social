@@ -5,8 +5,18 @@ export type NotificationType =
 
 export interface Notification {
   id: string;
+
+  recipientId: string;
+
+  senderId: string;
+  senderName: string;
+  senderAvatar?: string;
+
   type: NotificationType;
-  message: string;
+
+  postId?: string;
+
   isRead: boolean;
+
   createdAt: string;
 }

@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useCallback, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
 import { useAuth } from "@/features/auth/AuthContext";
 import {
   doc,
@@ -8,6 +14,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { useNotifications } from "@/features/notifications/NotificationContext";
 
 interface FollowContextType {
   following: string[];
@@ -23,7 +30,8 @@ const FollowContext = createContext<FollowContextType | undefined>(undefined);
 
 export function FollowProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-
+  const { profile } = useAuth();
+  const { createNotification } = useNotifications();
   const [following, setFollowing] = useState<string[]>([]);
   const [followers, setFollowers] = useState<Record<string, string[]>>({});
 
@@ -36,7 +44,7 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
 
     const loadFollowing = async () => {
       const snap = await getDocs(
-        collection(db, "users", user.uid, "following")
+        collection(db, "users", user.uid, "following"),
       );
       setFollowing(snap.docs.map((d) => d.id));
     };
@@ -46,9 +54,7 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
 
   // Load followers for a given uid (called lazily from getFollowerCount)
   const loadFollowers = useCallback(async (targetUid: string) => {
-    const snap = await getDocs(
-      collection(db, "users", targetUid, "followers")
-    );
+    const snap = await getDocs(collection(db, "users", targetUid, "followers"));
     const ids = snap.docs.map((d) => d.id);
     setFollowers((prev) => ({ ...prev, [targetUid]: ids }));
   }, []);
@@ -57,27 +63,44 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
     async (targetUid: string) => {
       if (!user || targetUid === user.uid) return;
 
-      // Optimistic update
       setFollowing((prev) =>
-        prev.includes(targetUid) ? prev : [...prev, targetUid]
+        prev.includes(targetUid) ? prev : [...prev, targetUid],
       );
+
       setFollowers((prev) => {
         const current = prev[targetUid] ?? [];
+
         if (current.includes(user.uid)) return prev;
-        return { ...prev, [targetUid]: [...current, user.uid] };
+
+        return {
+          ...prev,
+          [targetUid]: [...current, user.uid],
+        };
       });
 
-      // Persist to Firestore
       await Promise.all([
         setDoc(doc(db, "users", user.uid, "following", targetUid), {
           followedAt: new Date().toISOString(),
         }),
+
         setDoc(doc(db, "users", targetUid, "followers", user.uid), {
           followedAt: new Date().toISOString(),
         }),
       ]);
+
+      await createNotification({
+        recipientId: targetUid,
+
+        senderId: user.uid,
+
+        senderName: profile?.username || user.displayName || "User",
+
+        senderAvatar: profile?.avatar || user.photoURL || "",
+
+        type: "follow",
+      });
     },
-    [user]
+    [user, profile, createNotification],
   );
 
   const unfollowUser = useCallback(
@@ -100,12 +123,12 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
         deleteDoc(doc(db, "users", targetUid, "followers", user.uid)),
       ]);
     },
-    [user]
+    [user],
   );
 
   const isFollowing = useCallback(
     (targetUid: string) => following.includes(targetUid),
-    [following]
+    [following],
   );
 
   const getFollowerCount = useCallback(
@@ -115,13 +138,10 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
       }
       return (followers[targetUid] ?? []).length;
     },
-    [followers, loadFollowers]
+    [followers, loadFollowers],
   );
 
-  const getFollowingCount = useCallback(
-    () => following.length,
-    [following]
-  );
+  const getFollowingCount = useCallback(() => following.length, [following]);
 
   return (
     <FollowContext.Provider

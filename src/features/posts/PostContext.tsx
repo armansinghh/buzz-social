@@ -20,13 +20,11 @@ import {
   startAfter,
 } from "firebase/firestore";
 
-import type {
-  QueryDocumentSnapshot,
-  DocumentData,
-} from "firebase/firestore";
+import type { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
 
+import { useNotifications } from "@/features/notifications/NotificationContext";
 import type { Post, Comment } from "./posts.types";
 import { useAuth } from "@/features/auth/AuthContext";
 
@@ -55,7 +53,7 @@ const PostContext = createContext<PostContextType | undefined>(undefined);
 
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, profile } = useAuth();
-
+  const { createNotification } = useNotifications();
   const [posts, setPosts] = useState<Post[]>([]);
   const [hasMore, setHasMore] = useState(true);
 
@@ -260,9 +258,13 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       const newComment: Comment = {
         id: crypto.randomUUID(),
-        authorId: profile?.username ?? user.uid,
+
+        authorId: user.uid,
+
         text,
+
         reactions: [],
+
         createdAt: new Date().toISOString(),
       };
 
@@ -285,11 +287,27 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             };
           }),
         );
+
+        if (targetPost.authorId !== user.uid) {
+          await createNotification({
+            recipientId: targetPost.authorId,
+
+            senderId: user.uid,
+
+            senderName: profile?.username || user.displayName || "User",
+
+            senderAvatar: profile?.avatar || user.photoURL || "",
+
+            type: "comment",
+
+            postId,
+          });
+        }
       } catch (err) {
         console.error("Failed to add comment:", err);
       }
     },
-    [user, profile, posts],
+    [user, profile, posts, createNotification],
   );
 
   const toggleReaction = useCallback(
