@@ -7,6 +7,7 @@ import NotFound from "@/pages/NotFound";
 import Explore from "@/pages/Explore";
 import Search from "@/pages/Search";
 import Onboarding from "@/pages/Onboarding";
+import PostDetail from "@/pages/PostDetail";
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
 
 export const router = createBrowserRouter([
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
       { path: "/explore", element: <Explore /> },
       { path: "/search", element: <Search /> },
       { path: "/profile/:id", element: <Profile /> },
+      { path: "/post/:id", element: <PostDetail /> }
     ],
   },
   { path: "/auth", element: <AuthPage /> },
