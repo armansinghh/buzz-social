@@ -125,9 +125,9 @@ export default function CommentsModal() {
           {/* Mobile post caption */}
           <div className="sm:hidden px-5 py-3 border-b border-(--border-color)">
             <div className="flex items-center gap-2.5">
-              <Avatar name={post.authorId} size="xs" />
+              <Avatar name={post.authorUsername || "User"} src={post.authorPhoto} size="xs" />
               <p className="text-sm text-(--text-primary)">
-                <span className="font-semibold mr-1.5">{post.authorId}</span>
+                <span className="font-semibold mr-1.5">{post.authorUsername || "User"}</span>
                 {post.caption}
               </p>
             </div>
