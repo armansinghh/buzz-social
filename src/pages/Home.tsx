@@ -5,6 +5,8 @@ import { usePosts } from "@/features/posts/PostContext";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useFollow } from "@/features/follow/FollowContext";
 import Tabs from "@/components/ui/Tabs";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars, faUserGroup } from "@fortawesome/free-solid-svg-icons";
 
 type FeedTab = "feed" | "following";
 
@@ -37,47 +39,16 @@ export default function Home() {
     }
   };
 
-  const tabs = [
+  const tabs: { id: FeedTab; label: string; icon?: React.ReactNode }[] = [
     {
       id: "feed",
       label: "Feed",
-      icon: (
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M3 12h18" />
-          <path d="M3 6h18" />
-          <path d="M3 18h18" />
-        </svg>
-      ),
+      icon: <FontAwesomeIcon icon={faBars} className="text-sm" />,
     },
     {
       id: "following",
       label: "Following",
-      icon: (
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-        </svg>
-      ),
+      icon: <FontAwesomeIcon icon={faUserGroup} className="text-sm" />,
     },
   ];
   return (
