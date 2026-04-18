@@ -10,6 +10,7 @@
   --bg-primary: #ffffff;
   --bg-secondary: #f9fafb;
   --bg-tertiary: #f3f4f6;
+  --bg-bd: #f9fafb50;
   --border-color: #e5e7eb;
   --text-primary: #111827;
   --text-secondary: #6b7280;
@@ -24,6 +25,7 @@
   --bg-primary: #0f0f11;
   --bg-secondary: #18181b;
   --bg-tertiary: #27272a;
+  --bg-bd: #18181b50;
   --border-color: #3f3f46;
   --text-primary: #fafafa;
   --text-secondary: #a1a1aa;
