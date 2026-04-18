@@ -1,3 +1,6 @@
+import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+
 interface TabItem<T extends string> {
   id: T;
   label: string;
@@ -15,6 +18,11 @@ export default function Tabs<T extends string>({
   activeTab,
   onChange,
 }: TabsProps<T>) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   return (
     <div className="flex justify-center sticky top-0 z-10 py-4">
       <div className="flex items-center gap-1 p-1 rounded-xl border border-(--border-color) backdrop-blur-xs bg-(--bg-bd)">
@@ -25,20 +33,32 @@ export default function Tabs<T extends string>({
             <button
               key={tab.id}
               onClick={() => onChange(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all
-                ${
-                  isActive
-                    ? "bg-(--bg-primary) text-(--text-primary) shadow-sm"
-                    : "text-(--text-muted) hover:text-(--text-primary)"
-                }`}
+              className="relative flex-1 flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg"
             >
-              {tab.icon && (
-                <span className="flex items-center">
-                  {tab.icon}
-                </span>
+              {/* Animated background INSIDE button */}
+              {isActive && (
+                <motion.div
+                  {...(mounted ? { layoutId: "activeTab" } : {})}
+                  className="absolute inset-0 rounded-lg bg-(--bg-primary) shadow-sm"
+                  transition={{
+                    type: "spring",
+                    stiffness: 500,
+                    damping: 35,
+                  }}
+                />
               )}
 
-              {tab.label}
+              {/* Content */}
+              <span
+                className={`relative z-10 flex items-center gap-2 ${
+                  isActive
+                    ? "text-(--text-primary)"
+                    : "text-(--text-muted) hover:text-(--text-primary)"
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </span>
             </button>
           );
         })}
