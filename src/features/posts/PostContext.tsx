@@ -4,6 +4,7 @@ import {
   useState,
   useCallback,
   useEffect,
+  useRef,
 } from "react";
 
 import {
@@ -62,6 +63,9 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const [lastDoc, setLastDoc] =
     useState<QueryDocumentSnapshot<DocumentData> | null>(null);
 
+  // Guard against concurrent loadMorePosts calls (double-click / fast scroll)
+  const loadingMoreRef = useRef(false);
+
   useEffect(() => {
     const fetchInitialPosts = async () => {
       try {
@@ -73,14 +77,13 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
         const snapshot = await getDocs(q);
 
+        // Always go through mapPost — never spread doc.data() directly
         const fetchedPosts = snapshot.docs.map((docSnap) =>
           mapPost(docSnap.id, docSnap.data()),
         );
 
         setPosts(fetchedPosts);
-
-        setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
-
+        setLastDoc(snapshot.docs[snapshot.docs.length - 1] ?? null);
         setHasMore(snapshot.docs.length === POSTS_PER_PAGE);
       } catch (err) {
         console.error("Failed to fetch posts:", err);
@@ -91,8 +94,9 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const loadMorePosts = useCallback(async () => {
-    if (!lastDoc || !hasMore) return;
+    if (!lastDoc || !hasMore || loadingMoreRef.current) return;
 
+    loadingMoreRef.current = true;
     try {
       const q = query(
         collection(db, "posts"),
@@ -103,26 +107,18 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       const snapshot = await getDocs(q);
 
-      const newPosts = snapshot.docs.map((docSnap) => {
-        const data = docSnap.data();
-
-        return {
-          ...data,
-          id: docSnap.id,
-
-          authorUsername: data.authorUsername || data.authorName || "User",
-
-          authorAvatar: data.authorAvatar || undefined,
-        };
-      }) as Post[];
+      // Always go through mapPost — never spread doc.data() directly
+      const newPosts = snapshot.docs.map((docSnap) =>
+        mapPost(docSnap.id, docSnap.data()),
+      );
 
       setPosts((prev) => [...prev, ...newPosts]);
-
-      setLastDoc(snapshot.docs[snapshot.docs.length - 1] || null);
-
+      setLastDoc(snapshot.docs[snapshot.docs.length - 1] ?? null);
       setHasMore(snapshot.docs.length === POSTS_PER_PAGE);
     } catch (err) {
       console.error("Failed loading more posts:", err);
+    } finally {
+      loadingMoreRef.current = false;
     }
   }, [lastDoc, hasMore]);
 
@@ -139,7 +135,8 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       const docRef = await addDoc(collection(db, "posts"), newPost);
 
-      setPosts((prev) => [{ id: docRef.id, ...newPost }, ...prev]);
+      // Attach the Firestore-generated id explicitly — never rely on spread order
+      setPosts((prev) => [{ ...newPost, id: docRef.id }, ...prev]);
     } catch (err) {
       console.error("Failed to add post:", err);
     }
@@ -151,106 +148,102 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       const userId = user.uid;
 
-      const targetPost = posts.find((post) => post.id === postId);
-
-      if (!targetPost) return;
-
-      const postRef = doc(db, "posts", postId);
-
-      const isLiked = targetPost.likes.includes(userId);
+      // Use functional updater to read current state — avoids stale closure
+      let wasLiked = false;
+      setPosts((prev) =>
+        prev.map((post) => {
+          if (post.id !== postId) return post;
+          wasLiked = post.likes.includes(userId);
+          return {
+            ...post,
+            likes: wasLiked
+              ? post.likes.filter((id) => id !== userId)
+              : [...post.likes, userId],
+          };
+        }),
+      );
 
       try {
+        const postRef = doc(db, "posts", postId);
         await updateDoc(postRef, {
-          likes: isLiked ? arrayRemove(userId) : arrayUnion(userId),
+          likes: wasLiked ? arrayRemove(userId) : arrayUnion(userId),
         });
-
+      } catch (err) {
+        console.error("Failed to toggle like:", err);
+        // Roll back optimistic update on failure
         setPosts((prev) =>
           prev.map((post) => {
             if (post.id !== postId) return post;
-
             return {
               ...post,
-              likes: isLiked
-                ? post.likes.filter((id) => id !== userId)
-                : [...post.likes, userId],
+              likes: wasLiked
+                ? [...post.likes, userId]
+                : post.likes.filter((id) => id !== userId),
             };
           }),
         );
-      } catch (err) {
-        console.error("Failed to toggle like:", err);
       }
     },
-    [user, posts],
+    [user],
   );
 
+  // likePost only adds a like — it never removes (used for double-tap gesture)
   const likePost = useCallback(
     async (postId: string) => {
       if (!user) return;
 
       const userId = user.uid;
 
-      const targetPost = posts.find((post) => post.id === postId);
-
-      if (!targetPost) return;
-
-      if (targetPost.likes.includes(userId)) return;
-
-      const postRef = doc(db, "posts", postId);
-
-      try {
-        await updateDoc(postRef, {
-          likes: arrayUnion(userId),
-        });
-
-        setPosts((prev) =>
-          prev.map((post) => {
-            if (post.id !== postId) return post;
-
-            return {
-              ...post,
-              likes: [...post.likes, userId],
-            };
-          }),
+      // Check current state before optimistic update
+      setPosts((prev) => {
+        const target = prev.find((p) => p.id === postId);
+        if (!target || target.likes.includes(userId)) return prev; // already liked, no-op
+        return prev.map((post) =>
+          post.id !== postId
+            ? post
+            : { ...post, likes: [...post.likes, userId] },
         );
+      });
+
+      // Fire-and-forget Firestore write — arrayUnion is idempotent so safe
+      const postRef = doc(db, "posts", postId);
+      try {
+        await updateDoc(postRef, { likes: arrayUnion(userId) });
       } catch (err) {
         console.error("Failed to like post:", err);
       }
     },
-    [user, posts],
+    [user],
   );
 
   const addComment = useCallback(
     async (postId: string, text: string) => {
       if (!user) return;
 
-      const targetPost = posts.find((p) => p.id === postId);
-      if (!targetPost) return;
+      let authorId = "";
+      let updatedComments: Post["comments"] = [];
 
-      const newComment = buildComment({
-        user,
-        profile,
-        text,
+      setPosts((prev) => {
+        const target = prev.find((p) => p.id === postId);
+        if (!target) return prev;
+
+        authorId = target.authorId;
+
+        const newComment = buildComment({ user, profile, text });
+        updatedComments = [...target.comments, newComment];
+
+        return prev.map((post) =>
+          post.id !== postId ? post : { ...post, comments: updatedComments },
+        );
       });
-
-      const updatedComments = [...targetPost.comments, newComment];
 
       try {
         const postRef = doc(db, "posts", postId);
+        await updateDoc(postRef, { comments: updatedComments });
 
-        await updateDoc(postRef, {
-          comments: updatedComments,
-        });
-
-        setPosts((prev) =>
-          prev.map((post) =>
-            post.id === postId ? { ...post, comments: updatedComments } : post,
-          ),
-        );
-
-        // 🔔 notification (keep your existing logic)
-        if (targetPost.authorId !== user.uid) {
+        if (authorId && authorId !== user.uid) {
           await createNotification({
-            recipientId: targetPost.authorId,
+            recipientId: authorId,
             senderId: user.uid,
             senderName: profile?.username || user.displayName || "User",
             senderAvatar: profile?.avatar || user.photoURL || "",
@@ -262,7 +255,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         console.error("Failed to add comment:", err);
       }
     },
-    [user, profile, posts, createNotification],
+    [user, profile, createNotification],
   );
 
   const toggleReaction = useCallback(
@@ -270,81 +263,60 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       if (!user) return;
 
       const userId = user.uid;
+      let updatedComments: Post["comments"] = [];
 
-      const targetPost = posts.find((post) => post.id === postId);
+      setPosts((prev) => {
+        const target = prev.find((p) => p.id === postId);
+        if (!target) return prev;
 
-      if (!targetPost) return;
+        updatedComments = target.comments.map((comment) => {
+          if (comment.id !== commentId) return comment;
 
-      const updatedComments = targetPost.comments.map((comment) => {
-        if (comment.id !== commentId) return comment;
+          const reactionIndex = comment.reactions.findIndex(
+            (r) => r.emoji === emoji,
+          );
 
-        const reactionIndex = comment.reactions.findIndex(
-          (r) => r.emoji === emoji,
-        );
+          if (reactionIndex !== -1) {
+            const reaction = comment.reactions[reactionIndex];
+            const hasReacted = reaction.users.includes(userId);
+            const updatedUsers = hasReacted
+              ? reaction.users.filter((u) => u !== userId)
+              : [...reaction.users, userId];
 
-        if (reactionIndex !== -1) {
-          const reaction = comment.reactions[reactionIndex];
+            if (updatedUsers.length === 0) {
+              return {
+                ...comment,
+                reactions: comment.reactions.filter((r) => r.emoji !== emoji),
+              };
+            }
 
-          const hasReacted = reaction.users.includes(userId);
-
-          const updatedUsers = hasReacted
-            ? reaction.users.filter((u) => u !== userId)
-            : [...reaction.users, userId];
-
-          if (updatedUsers.length === 0) {
             return {
               ...comment,
-              reactions: comment.reactions.filter((r) => r.emoji !== emoji),
+              reactions: comment.reactions.map((r) =>
+                r.emoji === emoji ? { ...r, users: updatedUsers } : r,
+              ),
             };
           }
 
           return {
             ...comment,
-            reactions: comment.reactions.map((r) =>
-              r.emoji === emoji
-                ? {
-                    ...r,
-                    users: updatedUsers,
-                  }
-                : r,
-            ),
+            reactions: [...comment.reactions, { emoji, users: [userId] }],
           };
-        }
+        });
 
-        return {
-          ...comment,
-          reactions: [
-            ...comment.reactions,
-            {
-              emoji,
-              users: [userId],
-            },
-          ],
-        };
+        return prev.map((post) =>
+          post.id !== postId ? post : { ...post, comments: updatedComments },
+        );
       });
 
       try {
         const postRef = doc(db, "posts", postId);
-
-        await updateDoc(postRef, {
-          comments: updatedComments,
-        });
-
-        setPosts((prev) =>
-          prev.map((post) => {
-            if (post.id !== postId) return post;
-
-            return {
-              ...post,
-              comments: updatedComments,
-            };
-          }),
-        );
+        await updateDoc(postRef, { comments: updatedComments });
       } catch (err) {
         console.error("Failed to toggle reaction:", err);
       }
     },
-    [user, posts],
+    [user],
   );
 
   return (
@@ -353,9 +325,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         posts,
         hasMore,
         loadMorePosts,
-
         addPost,
-
         toggleLike,
         likePost,
         addComment,
@@ -369,10 +339,8 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
 export const usePosts = () => {
   const context = useContext(PostContext);
-
   if (!context) {
     throw new Error("usePosts must be used within PostProvider");
   }
-
   return context;
 };
