@@ -27,6 +27,7 @@ import { db } from "@/lib/firebase";
 import { useNotifications } from "@/features/notifications/NotificationContext";
 import type { Post, Comment } from "@/types/post";
 import { useAuth } from "@/features/auth/AuthContext";
+import { mapPost } from "@/services/postMapper";
 
 interface Media {
   url: string;
@@ -71,18 +72,9 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
         const snapshot = await getDocs(q);
 
-        const fetchedPosts = snapshot.docs.map((docSnap) => {
-          const data = docSnap.data();
-
-          return {
-            ...data,
-            id: docSnap.id,
-
-            authorUsername: data.authorUsername || data.authorName || "User",
-
-            authorAvatar: data.authorAvatar || undefined,
-          };
-        }) as Post[];
+        const fetchedPosts = snapshot.docs.map((docSnap) =>
+          mapPost(docSnap.id, docSnap.data()),
+        );
 
         setPosts(fetchedPosts);
 

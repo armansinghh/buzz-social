@@ -7,6 +7,7 @@ import { usePosts } from "@/features/posts/PostContext";
 
 import PostCard from "@/features/posts/components/PostCard";
 import type { Post } from "@/types/post";
+import { mapPost } from "@/services/postMapper";
 
 export default function PostDetail() {
   const { id } = useParams();
@@ -35,10 +36,7 @@ export default function PostDetail() {
         const snap = await getDoc(ref);
 
         if (snap.exists()) {
-          setPost({
-            id: snap.id,
-            ...snap.data(),
-          } as Post);
+          setPost(mapPost(snap.id, snap.data()));
         }
       } catch (err) {
         console.error("Failed to fetch post:", err);

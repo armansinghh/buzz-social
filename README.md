@@ -282,7 +282,7 @@ users/{uid}
         └── createdAt: ISO string
 
 posts/{postId}
-  ├── authorId, authorUsername, authorPhoto
+  ├── authorId, authorUsername, authorAvatar
   ├── caption, createdAt
   ├── likes: string[]           (array of user UIDs)
   ├── media?: { url, type: "image" | "video" }
