@@ -25,8 +25,9 @@ import type { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 import { useNotifications } from "@/features/notifications/NotificationContext";
-import type { Post, Comment } from "@/types/post";
+import type { Post } from "@/types/post";
 import { useAuth } from "@/features/auth/AuthContext";
+import { buildPost, buildComment } from "@/services/postBuilder";
 import { mapPost } from "@/services/postMapper";
 
 interface Media {
@@ -125,46 +126,24 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [lastDoc, hasMore]);
 
-  const addPost = useCallback(
-    async (caption: string, media?: Media) => {
-      if (!user) return;
+  const addPost = async (caption: string, media?: Media) => {
+    if (!user) return;
 
-      const newPost: Omit<Post, "id"> = {
-        authorId: user.uid,
-
-        authorUsername: profile?.username || user.displayName || "User",
-
-        authorAvatar:
-          profile?.photoURL || profile?.avatar || user.photoURL || undefined,
-
+    try {
+      const newPost = buildPost({
+        user,
+        profile,
         caption,
+        media,
+      });
 
-        likes: [],
-        comments: [],
-        createdAt: new Date().toISOString(),
-      };
+      const docRef = await addDoc(collection(db, "posts"), newPost);
 
-      if (media) {
-        newPost.media = media;
-      }
-
-      try {
-        const docRef = await addDoc(collection(db, "posts"), newPost);
-
-        setPosts((prev) => [
-          {
-            ...newPost,
-            id: docRef.id,
-          },
-          ...prev,
-        ]);
-      } catch (err) {
-        console.error("Failed to save post:", err);
-        throw err;
-      }
-    },
-    [user, profile],
-  );
+      setPosts((prev) => [{ id: docRef.id, ...newPost }, ...prev]);
+    } catch (err) {
+      console.error("Failed to add post:", err);
+    }
+  };
 
   const toggleLike = useCallback(
     async (postId: string) => {
@@ -244,25 +223,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     async (postId: string, text: string) => {
       if (!user) return;
 
-      const targetPost = posts.find((post) => post.id === postId);
-
+      const targetPost = posts.find((p) => p.id === postId);
       if (!targetPost) return;
 
-      const newComment: Comment = {
-        id: crypto.randomUUID(),
-
-        authorId: user.uid,
-
-        authorUsername: profile?.username || user.displayName || "User",
-
-        authorAvatar: profile?.avatar || user.photoURL || "",
-
+      const newComment = buildComment({
+        user,
+        profile,
         text,
-
-        reactions: [],
-
-        createdAt: new Date().toISOString(),
-      };
+      });
 
       const updatedComments = [...targetPost.comments, newComment];
 
@@ -274,28 +242,19 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         });
 
         setPosts((prev) =>
-          prev.map((post) => {
-            if (post.id !== postId) return post;
-
-            return {
-              ...post,
-              comments: updatedComments,
-            };
-          }),
+          prev.map((post) =>
+            post.id === postId ? { ...post, comments: updatedComments } : post,
+          ),
         );
 
+        // 🔔 notification (keep your existing logic)
         if (targetPost.authorId !== user.uid) {
           await createNotification({
             recipientId: targetPost.authorId,
-
             senderId: user.uid,
-
             senderName: profile?.username || user.displayName || "User",
-
             senderAvatar: profile?.avatar || user.photoURL || "",
-
             type: "comment",
-
             postId,
           });
         }
