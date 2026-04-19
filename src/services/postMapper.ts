@@ -1,29 +1,40 @@
 import type { Post, Comment } from "@/types/post";
 
-export function mapPost(docId: string, data: any): Post {
+export function mapPost(docId: string, data: Record<string, unknown>): Post {
   return {
     id: docId,
 
-    authorId: data.authorId ?? "",
+    authorId: typeof data.authorId === "string" ? data.authorId : "",
 
-    authorUsername: data.authorUsername ?? "User",
+    authorUsername:
+      typeof data.authorUsername === "string" && data.authorUsername
+        ? data.authorUsername
+        : "User",
 
+    // authorPhoto is a legacy ghost field — never read it; only authorAvatar is canonical
     authorAvatar:
-      data.authorAvatar || data.authorPhoto || undefined,
+      typeof data.authorAvatar === "string" && data.authorAvatar
+        ? data.authorAvatar
+        : undefined,
 
-    caption: data.caption ?? "",
+    caption: typeof data.caption === "string" ? data.caption : "",
 
-    media: data.media
-      ? {
-          url: data.media.url,
-          type: data.media.type,
-        }
-      : undefined,
+    media:
+      data.media &&
+      typeof (data.media as Record<string, unknown>).url === "string" &&
+      typeof (data.media as Record<string, unknown>).type === "string"
+        ? {
+            url: (data.media as Record<string, unknown>).url as string,
+            type: (data.media as Record<string, unknown>).type as
+              | "image"
+              | "video",
+          }
+        : undefined,
 
-    likes: Array.isArray(data.likes) ? data.likes : [],
+    likes: Array.isArray(data.likes) ? (data.likes as string[]) : [],
 
     comments: Array.isArray(data.comments)
-      ? data.comments.map(mapComment)
+      ? (data.comments as Record<string, unknown>[]).map(mapComment)
       : [],
 
     createdAt:
@@ -33,21 +44,31 @@ export function mapPost(docId: string, data: any): Post {
   };
 }
 
-function mapComment(data: any): Comment {
+function mapComment(data: Record<string, unknown>): Comment {
   return {
-    id: data.id ?? crypto.randomUUID(),
+    id:
+      typeof data.id === "string" && data.id ? data.id : crypto.randomUUID(),
 
-    authorId: data.authorId ?? "",
+    authorId: typeof data.authorId === "string" ? data.authorId : "",
 
-    authorUsername: data.authorUsername ?? "User",
+    authorUsername:
+      typeof data.authorUsername === "string" && data.authorUsername
+        ? data.authorUsername
+        : "User",
 
+    // authorPhoto is a legacy ghost field — only authorAvatar is canonical
     authorAvatar:
-      data.authorAvatar || data.authorPhoto || undefined,
+      typeof data.authorAvatar === "string" && data.authorAvatar
+        ? data.authorAvatar
+        : undefined,
 
-    text: data.text ?? "",
+    text: typeof data.text === "string" ? data.text : "",
 
     reactions: Array.isArray(data.reactions)
-      ? data.reactions
+      ? (data.reactions as Record<string, unknown>[]).map((r) => ({
+          emoji: typeof r.emoji === "string" ? r.emoji : "",
+          users: Array.isArray(r.users) ? (r.users as string[]) : [],
+        }))
       : [],
 
     createdAt:
