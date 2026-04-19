@@ -3,8 +3,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
 import type { UserProfile } from "@/types/user";
 
-import { auth } from "@/lib/firebase";
-import { db } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 
 import {
   signInWithGoogle,
@@ -13,29 +12,17 @@ import {
   logout as firebaseLogout,
 } from "./authService";
 
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  arrayUnion,
-  arrayRemove,
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
 type AuthContextType = {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
-
   refreshProfile: () => Promise<void>;
-
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
-
-  followUser: (targetUserId: string) => Promise<void>;
-  unfollowUser: (targetUserId: string) => Promise<void>;
-  isFollowing: (targetUserId: string) => boolean;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -58,27 +45,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       try {
         const ref = doc(db, "users", firebaseUser.uid);
-
         const snap = await getDoc(ref);
 
-        let fetchedProfile = null;
+        let fetchedProfile: UserProfile | null = null;
 
         if (snap.exists()) {
           const data = snap.data() as UserProfile;
-
           fetchedProfile = {
             ...data,
+            // These array fields belong to AuthContext's old follow system which
+            // has been removed. FollowContext owns follow state via subcollections.
+            // Keep them here only so existing Firestore docs don't break the shape.
             followers: data.followers ?? [],
             following: data.following ?? [],
           };
         }
 
-        // SET TOGETHER ONLY AFTER EVERYTHING READY
+        // Set both together so consumers never see a user without a profile
         setUser(firebaseUser);
         setProfile(fetchedProfile);
       } catch (err) {
         console.error("Failed loading profile:", err);
-
         setUser(firebaseUser);
         setProfile(null);
       } finally {
@@ -97,7 +84,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (snap.exists()) {
       const data = snap.data() as UserProfile;
-
       setProfile({
         ...data,
         followers: data.followers ?? [],
@@ -122,59 +108,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await firebaseLogout();
   };
 
-  const followUser = async (targetUserId: string) => {
-    if (!user || user.uid === targetUserId) return;
-
-    const currentUserRef = doc(db, "users", user.uid);
-    const targetUserRef = doc(db, "users", targetUserId);
-
-    await updateDoc(currentUserRef, {
-      following: arrayUnion(targetUserId),
-    });
-
-    await updateDoc(targetUserRef, {
-      followers: arrayUnion(user.uid),
-    });
-
-    setProfile((prev) =>
-      prev
-        ? {
-            ...prev,
-            following: [...(prev.following ?? []), targetUserId],
-          }
-        : prev,
-    );
-  };
-
-  const unfollowUser = async (targetUserId: string) => {
-    if (!user) return;
-
-    const currentUserRef = doc(db, "users", user.uid);
-    const targetUserRef = doc(db, "users", targetUserId);
-
-    await updateDoc(currentUserRef, {
-      following: arrayRemove(targetUserId),
-    });
-
-    await updateDoc(targetUserRef, {
-      followers: arrayRemove(user.uid),
-    });
-
-    setProfile((prev) =>
-      prev
-        ? {
-            ...prev,
-            following:
-              prev.following?.filter((id) => id !== targetUserId) ?? [],
-          }
-        : prev,
-    );
-  };
-
-  const isFollowing = (targetUserId: string) => {
-    return profile?.following?.includes(targetUserId) ?? false;
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -182,15 +115,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile,
         loading,
         refreshProfile,
-
         login,
         signup,
         loginWithGoogle,
         logout,
-        
-        followUser,
-        unfollowUser,
-        isFollowing,
       }}
     >
       {children}
@@ -200,10 +128,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-
   if (!ctx) {
     throw new Error("useAuth must be used inside AuthProvider");
   }
-
   return ctx;
 }
