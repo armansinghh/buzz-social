@@ -5,16 +5,9 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/features/auth/AuthContext";
 import { usePosts } from "@/features/posts/PostContext";
 import { useFollow } from "@/features/follow/FollowContext";
+import type { UserProfile } from "@/types/user";
 import PostCard from "@/features/posts/components/PostCard";
 import Avatar from "@/components/ui/Avatar";
-
-type UserProfile = {
-  uid: string;
-  username?: string;
-  name?: string;
-  avatar?: string;
-  email?: string;
-};
 
 export default function Profile() {
   const { id } = useParams<{ id: string }>();
@@ -149,7 +142,7 @@ export default function Profile() {
   }
 
   const displayName =
-    profileData.username || profileData.name || profileData.email || "User";
+    profileData.username || profileData.name || "User";
 
   const followerCount = getFollowerCount(profileData.uid);
   const followingCount = isOwnProfile ? getFollowingCount() : 0;

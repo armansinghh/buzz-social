@@ -15,6 +15,7 @@ import { usePosts } from "@/features/posts/PostContext";
 import PostCard from "@/features/posts/components/PostCard";
 import Avatar from "@/components/ui/Avatar";
 import type { Post } from "@/features/posts/posts.types";
+import type { UserProfile } from "@/types/user";
 import Tabs from "@/components/ui/Tabs";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -23,13 +24,6 @@ const SESSION_TAB_KEY = "buzz-explore-tab";
 
 type ExploreTab = "trending" | "people" | "media";
 
-type UserProfile = {
-  uid: string;
-  username?: string;
-  name?: string;
-  avatar?: string;
-  email?: string;
-};
 
 // ─── Time-decay trending score (Hacker News gravity) ─────────────────────────
 function trendingScore(post: Post): number {

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import type { User } from "firebase/auth";
+import type { UserProfile } from "@/types/user";
 
 import { auth } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
@@ -19,16 +20,6 @@ import {
   arrayUnion,
   arrayRemove,
 } from "firebase/firestore";
-
-type UserProfile = {
-  username?: string;
-  name?: string;
-  avatar?: string;
-  photoURL?: string;
-
-  followers?: string[];
-  following?: string[];
-};
 
 type AuthContextType = {
   user: User | null;
