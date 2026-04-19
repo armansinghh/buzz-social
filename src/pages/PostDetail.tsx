@@ -6,7 +6,7 @@ import { db } from "@/lib/firebase";
 import { usePosts } from "@/features/posts/PostContext";
 
 import PostCard from "@/features/posts/components/PostCard";
-import type { Post } from "@/features/posts/posts.types";
+import type { Post } from "@/types/post";
 
 export default function PostDetail() {
   const { id } = useParams();

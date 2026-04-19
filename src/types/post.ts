@@ -25,7 +25,7 @@ export interface Post {
   authorId: string;
 
   authorUsername: string;
-  authorPhoto?: string;
+  authorAvatar?: string;
 
   caption: string;
 

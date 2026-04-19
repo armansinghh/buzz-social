@@ -25,7 +25,7 @@ import type { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 import { useNotifications } from "@/features/notifications/NotificationContext";
-import type { Post, Comment } from "./posts.types";
+import type { Post, Comment } from "@/types/post";
 import { useAuth } from "@/features/auth/AuthContext";
 
 interface Media {
@@ -80,7 +80,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
             authorUsername: data.authorUsername || data.authorName || "User",
 
-            authorPhoto: data.authorPhoto || undefined,
+            authorAvatar: data.authorAvatar || undefined,
           };
         }) as Post[];
 
@@ -119,7 +119,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
           authorUsername: data.authorUsername || data.authorName || "User",
 
-          authorPhoto: data.authorPhoto || undefined,
+          authorAvatar: data.authorAvatar || undefined,
         };
       }) as Post[];
 
@@ -142,7 +142,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
         authorUsername: profile?.username || user.displayName || "User",
 
-        authorPhoto:
+        authorAvatar:
           profile?.photoURL || profile?.avatar || user.photoURL || undefined,
 
         caption,

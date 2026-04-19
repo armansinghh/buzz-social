@@ -13,7 +13,7 @@ import Avatar from "@/components/ui/Avatar";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useFollow } from "@/features/follow/FollowContext";
 import { useDebounce } from "@/hooks/useDebounce";
-import type { Post } from "@/features/posts/posts.types";
+import type { Post } from "@/types/post";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const POSTS_SEARCH_LIMIT = 20;
@@ -145,7 +145,7 @@ function PostResult({ post, query }: { post: Post; query: string }) {
         <div className="flex items-center gap-1.5 mb-1">
           <Avatar
             name={post.authorUsername || "User"}
-            src={post.authorPhoto}
+            src={post.authorAvatar}
             size="xs"
           />
           <span className="text-xs font-semibold text-(--text-primary) truncate">

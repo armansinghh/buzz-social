@@ -51,7 +51,7 @@ export default function CommentsModal() {
           <div className="flex items-center gap-3 px-5 py-4 border-b border-(--border-color)">
             <Avatar
               name={post.authorUsername || "User"}
-              src={post.authorPhoto}
+              src={post.authorAvatar}
               size="sm"
             />{" "}
             <div>
@@ -125,7 +125,7 @@ export default function CommentsModal() {
           {/* Mobile post caption */}
           <div className="sm:hidden px-5 py-3 border-b border-(--border-color)">
             <div className="flex items-center gap-2.5">
-              <Avatar name={post.authorUsername || "User"} src={post.authorPhoto} size="xs" />
+              <Avatar name={post.authorUsername || "User"} src={post.authorAvatar} size="xs" />
               <p className="text-sm text-(--text-primary)">
                 <span className="font-semibold mr-1.5">{post.authorUsername || "User"}</span>
                 {post.caption}

@@ -14,7 +14,7 @@ import { useFollow } from "@/features/follow/FollowContext";
 import { usePosts } from "@/features/posts/PostContext";
 import PostCard from "@/features/posts/components/PostCard";
 import Avatar from "@/components/ui/Avatar";
-import type { Post } from "@/features/posts/posts.types";
+import type { Post } from "@/types/post";
 import type { UserProfile } from "@/types/user";
 import Tabs from "@/components/ui/Tabs";
 
@@ -337,7 +337,7 @@ function MediaLightbox({
           <div className="flex items-center gap-2.5 mb-2">
             <Avatar
               name={post.authorUsername || "User"}
-              src={post.authorPhoto}
+              src={post.authorAvatar}
               size="sm"
             />
             <p className="text-sm font-semibold text-(--text-primary)">

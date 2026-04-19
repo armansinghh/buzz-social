@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import type { Post } from "@/features/posts/posts.types";
+import type { Post } from "@/types/post";
 import { useAuth } from "@/features/auth/AuthContext";
 import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
 import CommentInput from "@/features/posts/components/CommentInput";
@@ -58,7 +58,7 @@ export default function PostCard({ post }: PostCardProps) {
           <div className="flex items-center gap-2.5">
             <Avatar
               name={post.authorUsername || "User"}
-              src={post.authorPhoto}
+              src={post.authorAvatar}
               size="sm"
             />
             <div>

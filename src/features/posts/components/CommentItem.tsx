@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import type { Comment } from "@/features/posts/posts.types";
+import type { Comment } from "@/types/post";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { usePosts } from "@/features/posts/PostContext";
 import { useAuth } from "@/features/auth/AuthContext";
