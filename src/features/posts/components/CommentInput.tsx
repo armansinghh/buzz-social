@@ -21,7 +21,7 @@ export default function CommentInput({ postId }: CommentInputProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <Avatar name={profile?.username ?? "guest"} size="xs" />
+      <Avatar name={profile?.username ?? "User"} src={profile?.avatar} size="xs" />
       <input
         type="text"
         placeholder="Add a comment…"

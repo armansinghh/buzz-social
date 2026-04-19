@@ -70,7 +70,7 @@ export default function Navbar() {
 
         {user ? (
           <div className="flex items-center gap-3">
-            <Avatar name={profile?.username ?? "guest"} size="sm" />
+            <Avatar name={profile?.username ?? "User"} src={profile?.avatar} size="sm" />
 
             <span>{profile?.username}</span>
             <button
