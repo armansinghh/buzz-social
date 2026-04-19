@@ -1,3 +1,14 @@
+/**
+ * FollowContext — the single source of truth for follow state.
+ *
+ * Uses Firestore subcollections:
+ *   users/{uid}/following/{targetUid}
+ *   users/{uid}/followers/{followerUid}
+ *
+ * AuthContext previously had a parallel array-based follow system
+ * (arrayUnion on the user document itself). That has been removed.
+ * wont re-add follow logic to AuthContext.
+ */
 import {
   createContext,
   useContext,
@@ -29,13 +40,16 @@ interface FollowContextType {
 const FollowContext = createContext<FollowContextType | undefined>(undefined);
 
 export function FollowProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
   const { createNotification } = useNotifications();
   const [following, setFollowing] = useState<string[]>([]);
   const [followers, setFollowers] = useState<Record<string, string[]>>({});
 
-  // Load current user's following list on mount / user change
+  // Track which uids we've already fetched so getFollowerCount
+  // doesn't fire a new Firestore read on every render
+  const fetchedFollowerUids = useState<Set<string>>(() => new Set())[0];
+
+  // Load the current user's following list on mount / user change
   useEffect(() => {
     if (!user) {
       setFollowing([]);
@@ -52,7 +66,6 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
     loadFollowing();
   }, [user]);
 
-  // Load followers for a given uid (called lazily from getFollowerCount)
   const loadFollowers = useCallback(async (targetUid: string) => {
     const snap = await getDocs(collection(db, "users", targetUid, "followers"));
     const ids = snap.docs.map((d) => d.id);
@@ -63,26 +76,20 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
     async (targetUid: string) => {
       if (!user || targetUid === user.uid) return;
 
+      // Optimistic update
       setFollowing((prev) =>
         prev.includes(targetUid) ? prev : [...prev, targetUid],
       );
-
       setFollowers((prev) => {
         const current = prev[targetUid] ?? [];
-
         if (current.includes(user.uid)) return prev;
-
-        return {
-          ...prev,
-          [targetUid]: [...current, user.uid],
-        };
+        return { ...prev, [targetUid]: [...current, user.uid] };
       });
 
       await Promise.all([
         setDoc(doc(db, "users", user.uid, "following", targetUid), {
           followedAt: new Date().toISOString(),
         }),
-
         setDoc(doc(db, "users", targetUid, "followers", user.uid), {
           followedAt: new Date().toISOString(),
         }),
@@ -90,13 +97,9 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
 
       await createNotification({
         recipientId: targetUid,
-
         senderId: user.uid,
-
         senderName: profile?.username || user.displayName || "User",
-
         senderAvatar: profile?.avatar || user.photoURL || "",
-
         type: "follow",
       });
     },
@@ -111,13 +114,9 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
       setFollowing((prev) => prev.filter((id) => id !== targetUid));
       setFollowers((prev) => {
         const current = prev[targetUid] ?? [];
-        return {
-          ...prev,
-          [targetUid]: current.filter((id) => id !== user.uid),
-        };
+        return { ...prev, [targetUid]: current.filter((id) => id !== user.uid) };
       });
 
-      // Remove from Firestore
       await Promise.all([
         deleteDoc(doc(db, "users", user.uid, "following", targetUid)),
         deleteDoc(doc(db, "users", targetUid, "followers", user.uid)),
@@ -133,12 +132,14 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
 
   const getFollowerCount = useCallback(
     (targetUid: string) => {
-      if (!(targetUid in followers)) {
+      // Only trigger a fetch once per uid — not on every render
+      if (!fetchedFollowerUids.has(targetUid)) {
+        fetchedFollowerUids.add(targetUid);
         loadFollowers(targetUid);
       }
       return (followers[targetUid] ?? []).length;
     },
-    [followers, loadFollowers],
+    [followers, loadFollowers, fetchedFollowerUids],
   );
 
   const getFollowingCount = useCallback(() => following.length, [following]);
