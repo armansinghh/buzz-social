@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 
 interface DropdownProps {
   trigger: React.ReactNode;
-  children: React.ReactNode;
+  children: React.ReactNode | ((closeDropdown: () => void) => React.ReactNode);
   align?: "left" | "right";
 }
 
@@ -13,6 +13,8 @@ export default function Dropdown({
 }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
+
+  const closeDropdown = () => setOpen(false);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -45,7 +47,9 @@ export default function Dropdown({
           className={`absolute mt-2 w-40 bg-(--bg-primary) border border-(--border-color) rounded-xl shadow-md z-50 overflow-hidden
           ${align === "right" ? "right-0" : "left-0"}`}
         >
-          {children}
+          {typeof children === "function"
+            ? children(closeDropdown)
+            : children}
         </div>
       )}
     </div>

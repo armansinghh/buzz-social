@@ -5,6 +5,8 @@ import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
 import CommentInput from "@/features/posts/components/CommentInput";
 import CommentItem from "@/features/posts/components/CommentItem";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEllipsisVertical, faLink } from "@fortawesome/free-solid-svg-icons";
 import { usePosts } from "../PostContext";
 import { useUI } from "@/contexts/UIContext";
 import Avatar from "@/components/ui/Avatar";
@@ -90,27 +92,32 @@ export default function PostCard({ post }: PostCardProps) {
             trigger={
               <button
                 type="button"
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-xl text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors"
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <circle cx="12" cy="5" r="1.5" />
-                  <circle cx="12" cy="12" r="1.5" />
-                  <circle cx="12" cy="19" r="1.5" />
-                </svg>
+                <FontAwesomeIcon
+                  icon={faEllipsisVertical}
+                  className="w-4 h-4"
+                />
               </button>
             }
           >
-            <button
-              onClick={handleCopyLink}
-              className="w-full text-left px-4 py-2 text-sm text-(--text-primary) hover:bg-(--bg-tertiary)"
-            >
-              Copy link
-            </button>
+            {(closeDropdown) => (
+              <button
+                onClick={async () => {
+                  await handleCopyLink();
+                  setTimeout(() => {
+                    closeDropdown(); // runs after delay
+                  }, 1000);
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors rounded-lg"
+              >
+                <FontAwesomeIcon
+                  icon={faLink}
+                  className="w-3.5 h-3.5 shrink-0 text-(--text-muted)"
+                />
+                Copy link
+              </button>
+            )}
           </Dropdown>
         </div>
 
