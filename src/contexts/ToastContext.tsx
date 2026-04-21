@@ -15,6 +15,33 @@ interface ToastContextType {
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
+const ICONS: Record<ToastType, React.ReactNode> = {
+  success: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  ),
+  error: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  ),
+  info: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+  ),
+};
+
+const ICON_COLOR: Record<ToastType, string> = {
+  success: "text-emerald-400",
+  error: "text-red-400",
+  info: "text-blue-400",
+};
+
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
 
@@ -32,18 +59,6 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
     }, 2800);
   }, []);
 
-  const ICONS: Record<ToastType, string> = {
-    success: "✓",
-    error: "✕",
-    info: "ℹ",
-  };
-
-  const BG: Record<ToastType, string> = {
-    success: "bg-emerald-500",
-    error: "bg-red-500",
-    info: "bg-blue-500",
-  };
-
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
@@ -52,14 +67,24 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
           <div
             key={toast.id}
             className={`
-              flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg text-white text-sm font-medium
-              ${BG[toast.type]}
+              flex items-center gap-3 px-4 py-3 min-w-64 max-w-sm
+              rounded-2xl border border-(--border-color)
+              backdrop-blur-md bg-(--bg-bd)
+              text-(--text-primary) text-sm font-medium
+              pointer-events-auto
               ${toast.exiting ? "toast-exit" : "toast-enter"}
-              pointer-events-auto min-w-48 max-w-xs
             `}
+            style={{ boxShadow: "var(--shadow-md)" }}
           >
-            <span className="text-base leading-none">{ICONS[toast.type]}</span>
-            <span>{toast.message}</span>
+            {/* Colored icon */}
+            <span className={`shrink-0 ${ICON_COLOR[toast.type]}`}>
+              {ICONS[toast.type]}
+            </span>
+
+            {/* Message */}
+            <span className="flex-1 text-(--text-primary) leading-snug">
+              {toast.message}
+            </span>
           </div>
         ))}
       </div>
