@@ -69,7 +69,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             className={`
               flex items-center gap-3 px-4 py-3 min-w-64 max-w-sm
               rounded-2xl border border-(--border-color)
-              backdrop-blur-md bg-(--bg-bd)
+              backdrop-blur-2xl bg-(--bg-bd)
               text-(--text-primary) text-sm font-medium
               pointer-events-auto
               ${toast.exiting ? "toast-exit" : "toast-enter"}

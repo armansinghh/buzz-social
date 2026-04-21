@@ -25,7 +25,7 @@ export default function Tabs<T extends string>({
   }, []);
   return (
     <div className="flex justify-center sticky top-0 z-10 py-4">
-      <div className="flex items-center gap-1 p-1 rounded-xl border border-(--border-color) backdrop-blur-xs bg-(--bg-bd)">
+      <div className="flex items-center gap-1 p-1 rounded-xl border border-(--border-color) backdrop-blur-2xl bg-(--bg-bd)">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
 
@@ -53,7 +53,7 @@ export default function Tabs<T extends string>({
                 className={`relative z-10 flex items-center gap-2 ${
                   isActive
                     ? "text-(--text-primary)"
-                    : "text-(--text-muted) hover:text-(--text-primary)"
+                    : "text-(--text-secondary) hover:text-(--text-primary)"
                 }`}
               >
                 {tab.icon}
