@@ -8,6 +8,8 @@ import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { usePosts } from "../PostContext";
 import { useUI } from "@/contexts/UIContext";
 import Avatar from "@/components/ui/Avatar";
+import Dropdown from "@/components/ui/Dropdown";
+import { useToast } from "@/contexts/ToastContext";
 
 interface PostCardProps {
   post: Post;
@@ -46,6 +48,19 @@ export default function PostCard({ post }: PostCardProps) {
       likePost(post.id);
     }
   };
+  const { showToast } = useToast();
+
+  const handleCopyLink = async () => {
+    try {
+      const url = `${window.location.origin}/post/${post.id}`;
+
+      await navigator.clipboard.writeText(url);
+
+      showToast("Link copied!", "success");
+    } catch (err) {
+      showToast("Failed to copy link", "error");
+    }
+  };
 
   return (
     <>
@@ -71,13 +86,32 @@ export default function PostCard({ post }: PostCardProps) {
             </div>
           </div>
           {/* Options button */}
-          <button className="w-8 h-8 flex items-center justify-center rounded-lg text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="5" r="1.5" />
-              <circle cx="12" cy="12" r="1.5" />
-              <circle cx="12" cy="19" r="1.5" />
-            </svg>
-          </button>
+          <Dropdown
+            trigger={
+              <button
+                type="button"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <circle cx="12" cy="5" r="1.5" />
+                  <circle cx="12" cy="12" r="1.5" />
+                  <circle cx="12" cy="19" r="1.5" />
+                </svg>
+              </button>
+            }
+          >
+            <button
+              onClick={handleCopyLink}
+              className="w-full text-left px-4 py-2 text-sm text-(--text-primary) hover:bg-(--bg-tertiary)"
+            >
+              Copy link
+            </button>
+          </Dropdown>
         </div>
 
         {/* Media */}
