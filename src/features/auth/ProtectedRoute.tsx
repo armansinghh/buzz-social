@@ -1,5 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import AppSkeleton from "@/components/ui/AppSkeleton";
 
 export default function ProtectedRoute({
   children,
@@ -10,7 +11,7 @@ export default function ProtectedRoute({
 
   // Wait until auth + profile fully loaded
   if (loading) {
-    return <div></div>;
+    return <AppSkeleton />;
   }
 
   // Not logged in
