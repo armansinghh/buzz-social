@@ -37,7 +37,7 @@ export default function CommentsModal() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4"
       onClick={closeModal}
     >
       <div
@@ -48,7 +48,7 @@ export default function CommentsModal() {
         {/* LEFT — POST PREVIEW */}
         <div className="sm:w-1/2 border-b sm:border-b-0 sm:border-r border-(--border-color) flex-col hidden sm:flex">
           {/* Post header */}
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-(--border-color)">
+          <div className="flex items-center gap-3 px-5 py-4 h-16 border-b border-(--border-color)">
             <Avatar
               name={post.authorUsername || "User"}
               src={post.authorAvatar}
@@ -101,7 +101,7 @@ export default function CommentsModal() {
         {/* RIGHT — COMMENTS */}
         <div className="flex-1 sm:w-1/2 flex flex-col min-h-0">
           {/* Header */}
-          <div className="flex items-center justify-between px-5 py-4 border-b border-(--border-color) shrink-0">
+          <div className="flex items-center justify-between px-5 py-4 h-16 border-b border-(--border-color) shrink-0">
             <h3 className="font-semibold text-(--text-primary)">Comments</h3>
             <button
               onClick={closeModal}
