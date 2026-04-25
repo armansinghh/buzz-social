@@ -48,29 +48,14 @@ function mapComment(data: Record<string, unknown>): Comment {
   return {
     id:
       typeof data.id === "string" && data.id ? data.id : crypto.randomUUID(),
-
     authorId: typeof data.authorId === "string" ? data.authorId : "",
-
-    authorUsername:
-      typeof data.authorUsername === "string" && data.authorUsername
-        ? data.authorUsername
-        : "User",
-
-    // authorPhoto is a legacy ghost field — only authorAvatar is canonical
-    authorAvatar:
-      typeof data.authorAvatar === "string" && data.authorAvatar
-        ? data.authorAvatar
-        : undefined,
-
     text: typeof data.text === "string" ? data.text : "",
-
     reactions: Array.isArray(data.reactions)
       ? (data.reactions as Record<string, unknown>[]).map((r) => ({
           emoji: typeof r.emoji === "string" ? r.emoji : "",
           users: Array.isArray(r.users) ? (r.users as string[]) : [],
         }))
       : [],
-
     createdAt:
       typeof data.createdAt === "string"
         ? data.createdAt

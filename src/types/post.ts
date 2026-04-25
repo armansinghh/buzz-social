@@ -8,10 +8,10 @@ export interface Comment {
 
   authorId: string;
 
-  authorUsername: string;
-
-  authorAvatar?: string;
-
+  authorUsername?: string;  // legacy only, never written to new comments
+  
+  authorAvatar?: string;    // legacy only, never written to new comments
+  
   text: string;
 
   reactions: Reaction[];

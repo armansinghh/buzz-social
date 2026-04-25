@@ -5,6 +5,7 @@ import { usePosts } from "@/features/posts/PostContext";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useUI } from "@/contexts/UIContext";
 import Avatar from "@/components/ui/Avatar";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 interface CommentItemProps {
   comment: Comment;
@@ -20,6 +21,18 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
 
   const userId = user?.uid ?? "guest";
 
+  // Resolve author live — ignores stale snapshot fields on the comment
+  const authorProfile = useUserProfile(comment.authorId);
+  const authorUsername =
+    authorProfile?.username ||
+    authorProfile?.name ||
+    comment.authorUsername ||
+    "User";
+  const authorAvatar =
+    authorProfile?.avatar ||
+    authorProfile?.photoURL ||
+    comment.authorAvatar;
+
   const handleOpenPicker = () => {
     if (!buttonRef.current) return;
 
@@ -28,7 +41,7 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
     const pickerHeight = 360;
 
     let y = rect.top - pickerHeight - 8;
-    let x = rect.left + rect.width / 2 - 160; // center align
+    let x = rect.left + rect.width / 2 - 160;
 
     if (y < 8) y = rect.bottom + 8;
 
@@ -36,7 +49,6 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
     if (x > maxX) x = maxX;
     if (x < 8) x = 8;
 
-    // Toggle behavior
     if (emojiPicker && emojiPicker.commentId === comment.id) {
       closeEmojiPicker();
       return;
@@ -48,8 +60,8 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
   return (
     <div className="flex gap-2">
       <Avatar
-        name={comment.authorUsername}
-        src={comment.authorAvatar}
+        name={authorUsername}
+        src={authorAvatar}
         size="xs"
         className="mt-0.5 shrink-0"
       />
@@ -57,7 +69,7 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
       <div className="flex-1 min-w-0">
         <div className="text-sm">
           <span className="font-semibold text-(--text-primary) mr-1.5">
-            {comment.authorUsername}
+            {authorUsername}
           </span>
           <span className="text-(--text-primary)">{comment.text}</span>
         </div>
@@ -67,7 +79,6 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
             {formatRelativeTime(comment.createdAt)}
           </span>
 
-          {/* Reactions */}
           {comment.reactions.map((reaction) => {
             const reactedByUser = reaction.users.includes(userId);
 
@@ -90,7 +101,6 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
             );
           })}
 
-          {/* Add reaction */}
           <button
             ref={buttonRef}
             onClick={handleOpenPicker}

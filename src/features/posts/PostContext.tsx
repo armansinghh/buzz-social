@@ -39,11 +39,8 @@ interface Media {
 interface PostContextType {
   posts: Post[];
   hasMore: boolean;
-
   loadMorePosts: () => Promise<void>;
-
   addPost: (caption: string, media?: Media) => Promise<void>;
-
   toggleLike: (postId: string) => void;
   likePost: (postId: string) => void;
   addComment: (postId: string, text: string) => void;
@@ -53,6 +50,21 @@ interface PostContextType {
 const POSTS_PER_PAGE = 10;
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
+
+// Builds a clean object for every comment — no undefined fields,
+// no legacy authorUsername/authorAvatar, safe to write to Firestore
+function serializeComments(comments: Post["comments"]) {
+  return comments.map((c) => ({
+    id: c.id,
+    authorId: c.authorId,
+    text: c.text,
+    reactions: c.reactions.map((r) => ({
+      emoji: r.emoji,
+      users: [...r.users],
+    })),
+    createdAt: c.createdAt,
+  }));
+}
 
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, profile } = useAuth();
@@ -126,17 +138,21 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     if (!user) return;
 
     try {
-      const newPost = buildPost({
-        user,
-        profile,
-        caption,
-        media,
-      });
+      const newPost = buildPost({ user, profile, caption, media });
 
       const docRef = await addDoc(collection(db, "posts"), newPost);
 
-      // Attach the Firestore-generated id explicitly — never rely on spread order
-      setPosts((prev) => [{ ...newPost, id: docRef.id }, ...prev]);
+      // Optimistic update — add placeholder fields so PostCard renders immediately
+      // useUserProfile will resolve the real values on next render
+      setPosts((prev) => [
+        {
+          ...newPost,
+          id: docRef.id,
+          authorUsername: "",
+          authorAvatar: undefined,
+        },
+        ...prev,
+      ]);
     } catch (err) {
       console.error("Failed to add post:", err);
     }
@@ -239,7 +255,9 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       try {
         const postRef = doc(db, "posts", postId);
-        await updateDoc(postRef, { comments: updatedComments });
+        await updateDoc(postRef, {
+          comments: serializeComments(updatedComments),
+        });
 
         if (authorId && authorId !== user.uid) {
           await createNotification({
@@ -311,7 +329,9 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       try {
         const postRef = doc(db, "posts", postId);
-        await updateDoc(postRef, { comments: updatedComments });
+        await updateDoc(postRef, {
+          comments: serializeComments(updatedComments),
+        });
       } catch (err) {
         console.error("Failed to toggle reaction:", err);
       }
