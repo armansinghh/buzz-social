@@ -1,9 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { doc, updateDoc, getDocs, collection, query, where } from "firebase/firestore";
+import {
+  doc,
+  updateDoc,
+  getDocs,
+  collection,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/features/auth/AuthContext";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import Avatar from "@/components/ui/Avatar";
+import { invalidateUserProfile } from "@/hooks/useUserProfile";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -29,7 +37,6 @@ export default function EditProfileModal({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Populate fields when modal opens
   useEffect(() => {
     if (isOpen && profile) {
       setName(profile.name ?? "");
@@ -41,7 +48,6 @@ export default function EditProfileModal({
     }
   }, [isOpen, profile]);
 
-  // ESC to close
   useEffect(() => {
     if (!isOpen) return;
     const onEsc = (e: KeyboardEvent) => {
@@ -51,10 +57,11 @@ export default function EditProfileModal({
     return () => window.removeEventListener("keydown", onEsc);
   }, [isOpen, saving, onClose]);
 
-  // Lock body scroll
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isOpen]);
 
   if (!isOpen || !user) return null;
@@ -70,7 +77,8 @@ export default function EditProfileModal({
     if (!value.trim()) return "Username is required";
     if (value.length < 3) return "At least 3 characters";
     if (value.length > 30) return "Max 30 characters";
-    if (!/^[a-z0-9_]+$/.test(value)) return "Only lowercase letters, numbers, and underscores";
+    if (!/^[a-z0-9_]+$/.test(value))
+      return "Only lowercase letters, numbers, and underscores";
     return "";
   };
 
@@ -91,11 +99,11 @@ export default function EditProfileModal({
     setError("");
 
     try {
-      // Check username uniqueness (only if changed)
+      // Check username uniqueness only if changed
       if (username !== profile?.username) {
         const q = query(
           collection(db, "users"),
-          where("username", "==", username)
+          where("username", "==", username),
         );
         const snap = await getDocs(q);
         if (!snap.empty) {
@@ -105,7 +113,7 @@ export default function EditProfileModal({
         }
       }
 
-      // Upload avatar if changed
+      // Upload new avatar if changed
       let avatarUrl = profile?.avatar ?? "";
       if (avatarFile) {
         const result = await uploadToCloudinary(avatarFile);
@@ -118,7 +126,14 @@ export default function EditProfileModal({
         avatar: avatarUrl,
       };
 
+      // 1. Save to Firestore user document
       await updateDoc(doc(db, "users", user.uid), updates);
+
+      // 2. Bust the in-memory cache so every PostCard re-fetches this uid
+      //    on next render — username + avatar will be fresh immediately
+      invalidateUserProfile(user.uid);
+
+      // 3. Refresh AuthContext so Navbar/profile header also updates
       await refreshProfile();
 
       onSaved();
@@ -141,7 +156,9 @@ export default function EditProfileModal({
   return (
     <div
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
-      onClick={() => { if (!saving) onClose(); }}
+      onClick={() => {
+        if (!saving) onClose();
+      }}
     >
       <div
         className="bg-(--bg-primary) w-full sm:max-w-md sm:rounded-2xl rounded-t-2xl overflow-hidden modal-in border border-(--border-color)"
@@ -151,29 +168,34 @@ export default function EditProfileModal({
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-(--border-color)">
           <button
-            onClick={() => { if (!saving) onClose(); }}
+            onClick={() => {
+              if (!saving) onClose();
+            }}
             className="text-sm text-(--text-secondary) hover:text-(--text-primary) transition-colors disabled:opacity-40"
             disabled={saving}
           >
             Cancel
           </button>
 
-          <h2 className="text-sm font-semibold text-(--text-primary)">Edit Profile</h2>
+          <h2 className="text-sm font-semibold text-(--text-primary)">
+            Edit Profile
+          </h2>
 
           <button
             onClick={handleSave}
             disabled={saving || !hasChanges || !!usernameError}
             className={`text-sm font-semibold transition-opacity
-              ${hasChanges && !usernameError
-                ? "text-blue-500 hover:text-blue-400"
-                : "text-(--text-muted) cursor-not-allowed opacity-50"
+              ${
+                hasChanges && !usernameError
+                  ? "text-blue-500 hover:text-blue-400"
+                  : "text-(--text-muted) cursor-not-allowed opacity-50"
               }`}
           >
             {saving ? "Saving…" : "Save"}
           </button>
         </div>
 
-        {/* Avatar section */}
+        {/* Avatar */}
         <div className="flex flex-col items-center pt-6 pb-4 px-5 border-b border-(--border-color)">
           <div className="relative group">
             <Avatar
@@ -219,7 +241,6 @@ export default function EditProfileModal({
 
         {/* Fields */}
         <div className="px-5 py-5 space-y-4">
-          {/* Name */}
           <div>
             <label className="block text-xs font-medium text-(--text-secondary) mb-1.5">
               Name
@@ -234,16 +255,16 @@ export default function EditProfileModal({
             />
           </div>
 
-          {/* Username */}
           <div>
             <label className="block text-xs font-medium text-(--text-secondary) mb-1.5">
               Username
             </label>
             <div
               className={`flex items-center border bg-(--bg-secondary) px-3 py-2.5 rounded-xl transition
-                ${usernameError
-                  ? "border-red-400 ring-2 ring-red-400/20"
-                  : "border-(--border-color) focus-within:ring-2 focus-within:ring-(--accent)/20 focus-within:border-(--accent)"
+                ${
+                  usernameError
+                    ? "border-red-400 ring-2 ring-red-400/20"
+                    : "border-(--border-color) focus-within:ring-2 focus-within:ring-(--accent)/20 focus-within:border-(--accent)"
                 }`}
             >
               <span className="text-(--text-muted) text-sm mr-1.5">@</span>
@@ -261,7 +282,6 @@ export default function EditProfileModal({
             )}
           </div>
 
-          {/* General error */}
           {error && (
             <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20">
               <span className="text-red-500 text-xs">⚠</span>
@@ -270,15 +290,14 @@ export default function EditProfileModal({
           )}
         </div>
 
-        {/* Saving overlay */}
-        {/* {saving && (
+        {saving && (
           <div className="px-5 pb-5">
             <div className="flex items-center justify-center gap-2 py-2 text-sm text-(--text-muted)">
               <div className="w-4 h-4 border-2 border-(--border-color) border-t-(--text-secondary) rounded-full animate-spin" />
               <span>Saving changes…</span>
             </div>
           </div>
-        )} */}
+        )}
       </div>
     </div>
   );

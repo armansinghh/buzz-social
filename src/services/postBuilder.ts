@@ -4,32 +4,22 @@ import type { UserProfile } from "@/types/user";
 
 export function buildPost({
   user,
-  profile,
   caption,
   media,
 }: {
   user: User;
-  profile: UserProfile | null;
+  profile: UserProfile | null; // keep param for compat, just don't use it
   caption: string;
   media?: { url: string; type: "image" | "video" };
 }): Omit<Post, "id"> {
   return {
     authorId: user.uid,
-
-    authorUsername:
-      profile?.username || user.displayName || "User",
-
-    authorAvatar:
-      profile?.avatar || user.photoURL || "",
-
+    authorUsername: "", // intentionally empty — resolved live via useUserProfile
+    authorAvatar: undefined,
     caption,
-
     media,
-
     likes: [],
-
     comments: [],
-
     createdAt: new Date().toISOString(),
   };
 }
