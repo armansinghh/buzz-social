@@ -18,7 +18,7 @@ import {
 
 import { db } from "@/lib/firebase";
 
-import type { Notification } from "./notifications.types";
+import type { Notification } from "@/types/notification";
 
 import { useAuth } from "@/features/auth/AuthContext";
 

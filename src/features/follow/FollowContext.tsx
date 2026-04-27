@@ -98,8 +98,6 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
       await createNotification({
         recipientId: targetUid,
         senderId: user.uid,
-        senderName: profile?.username || user.displayName || "User",
-        senderAvatar: profile?.avatar || user.photoURL || "",
         type: "follow",
       });
     },
@@ -114,7 +112,10 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
       setFollowing((prev) => prev.filter((id) => id !== targetUid));
       setFollowers((prev) => {
         const current = prev[targetUid] ?? [];
-        return { ...prev, [targetUid]: current.filter((id) => id !== user.uid) };
+        return {
+          ...prev,
+          [targetUid]: current.filter((id) => id !== user.uid),
+        };
       });
 
       await Promise.all([

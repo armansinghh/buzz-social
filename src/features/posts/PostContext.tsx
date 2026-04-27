@@ -263,8 +263,6 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
           await createNotification({
             recipientId: authorId,
             senderId: user.uid,
-            senderName: profile?.username || user.displayName || "User",
-            senderAvatar: profile?.avatar || user.photoURL || "",
             type: "comment",
             postId,
           });
