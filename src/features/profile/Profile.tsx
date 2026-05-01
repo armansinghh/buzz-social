@@ -178,7 +178,7 @@ export default function Profile() {
               {isOwnProfile ? (
                 <button
                   onClick={() => setEditModalOpen(true)}
-                  className="px-4 py-1.5 text-sm font-medium rounded-xl border border-(--border-color) text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors"
+                  className="px-4 py-1.5 text-sm font-medium rounded-xl bg-(--bg-secondary) border border-(--border-color) text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors"
                 >
                   Edit profile
                 </button>
