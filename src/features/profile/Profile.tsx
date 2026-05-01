@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { useParams, useLocation } from "react-router-dom";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  doc,
+  getDoc,
+} from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/features/auth/AuthContext";
 import { usePosts } from "@/features/posts/PostContext";
@@ -15,7 +22,13 @@ export default function Profile() {
   const { id } = useParams<{ id: string }>();
   const { user, profile: currentUserProfile } = useAuth();
   const { posts } = usePosts();
-  const { followUser, unfollowUser, isFollowing, getFollowerCount, getFollowingCount } = useFollow();
+  const {
+    followUser,
+    unfollowUser,
+    isFollowing,
+    getFollowerCount,
+    getFollowingCount,
+  } = useFollow();
   const { showToast } = useToast();
 
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
@@ -24,10 +37,10 @@ export default function Profile() {
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   const isOwnProfile =
-    user &&
-    (user.uid === id || currentUserProfile?.username === id);
+    user && (user.uid === id || currentUserProfile?.username === id);
 
   const followed = profileData ? isFollowing(profileData.uid) : false;
+  const location = useLocation();
 
   const handleFollowToggle = () => {
     if (!profileData) return;
@@ -44,10 +57,37 @@ export default function Profile() {
     setNotFound(false);
 
     try {
-      // Try matching by username first
+      // FIX 1: Check for instant data from React Router navigation
+      if (
+        location.state?.preloadedProfile &&
+        location.state.preloadedProfile.username === id
+      ) {
+        setProfileData(location.state.preloadedProfile);
+        setLoading(false);
+        return;
+      }
+
+      // FIX 2: If we are viewing our OWN profile, bypass the search index entirely!
+      // This guarantees we get the freshest data immediately after an edit,
+      // even if the username didn't change and location.state wasn't used.
+      if (user && (id === currentUserProfile?.username || id === user.uid)) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userDocRef);
+
+        if (userSnap.exists()) {
+          setProfileData({
+            ...userSnap.data(),
+            uid: userSnap.id,
+          } as UserProfile);
+          setLoading(false);
+          return;
+        }
+      }
+
+      // 3. Fallback to original queries for viewing OTHER users' profiles
       const usernameQuery = query(
         collection(db, "users"),
-        where("username", "==", id)
+        where("username", "==", id),
       );
       const usernameSnap = await getDocs(usernameQuery);
 
@@ -58,11 +98,7 @@ export default function Profile() {
         return;
       }
 
-      // Fall back to matching by uid
-      const uidQuery = query(
-        collection(db, "users"),
-        where("uid", "==", id)
-      );
+      const uidQuery = query(collection(db, "users"), where("uid", "==", id));
       const uidSnap = await getDocs(uidQuery);
 
       if (!uidSnap.empty) {
@@ -91,8 +127,7 @@ export default function Profile() {
 
   const userPosts = posts.filter(
     (p) =>
-      p.authorId === profileData?.uid ||
-      p.authorId === profileData?.username
+      p.authorId === profileData?.uid || p.authorId === profileData?.username,
   );
 
   if (loading) {
@@ -203,23 +238,33 @@ export default function Profile() {
                 {profileData.name || displayName}
               </h1>
               {profileData.username && (
-                <p className="text-sm text-(--text-muted)">@{profileData.username}</p>
+                <p className="text-sm text-(--text-muted)">
+                  @{profileData.username}
+                </p>
               )}
             </div>
 
             {/* Stats */}
             <div className="flex gap-5 mt-4 text-sm">
               <div>
-                <span className="font-bold text-(--text-primary)">{userPosts.length}</span>{" "}
-                <span className="text-(--text-muted)">{userPosts.length === 1 ? "post" : "posts"}</span>
+                <span className="font-bold text-(--text-primary)">
+                  {userPosts.length}
+                </span>{" "}
+                <span className="text-(--text-muted)">
+                  {userPosts.length === 1 ? "post" : "posts"}
+                </span>
               </div>
               <div>
-                <span className="font-bold text-(--text-primary)">{followerCount}</span>{" "}
+                <span className="font-bold text-(--text-primary)">
+                  {followerCount}
+                </span>{" "}
                 <span className="text-(--text-muted)">followers</span>
               </div>
               {isOwnProfile && (
                 <div>
-                  <span className="font-bold text-(--text-primary)">{followingCount}</span>{" "}
+                  <span className="font-bold text-(--text-primary)">
+                    {followingCount}
+                  </span>{" "}
                   <span className="text-(--text-muted)">following</span>
                 </div>
               )}

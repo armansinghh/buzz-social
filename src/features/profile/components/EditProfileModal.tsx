@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   doc,
   updateDoc,
@@ -25,6 +26,7 @@ export default function EditProfileModal({
   onSaved,
 }: EditProfileModalProps) {
   const { user, profile, refreshProfile } = useAuth();
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -136,7 +138,19 @@ export default function EditProfileModal({
       // 3. Refresh AuthContext so Navbar/profile header also updates
       await refreshProfile();
 
+      // Construct the new profile object manually so we can pass it
+      const nextProfile = { ...profile, ...updates, uid: user.uid };
+
       onSaved();
+
+      if (username !== profile?.username) {
+        navigate(`/profile/${username}`, {
+          replace: true,
+          // Pass the updated data directly to the new route!
+          state: { preloadedProfile: nextProfile },
+        });
+      }
+
       onClose();
     } catch (err) {
       console.error("Failed to save profile:", err);
