@@ -1,9 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import { AUTH_KEY } from "./AuthContext";
 import AppSkeleton from "@/components/ui/AppSkeleton";
-
-const wasLoggedIn = localStorage.getItem(AUTH_KEY) === "true";
 
 export default function ProtectedRoute({
   children,
@@ -12,24 +9,21 @@ export default function ProtectedRoute({
 }) {
   const { user, profile, loading } = useAuth();
 
-  // First-ever visit with no cached flag
-  if (loading && !wasLoggedIn) {
+  // Wait until auth + profile fully loaded
+  if (loading) {
     return <AppSkeleton />;
   }
 
-  //  Still initializing but we trust the cached flag — don't redirect yet
-  if (loading) {
-    return <>{children}</>;
-  }
-
-  // Firebase resolved — now we can trust these checks
+  // Not logged in
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
 
+  // Logged in but no username/profile incomplete
   if (!profile?.username) {
     return <Navigate to="/onboarding" replace />;
   }
 
+  // Good to go
   return <>{children}</>;
 }
