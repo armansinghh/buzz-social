@@ -1,6 +1,10 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import { AUTH_KEY } from "./AuthContext";
 import AppSkeleton from "@/components/ui/AppSkeleton";
+
+//  Read flag synchronously before Firebase initializes
+const wasLoggedIn = localStorage.getItem(AUTH_KEY) === "true";
 
 export default function ProtectedRoute({
   children,
@@ -9,21 +13,18 @@ export default function ProtectedRoute({
 }) {
   const { user, profile, loading } = useAuth();
 
-  // Wait until auth + profile fully loaded
-  if (loading) {
+  //  Only show skeleton on true first-ever visits
+  if (loading && !wasLoggedIn) {
     return <AppSkeleton />;
   }
 
-  // Not logged in
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
 
-  // Logged in but no username/profile incomplete
   if (!profile?.username) {
     return <Navigate to="/onboarding" replace />;
   }
 
-  // Good to go
   return <>{children}</>;
 }
