@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "react";
-import EmojiPicker from "emoji-picker-react";
+import { useEffect, useRef, useState } from "react";
+import EmojiPicker, { Theme } from "emoji-picker-react";
 import { useUI } from "@/contexts/UIContext";
 import { usePosts } from "@/features/posts/PostContext";
 
@@ -8,6 +8,13 @@ export default function EmojiPickerPortal() {
   const { toggleReaction } = usePosts();
 
   const pickerRef = useRef<HTMLDivElement | null>(null);
+  const [theme, setTheme] = useState<Theme>(Theme.LIGHT);
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains("dark");
+
+    setTheme(isDark ? Theme.DARK : Theme.LIGHT);
+  }, [emojiPicker]);
 
   // Close on outside click
   useEffect(() => {
@@ -57,6 +64,7 @@ export default function EmojiPickerPortal() {
       }}
     >
       <EmojiPicker
+        theme={theme}
         onEmojiClick={(emojiData) => {
           toggleReaction(
             emojiPicker.postId,
