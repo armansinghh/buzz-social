@@ -14,6 +14,9 @@ import {
 
 import { doc, getDoc } from "firebase/firestore";
 
+// localStorage key for persisting auth state
+export const AUTH_KEY = "buzz-auth";
+
 type AuthContextType = {
   user: User | null;
   profile: UserProfile | null;
@@ -37,6 +40,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(true);
 
       if (!firebaseUser) {
+        // Clear flag — user is definitively logged out
+        localStorage.removeItem(AUTH_KEY);
         setUser(null);
         setProfile(null);
         setLoading(false);
@@ -53,19 +58,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const data = snap.data() as UserProfile;
           fetchedProfile = {
             ...data,
-            // These array fields belong to AuthContext's old follow system which
-            // has been removed. FollowContext owns follow state via subcollections.
-            // Keep them here only so existing Firestore docs don't break the shape.
             followers: data.followers ?? [],
             following: data.following ?? [],
           };
         }
 
-        // Set both together so consumers never see a user without a profile
+        // Set flag — user is confirmed logged in with a profile
+        localStorage.setItem(AUTH_KEY, "true");
+
         setUser(firebaseUser);
         setProfile(fetchedProfile);
       } catch (err) {
         console.error("Failed loading profile:", err);
+        // Clear flag on error — don't assume logged in
+        localStorage.removeItem(AUTH_KEY);
         setUser(firebaseUser);
         setProfile(null);
       } finally {
@@ -105,6 +111,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = async () => {
+    // Clear flag on explicit logout
+    localStorage.removeItem(AUTH_KEY);
     await firebaseLogout();
   };
 
