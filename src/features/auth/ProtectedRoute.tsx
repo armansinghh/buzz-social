@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import AppSkeleton from "@/components/ui/AppSkeleton";
+import SplashScreen from "@/components/ui/SplashScreen";
 
-const MIN_SPLASH_MS = 1500;
+const MIN_SPLASH_MS = 2000;
 
 export default function ProtectedRoute({
   children,
@@ -19,7 +19,7 @@ export default function ProtectedRoute({
   }, []);
   // Wait until auth + profile fully loaded
   if (loading || !minTimerDone) {
-    return <AppSkeleton />;
+    return <SplashScreen />;
   }
 
   // Not logged in
