@@ -123,7 +123,7 @@ export default function NotificationModal() {
           </button>
         </div>
 
-        <div className="overflow-y-auto max-h-[70vh]">
+        <div className="overflow-y-auto max-h-[70vh] main-scroll">
           {notifications.length === 0 ? (
             <div className="py-20 text-center text-(--text-muted)">
               No notifications yet.

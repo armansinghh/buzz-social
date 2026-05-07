@@ -198,14 +198,14 @@ export default function Profile() {
                   className={`px-4 py-1.5 text-sm font-semibold rounded-xl transition-all
                     ${
                       followed
-                        ? "border border-(--border-color) text-(--text-secondary) hover:border-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                        ? "bg-(--bg-secondary) border border-(--border-color) text-(--text-secondary) hover:border-red-400 hover:text-red-500 hover:bg-(--bg-tertiary)"
                         : "bg-(--accent) text-(--bg-primary) hover:opacity-90"
                     }`}
                 >
                   {followed ? "Following" : "Follow"}
                 </button>
               )}
-            </div>
+            </div>    
 
             {/* Info */}
             <div className="space-y-1">
