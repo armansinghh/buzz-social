@@ -114,7 +114,7 @@ export default function AuthPage() {
           style={{
             flex: 1,
             flexDirection: "column",
-            justifyContent: "space-between",
+            justifyContent: "center",
             padding: "48px 56px",
             position: "relative",
             overflow: "hidden",
@@ -141,7 +141,7 @@ export default function AuthPage() {
           </div>
 
           {/* Center illustration + text */}
-          <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "40px" }}>
+          <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "40px" }}>
 
             {/* Floating cards cluster */}
             <div style={{ position: "relative", width: "340px", height: "260px" }}>
