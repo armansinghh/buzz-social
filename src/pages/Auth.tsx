@@ -65,204 +65,116 @@ export default function AuthPage() {
         .auth-float-b { animation: float-b 8s ease-in-out infinite 1s; }
         .auth-float-c { animation: float-c 7s ease-in-out infinite 2s; }
         .auth-pulse-dot { animation: pulse-dot 2.5s ease-in-out infinite; }
-
-        .auth-left-panel {
-          display: none;
-        }
-        @media (min-width: 768px) {
-          .auth-left-panel {
-            display: flex;
-          }
-        }
-        .auth-right-panel {
-          width: 100%;
-        }
-        @media (min-width: 768px) {
-          .auth-right-panel {
-            width: auto;
-            min-width: 420px;
-          }
-        }
-        @media (min-width: 1024px) {
-          .auth-right-panel {
-            min-width: 460px;
-          }
-        }
-        .auth-mobile-logo {
-          display: block;
-        }
-        @media (min-width: 768px) {
-          .auth-mobile-logo {
-            display: none;
-          }
-        }
-        .auth-divider {
-          display: none;
-        }
-        @media (min-width: 768px) {
-          .auth-divider {
-            display: block;
-          }
-        }
       `}</style>
 
-      <div style={{ minHeight: "100vh", display: "flex", background: "#0c0c0e" }}>
+      <div className="min-h-screen flex bg-[#0c0c0e]">
 
         {/* ── LEFT PANEL ── */}
-        <div
-          className="auth-left-panel"
-          style={{
-            flex: 1,
-            flexDirection: "column",
-            justifyContent: "center",
-            padding: "48px 56px",
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
+        <div className="hidden md:flex flex-1 flex-col justify-center px-14 py-12 relative overflow-hidden">
+
           {/* Grid texture */}
-          <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.03, pointerEvents: "none" }} xmlns="http://www.w3.org/2000/svg">
+          <svg className="absolute inset-0 w-full h-full opacity-[0.03] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
             <defs>
               <pattern id="auth-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" strokeWidth="0.5"/>
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" strokeWidth="0.5" />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#auth-grid)" />
           </svg>
 
           {/* Ambient glows */}
-          <div style={{ position: "absolute", top: "15%", left: "20%", width: "350px", height: "350px", borderRadius: "50%", background: "radial-gradient(circle, rgba(251,191,36,0.13) 0%, transparent 65%)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", bottom: "20%", right: "10%", width: "280px", height: "280px", borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 65%)", pointerEvents: "none" }} />
+          <div className="absolute top-[15%] left-[20%] w-[350px] h-[350px] rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.13)_0%,transparent_65%)] pointer-events-none" />
+          <div className="absolute bottom-[20%] right-[10%] w-[280px] h-[280px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.10)_0%,transparent_65%)] pointer-events-none" />
 
           {/* Logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", position: "relative", zIndex: 1 }}>
-            <span style={{ fontFamily: "Georgia, serif", fontSize: "26px", fontWeight: 700, color: "#fafafa", letterSpacing: "-1px" }}>buzz</span>
-            <span className="auth-pulse-dot" style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#fbbf24", display: "inline-block", marginBottom: "8px" }} />
+          <div className="flex items-center gap-2 relative z-10">
+            <span className="font-serif text-[26px] font-bold text-[#fafafa] tracking-tight">buzz</span>
+            <span className="auth-pulse-dot w-2 h-2 rounded-full bg-amber-400 inline-block mb-2" />
           </div>
 
           {/* Center illustration + text */}
-          <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: "40px" }}>
+          <div className="relative z-10 flex flex-col items-center gap-10">
 
             {/* Floating cards cluster */}
-            <div style={{ position: "relative", width: "340px", height: "260px" }}>
+            <div className="relative w-[340px] h-[260px]">
 
               {/* Card C — back left */}
-              <div
-                className="auth-float-c"
-                style={{
-                  position: "absolute", top: "40px", left: "0px",
-                  width: "220px", borderRadius: "16px",
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.07)",
-                  padding: "16px",
-                  backdropFilter: "blur(8px)",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                  <div style={{ width: "30px", height: "30px", borderRadius: "50%", background: "linear-gradient(135deg, #a78bfa, #7c3aed)", flexShrink: 0 }} />
+              <div className="auth-float-c absolute top-10 left-0 w-[220px] rounded-2xl bg-white/[0.03] border border-white/[0.07] p-4 backdrop-blur-sm">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-violet-400 to-violet-700 shrink-0" />
                   <div>
-                    <div style={{ width: "70px", height: "7px", borderRadius: "4px", background: "rgba(255,255,255,0.18)", marginBottom: "4px" }} />
-                    <div style={{ width: "45px", height: "5px", borderRadius: "4px", background: "rgba(255,255,255,0.07)" }} />
+                    <div className="w-[70px] h-[7px] rounded bg-white/[0.18] mb-1" />
+                    <div className="w-[45px] h-[5px] rounded bg-white/[0.07]" />
                   </div>
                 </div>
-                <div style={{ width: "100%", height: "60px", borderRadius: "10px", background: "rgba(139,92,246,0.15)", marginBottom: "10px" }} />
-                <div style={{ display: "flex", gap: "12px" }}>
-                  <span style={{ fontSize: "13px" }}>❤️</span>
-                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.25)", fontFamily: "system-ui", alignSelf: "center" }}>89 likes</span>
+                <div className="w-full h-[60px] rounded-xl bg-violet-500/15 mb-2.5" />
+                <div className="flex gap-3">
+                  <span className="text-[13px]">❤️</span>
+                  <span className="text-[13px]">💬</span>
                 </div>
               </div>
 
               {/* Card B — back right */}
-              <div
-                className="auth-float-b"
-                style={{
-                  position: "absolute", top: "20px", right: "0px",
-                  width: "200px", borderRadius: "16px",
-                  background: "rgba(255,255,255,0.04)",
-                  border: "1px solid rgba(255,255,255,0.09)",
-                  padding: "16px",
-                  backdropFilter: "blur(8px)",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                  <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "linear-gradient(135deg, #34d399, #059669)", flexShrink: 0 }} />
+              <div className="auth-float-b absolute top-0 right-0 w-[180px] rounded-2xl bg-white/[0.04] border border-white/[0.08] p-3.5 backdrop-blur-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 shrink-0" />
                   <div>
-                    <div style={{ width: "60px", height: "7px", borderRadius: "4px", background: "rgba(255,255,255,0.18)", marginBottom: "4px" }} />
-                    <div style={{ width: "38px", height: "5px", borderRadius: "4px", background: "rgba(255,255,255,0.07)" }} />
+                    <div className="w-16 h-[6px] rounded bg-white/20 mb-1" />
+                    <div className="w-10 h-[5px] rounded bg-white/[0.08]" />
                   </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginBottom: "10px" }}>
-                  <div style={{ width: "100%", height: "6px", borderRadius: "4px", background: "rgba(255,255,255,0.12)" }} />
-                  <div style={{ width: "75%", height: "6px", borderRadius: "4px", background: "rgba(255,255,255,0.07)" }} />
-                </div>
-                <div style={{ display: "flex", gap: "12px" }}>
-                  <span style={{ fontSize: "13px" }}>💬</span>
-                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.25)", fontFamily: "system-ui", alignSelf: "center" }}>24 comments</span>
+                <div className="w-full h-14 rounded-xl bg-emerald-500/10 mb-2" />
+                <div className="flex gap-2">
+                  <span className="text-xs">❤️</span>
+                  <span className="text-xs text-white/40 font-[system-ui]">89</span>
                 </div>
               </div>
 
-              {/* Card A — front hero */}
-              <div
-                className="auth-float-a"
-                style={{
-                  position: "absolute", bottom: "0px", left: "50%",
-                  width: "240px", borderRadius: "18px",
-                  background: "linear-gradient(160deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 100%)",
-                  border: "1px solid rgba(255,255,255,0.14)",
-                  padding: "18px",
-                  backdropFilter: "blur(16px)",
-                  boxShadow: "0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
-                  <div style={{ width: "34px", height: "34px", borderRadius: "50%", background: "linear-gradient(135deg, #fbbf24, #f97316)", flexShrink: 0 }} />
+              {/* Card A — front/center */}
+              <div className="auth-float-a absolute bottom-0 left-1/2 w-[230px] rounded-2xl bg-white/[0.06] border border-white/[0.12] p-4 backdrop-blur-md">
+                <div className="flex items-center gap-2.5 mb-3">
+                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-300 to-orange-500 shrink-0" />
                   <div>
-                    <div style={{ width: "80px", height: "8px", borderRadius: "4px", background: "rgba(255,255,255,0.3)", marginBottom: "5px" }} />
-                    <div style={{ width: "50px", height: "6px", borderRadius: "4px", background: "rgba(255,255,255,0.12)" }} />
+                    <div className="w-20 h-2 rounded bg-white/30 mb-1" />
+                    <div className="w-[50px] h-1.5 rounded bg-white/[0.12]" />
                   </div>
                 </div>
-                <div style={{ width: "100%", height: "80px", borderRadius: "12px", background: "linear-gradient(135deg, rgba(251,191,36,0.2), rgba(249,115,22,0.15))", marginBottom: "12px", position: "relative", overflow: "hidden" }}>
-                  <div style={{ position: "absolute", bottom: "8px", right: "8px", background: "rgba(0,0,0,0.4)", borderRadius: "6px", padding: "2px 7px", fontSize: "10px", color: "rgba(255,255,255,0.7)", fontFamily: "system-ui" }}>photo</div>
+                <div className="relative w-full h-20 rounded-xl bg-gradient-to-br from-amber-400/20 to-orange-500/15 mb-3 overflow-hidden">
+                  <div className="absolute bottom-2 right-2 bg-black/40 rounded-md px-1.5 py-0.5 text-[10px] text-white/70 font-[system-ui]">photo</div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "5px", marginBottom: "12px" }}>
-                  <div style={{ width: "100%", height: "6px", borderRadius: "4px", background: "rgba(255,255,255,0.18)" }} />
-                  <div style={{ width: "65%", height: "6px", borderRadius: "4px", background: "rgba(255,255,255,0.09)" }} />
+                <div className="flex flex-col gap-1 mb-3">
+                  <div className="w-full h-1.5 rounded bg-white/[0.18]" />
+                  <div className="w-[65%] h-1.5 rounded bg-white/[0.09]" />
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-                  <span style={{ fontSize: "14px" }}>❤️</span>
-                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", fontFamily: "system-ui" }}>142 likes</span>
-                  <span style={{ fontSize: "14px" }}>💬</span>
-                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", fontFamily: "system-ui" }}>31</span>
+                <div className="flex items-center gap-3.5">
+                  <span className="text-sm">❤️</span>
+                  <span className="text-[11px] text-white/40 font-[system-ui]">142 likes</span>
+                  <span className="text-sm">💬</span>
+                  <span className="text-[11px] text-white/40 font-[system-ui]">31</span>
                 </div>
               </div>
             </div>
 
             {/* Text */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-              <h1
-                style={{
-                  fontFamily: "Georgia, 'Times New Roman', serif",
-                  fontSize: "clamp(36px, 3.5vw, 52px)",
-                  fontWeight: 700,
-                  color: "#fafafa",
-                  lineHeight: 1.1,
-                  letterSpacing: "-1px",
-                  margin: 0,
-                }}
-              >
+            <div className="flex flex-col gap-4">
+              <h1 className="font-serif text-[clamp(36px,3.5vw,52px)] font-bold text-[#fafafa] leading-[1.1] tracking-tight m-0">
                 What's buzzing<br />
-                <span style={{ color: "#fbbf24" }}>right now.</span>
+                <span className="text-amber-400">right now.</span>
               </h1>
-              <p style={{ fontSize: "15px", color: "rgba(250,250,250,0.38)", lineHeight: 1.7, margin: 0, maxWidth: "320px" }}>
+              <p className="text-[15px] text-white/[0.38] leading-[1.7] m-0 max-w-[320px]">
                 Share moments, follow friends, and discover what's trending — all in one place.
               </p>
 
               {/* Social proof pill */}
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "2px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: "100px", padding: "8px 16px", width: "fit-content" }}>
+              <div className="inline-flex items-center gap-0.5 bg-white/[0.05] border border-white/[0.09] rounded-full px-4 py-2 w-fit">
                 {(["#fbbf24", "#a78bfa", "#34d399", "#f87171"] as const).map((c, i) => (
-                  <div key={c} style={{ width: "22px", height: "22px", borderRadius: "50%", background: c, border: "2px solid #0c0c0e", marginLeft: i === 0 ? 0 : "-8px", flexShrink: 0 }} />
+                  <div
+                    key={c}
+                    className="w-[22px] h-[22px] rounded-full border-2 border-[#0c0c0e] shrink-0"
+                    style={{ background: c, marginLeft: i === 0 ? 0 : "-8px" }}
+                  />
                 ))}
-                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", fontFamily: "system-ui", marginLeft: "10px" }}>
+                <span className="text-xs text-white/45 font-[system-ui] ml-2.5">
                   Join thousands sharing moments
                 </span>
               </div>
@@ -270,37 +182,28 @@ export default function AuthPage() {
           </div>
 
           {/* Footer */}
-          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.15)", position: "relative", zIndex: 1 }}>
+          <p className="text-xs text-white/[0.15] relative z-10">
             © 2026 Buzz · Made with ❤️ by Arman Singh
           </p>
         </div>
 
         {/* Divider */}
-        <div className="auth-divider" style={{ width: "1px", background: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
+        <div className="hidden md:block w-px bg-white/[0.06] shrink-0" />
 
-        {/* ── RIGHT PANEL — original form, untouched ── */}
-        <div
-          className="auth-right-panel"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "48px 40px",
-            background: "#111113",
-          }}
-        >
-          <div style={{ width: "100%", maxWidth: "340px" }}>
+        {/* ── RIGHT PANEL ── */}
+        <div className="w-full md:w-auto md:min-w-[420px] lg:min-w-[460px] flex items-center justify-center px-10 py-12 bg-[#111113]">
+          <div className="w-full max-w-[340px]">
 
             {/* Mobile-only logo */}
-            <div className="auth-mobile-logo" style={{ textAlign: "center", marginBottom: "32px" }}>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }}>
-                <span style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-1px", fontFamily: "Georgia, serif" }}>buzz</span>
-                <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#fbbf24", display: "inline-block", marginBottom: "8px" }} />
+            <div className="block md:hidden text-center mb-8">
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <span className="font-serif text-[28px] font-bold text-(--text-primary) tracking-tight">buzz</span>
+                <span className="w-2 h-2 rounded-full bg-amber-400 inline-block mb-2" />
               </div>
-              <p style={{ fontSize: "14px", color: "var(--text-muted)", margin: 0 }}>What's buzzing right now.</p>
+              <p className="text-sm text-(--text-muted) m-0">What's buzzing right now.</p>
             </div>
 
-            {/* Card — original markup */}
+            {/* Card */}
             <div
               className="bg-(--bg-primary) rounded-2xl p-6 border border-(--border-color)"
               style={{ boxShadow: "var(--shadow-md)" }}
