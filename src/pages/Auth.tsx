@@ -43,250 +43,156 @@ export default function AuthPage() {
   };
 
   return (
-    <>
-      <style>{`
-        @keyframes float-a {
-          0%, 100% { transform: translateX(-50%) rotate(-2deg) translateY(0px); }
-          50%       { transform: translateX(-50%) rotate(-2deg) translateY(-14px); }
-        }
-        @keyframes float-b {
-          0%, 100% { transform: translateY(0px) rotate(3deg); }
-          50%       { transform: translateY(-10px) rotate(3deg); }
-        }
-        @keyframes float-c {
-          0%, 100% { transform: translateY(0px) rotate(-1deg); }
-          50%       { transform: translateY(-18px) rotate(-1deg); }
-        }
-        @keyframes pulse-dot {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50%       { opacity: 0.6; transform: scale(1.3); }
-        }
-        .auth-float-a { animation: float-a 6s ease-in-out infinite; }
-        .auth-float-b { animation: float-b 8s ease-in-out infinite 1s; }
-        .auth-float-c { animation: float-c 7s ease-in-out infinite 2s; }
-        .auth-pulse-dot { animation: pulse-dot 2.5s ease-in-out infinite; }
-      `}</style>
+    <div className="min-h-screen flex bg-(--bg-secondary)">
 
-      <div className="min-h-screen flex bg-[#0c0c0e]">
+      {/* ── LEFT PANEL ── */}
+      <div className="hidden lg:flex flex-1 flex-col justify-between p-12 bg-(--bg-primary) border-r border-(--border-color) relative overflow-hidden">
 
-        {/* ── LEFT PANEL ── */}
-        <div className="hidden md:flex flex-1 flex-col justify-center px-14 py-12 relative overflow-hidden">
+        {/* Dot grid */}
+        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.04] dark:opacity-[0.07]" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="dots" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="1" fill="currentColor" className="text-(--text-primary)" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dots)" />
+        </svg>
 
-          {/* Grid texture */}
-          <svg className="absolute inset-0 w-full h-full opacity-[0.03] pointer-events-none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <pattern id="auth-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" strokeWidth="0.5" />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#auth-grid)" />
-          </svg>
+        {/* Ambient glows */}
+        <div className="absolute top-[8%] left-[5%] w-[420px] h-[420px] rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.13)_0%,transparent_65%)] pointer-events-none" />
+        <div className="absolute bottom-[8%] right-[0%] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.10)_0%,transparent_65%)] pointer-events-none" />
 
-          {/* Ambient glows */}
-          <div className="absolute top-[15%] left-[20%] w-[350px] h-[350px] rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.13)_0%,transparent_65%)] pointer-events-none" />
-          <div className="absolute bottom-[20%] right-[10%] w-[280px] h-[280px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.10)_0%,transparent_65%)] pointer-events-none" />
+        {/* Logo */}
+        <div className="flex items-center gap-1.5 relative z-10">
+          <span className="font-serif text-2xl font-bold text-(--text-primary) tracking-tight">buzz</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mb-2 inline-block" />
+        </div>
 
-          {/* Logo */}
-          <div className="flex items-center gap-2 relative z-10">
-            <span className="font-serif text-[26px] font-bold text-[#fafafa] tracking-tight">buzz</span>
-            <span className="auth-pulse-dot w-2 h-2 rounded-full bg-amber-400 inline-block mb-2" />
+        {/* Center text */}
+        <div className="flex flex-col gap-6 max-w-sm relative z-10">
+          <h1 className="font-serif text-5xl font-bold text-(--text-primary) leading-[1.1] tracking-tight">
+            What's buzzing<br />
+            <span className="text-amber-400">right now.</span>
+          </h1>
+          <p className="text-base text-(--text-muted) leading-relaxed">
+            Share moments, follow friends, and discover what's trending — all in one place.
+          </p>
+
+          {/* Social proof */}
+          <div className="flex items-center gap-3 pt-2">
+            <div className="flex">
+              {(["#fbbf24", "#a78bfa", "#34d399", "#f87171"] as const).map((c, i) => (
+                <div
+                  key={c}
+                  className="w-7 h-7 rounded-full border-2 border-(--bg-primary) shrink-0"
+                  style={{ background: c, marginLeft: i === 0 ? 0 : "-8px" }}
+                />
+              ))}
+            </div>
+            <p className="text-sm text-(--text-muted)">Join thousands sharing moments</p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <p className="text-xs text-(--text-muted) relative z-10">© 2026 Buzz · Made with ❤️ by Arman Singh</p>
+      </div>
+
+      {/* ── RIGHT PANEL ── */}
+      <div className="flex flex-1 lg:flex-none lg:w-[480px] items-center justify-center p-8">
+        <div className="w-full max-w-sm">
+
+          {/* Mobile logo */}
+          <div className="flex lg:hidden items-center justify-center gap-1.5 mb-10">
+            <span className="font-serif text-2xl font-bold text-(--text-primary) tracking-tight">buzz</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mb-2 inline-block" />
           </div>
 
-          {/* Center illustration + text */}
-          <div className="relative z-10 flex flex-col items-center gap-10">
-
-            {/* Floating cards cluster */}
-            <div className="relative w-[340px] h-[260px]">
-
-              {/* Card C — back left */}
-              <div className="auth-float-c absolute top-10 left-0 w-[220px] rounded-2xl bg-white/[0.03] border border-white/[0.07] p-4 backdrop-blur-sm">
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div className="w-[30px] h-[30px] rounded-full bg-gradient-to-br from-violet-400 to-violet-700 shrink-0" />
-                  <div>
-                    <div className="w-[70px] h-[7px] rounded bg-white/[0.18] mb-1" />
-                    <div className="w-[45px] h-[5px] rounded bg-white/[0.07]" />
-                  </div>
-                </div>
-                <div className="w-full h-[60px] rounded-xl bg-violet-500/15 mb-2.5" />
-                <div className="flex gap-3">
-                  <span className="text-[13px]">❤️</span>
-                  <span className="text-[13px]">💬</span>
-                </div>
-              </div>
-
-              {/* Card B — back right */}
-              <div className="auth-float-b absolute top-0 right-0 w-[180px] rounded-2xl bg-white/[0.04] border border-white/[0.08] p-3.5 backdrop-blur-sm">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 shrink-0" />
-                  <div>
-                    <div className="w-16 h-[6px] rounded bg-white/20 mb-1" />
-                    <div className="w-10 h-[5px] rounded bg-white/[0.08]" />
-                  </div>
-                </div>
-                <div className="w-full h-14 rounded-xl bg-emerald-500/10 mb-2" />
-                <div className="flex gap-2">
-                  <span className="text-xs">❤️</span>
-                  <span className="text-xs text-white/40 font-[system-ui]">89</span>
-                </div>
-              </div>
-
-              {/* Card A — front/center */}
-              <div className="auth-float-a absolute bottom-0 left-1/2 w-[230px] rounded-2xl bg-white/[0.06] border border-white/[0.12] p-4 backdrop-blur-md">
-                <div className="flex items-center gap-2.5 mb-3">
-                  <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-300 to-orange-500 shrink-0" />
-                  <div>
-                    <div className="w-20 h-2 rounded bg-white/30 mb-1" />
-                    <div className="w-[50px] h-1.5 rounded bg-white/[0.12]" />
-                  </div>
-                </div>
-                <div className="relative w-full h-20 rounded-xl bg-gradient-to-br from-amber-400/20 to-orange-500/15 mb-3 overflow-hidden">
-                  <div className="absolute bottom-2 right-2 bg-black/40 rounded-md px-1.5 py-0.5 text-[10px] text-white/70 font-[system-ui]">photo</div>
-                </div>
-                <div className="flex flex-col gap-1 mb-3">
-                  <div className="w-full h-1.5 rounded bg-white/[0.18]" />
-                  <div className="w-[65%] h-1.5 rounded bg-white/[0.09]" />
-                </div>
-                <div className="flex items-center gap-3.5">
-                  <span className="text-sm">❤️</span>
-                  <span className="text-[11px] text-white/40 font-[system-ui]">142 likes</span>
-                  <span className="text-sm">💬</span>
-                  <span className="text-[11px] text-white/40 font-[system-ui]">31</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Text */}
-            <div className="flex flex-col gap-4">
-              <h1 className="font-serif text-[clamp(36px,3.5vw,52px)] font-bold text-[#fafafa] leading-[1.1] tracking-tight m-0">
-                What's buzzing<br />
-                <span className="text-amber-400">right now.</span>
-              </h1>
-              <p className="text-[15px] text-white/[0.38] leading-[1.7] m-0 max-w-[320px]">
-                Share moments, follow friends, and discover what's trending — all in one place.
-              </p>
-
-              {/* Social proof pill */}
-              <div className="inline-flex items-center gap-0.5 bg-white/[0.05] border border-white/[0.09] rounded-full px-4 py-2 w-fit">
-                {(["#fbbf24", "#a78bfa", "#34d399", "#f87171"] as const).map((c, i) => (
-                  <div
-                    key={c}
-                    className="w-[22px] h-[22px] rounded-full border-2 border-[#0c0c0e] shrink-0"
-                    style={{ background: c, marginLeft: i === 0 ? 0 : "-8px" }}
-                  />
-                ))}
-                <span className="text-xs text-white/45 font-[system-ui] ml-2.5">
-                  Join thousands sharing moments
-                </span>
-              </div>
-            </div>
+          {/* Heading */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-(--text-primary) tracking-tight mb-1">
+              {mode === "login" ? "Sign in" : "Create account"}
+            </h2>
+            <p className="text-sm text-(--text-muted)">
+              {mode === "login"
+                ? "Welcome back. Enter your details below."
+                : "Get started — it only takes a moment."}
+            </p>
           </div>
 
-          {/* Footer */}
-          <p className="text-xs text-white/[0.15] relative z-10">
-            © 2026 Buzz · Made with ❤️ by Arman Singh
+          {/* Form */}
+          <div className="flex flex-col gap-4">
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-(--text-secondary)">Email</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                className="w-full bg-(--bg-primary) border border-(--border-color) text-(--text-primary) placeholder:text-(--text-muted) text-sm px-3.5 py-2.5 rounded-lg outline-none transition-colors focus:border-(--accent) focus:ring-2 focus:ring-(--accent)/10"
+              />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs font-medium text-(--text-secondary)">Password</label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                className="w-full bg-(--bg-primary) border border-(--border-color) text-(--text-primary) placeholder:text-(--text-muted) text-sm px-3.5 py-2.5 rounded-lg outline-none transition-colors focus:border-(--accent) focus:ring-2 focus:ring-(--accent)/10"
+              />
+            </div>
+
+            {error && (
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20">
+                <span className="text-red-500 text-xs shrink-0">⚠</span>
+                <p className="text-red-500 text-xs">{error}</p>
+              </div>
+            )}
+
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full bg-(--accent) text-(--bg-primary) text-sm font-semibold py-2.5 rounded-lg transition-opacity hover:opacity-90 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed mt-1"
+            >
+              {loading ? "Please wait…" : mode === "login" ? "Sign in" : "Sign up"}
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="flex-1 h-px bg-(--border-color)" />
+              <span className="text-xs text-(--text-muted)">or</span>
+              <div className="flex-1 h-px bg-(--border-color)" />
+            </div>
+
+            <button
+              onClick={handleGoogle}
+              className="w-full flex items-center justify-center gap-2.5 bg-(--bg-primary) border border-(--border-color) text-(--text-primary) text-sm font-medium py-2.5 rounded-lg transition-colors hover:bg-(--bg-secondary) cursor-pointer"
+            >
+              <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
+                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+              </svg>
+              Continue with Google
+            </button>
+          </div>
+
+          {/* Switch mode */}
+          <p className="text-xs text-(--text-muted) text-center mt-8">
+            {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
+            <button
+              onClick={() => setMode(mode === "login" ? "signup" : "login")}
+              className="text-(--text-primary) font-medium hover:underline cursor-pointer"
+            >
+              {mode === "login" ? "Sign up" : "Sign in"}
+            </button>
           </p>
         </div>
-
-        {/* Divider */}
-        <div className="hidden md:block w-px bg-white/[0.06] shrink-0" />
-
-        {/* ── RIGHT PANEL ── */}
-        <div className="w-full md:w-auto md:min-w-[420px] lg:min-w-[460px] flex items-center justify-center px-10 py-12 bg-[#111113]">
-          <div className="w-full max-w-[340px]">
-
-            {/* Mobile-only logo */}
-            <div className="block md:hidden text-center mb-8">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="font-serif text-[28px] font-bold text-(--text-primary) tracking-tight">buzz</span>
-                <span className="w-2 h-2 rounded-full bg-amber-400 inline-block mb-2" />
-              </div>
-              <p className="text-sm text-(--text-muted) m-0">What's buzzing right now.</p>
-            </div>
-
-            {/* Card */}
-            <div
-              className="bg-(--bg-primary) rounded-2xl p-6 border border-(--border-color)"
-              style={{ boxShadow: "var(--shadow-md)" }}
-            >
-              <h1 className="text-lg font-semibold text-(--text-primary) mb-5">
-                {mode === "login" ? "Sign in" : "Create account"}
-              </h1>
-
-              <div className="space-y-3">
-                <div>
-                  <label className="text-xs font-medium text-(--text-secondary) block mb-1.5">Email</label>
-                  <input
-                    type="email"
-                    placeholder="you@example.com"
-                    className="w-full border border-(--border-color) bg-(--bg-secondary) text-(--text-primary) placeholder:text-(--text-muted) p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-(--accent)/20 focus:border-(--accent)"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-medium text-(--text-secondary) block mb-1.5">Password</label>
-                  <input
-                    type="password"
-                    placeholder="••••••"
-                    className="w-full border border-(--border-color) bg-(--bg-secondary) text-(--text-primary) placeholder:text-(--text-muted) p-3 rounded-xl text-sm outline-none focus:ring-2 focus:ring-(--accent)/20 focus:border-(--accent)"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                  />
-                </div>
-
-                {error && (
-                  <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20">
-                    <span className="text-red-500 text-xs">⚠</span>
-                    <p className="text-red-500 text-xs">{error}</p>
-                  </div>
-                )}
-
-                <button
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="w-full bg-(--accent) text-(--bg-primary) p-3 rounded-xl text-sm font-semibold hover:opacity-90 disabled:opacity-60"
-                >
-                  {loading ? "Please wait..." : mode === "login" ? "Sign in" : "Sign up"}
-                </button>
-
-                <div className="flex items-center gap-2 my-2">
-                  <div className="flex-1 h-px bg-(--border-color)" />
-                  <span className="text-xs text-(--text-muted)">or</span>
-                  <div className="flex-1 h-px bg-(--border-color)" />
-                </div>
-
-                <button
-                  onClick={handleGoogle}
-                  className="w-full border border-(--border-color) p-3 rounded-xl text-sm font-medium hover:bg-(--bg-secondary)"
-                >
-                  Continue with Google
-                </button>
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-(--border-color) text-center">
-                {mode === "login" ? (
-                  <p className="text-xs text-(--text-muted)">
-                    Don't have an account?{" "}
-                    <button onClick={() => setMode("signup")} className="text-(--text-primary) font-medium hover:underline">
-                      Sign up
-                    </button>
-                  </p>
-                ) : (
-                  <p className="text-xs text-(--text-muted)">
-                    Already have an account?{" "}
-                    <button onClick={() => setMode("login")} className="text-(--text-primary) font-medium hover:underline">
-                      Sign in
-                    </button>
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-    </>
+    </div>
   );
 }
