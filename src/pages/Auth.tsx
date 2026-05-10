@@ -61,8 +61,8 @@ export default function AuthPage() {
         </svg>
 
         {/* Ambient glows */}
-        <div className="absolute top-[8%] left-[5%] w-[420px] h-[420px] rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.13)_0%,transparent_65%)] pointer-events-none" />
-        <div className="absolute bottom-[8%] right-[0%] w-[360px] h-[360px] rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.10)_0%,transparent_65%)] pointer-events-none" />
+        <div className="absolute top-[8%] left-[5%] w-105 h-105 rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.13)_0%,transparent_65%)] pointer-events-none" />
+        <div className="absolute bottom-[8%] right-[0%] w-90 h-90 rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.10)_0%,transparent_65%)] pointer-events-none" />
 
         {/* Logo */}
         <div className="flex items-center gap-1.5 relative z-10">
