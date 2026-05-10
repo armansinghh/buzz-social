@@ -20,7 +20,9 @@ Buzz is a fully functional social media frontend with real-time-ready architectu
   - Auth / Onboarding screens
 -->
 
-<!-- --- -->
+![Auth Page](/public/ss/auth.png)
+
+---
 
 ## ✨ Features
 
