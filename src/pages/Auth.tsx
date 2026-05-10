@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCode } from "@fortawesome/free-solid-svg-icons";
 
 export default function AuthPage() {
   const { login, signup, loginWithGoogle } = useAuth();
@@ -46,7 +48,7 @@ export default function AuthPage() {
     <div className="min-h-screen flex bg-(--bg-secondary)">
 
       {/* ── LEFT PANEL ── */}
-      <div className="hidden lg:flex flex-1 flex-col justify-between p-12 bg-(--bg-primary) border-r border-(--border-color) relative overflow-hidden">
+      <div className="hidden lg:flex flex-1 flex-col justify-between p-18 bg-(--bg-primary) border-r border-(--border-color) relative overflow-hidden">
 
         {/* Dot grid */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-[0.04] dark:opacity-[0.07]" xmlns="http://www.w3.org/2000/svg">
@@ -65,14 +67,14 @@ export default function AuthPage() {
         {/* Logo */}
         <div className="flex items-center gap-1.5 relative z-10">
           <span className="font-serif text-2xl font-bold text-(--text-primary) tracking-tight">buzz</span>
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mb-2 inline-block" />
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
         </div>
 
         {/* Center text */}
-        <div className="flex flex-col gap-6 max-w-sm relative z-10">
-          <h1 className="font-serif text-5xl font-bold text-(--text-primary) leading-[1.1] tracking-tight">
-            What's buzzing<br />
-            <span className="text-amber-400">right now.</span>
+        <div className="flex flex-col gap-6 relative z-10">
+          <h1 className="font-serif text-6xl font-bold text-(--text-primary) leading-[1.1] tracking-tight">
+            What's buzzing <br />
+            <span className="text-amber-400"> right now.</span>
           </h1>
           <p className="text-base text-(--text-muted) leading-relaxed">
             Share moments, follow friends, and discover what's trending — all in one place.
@@ -94,21 +96,35 @@ export default function AuthPage() {
         </div>
 
         {/* Footer */}
-        <p className="text-xs text-(--text-muted) relative z-10">© 2026 Buzz · Made with ❤️ by Arman Singh</p>
+        <div className="flex items-center justify-between relative z-10">
+          <p className="text-xs text-(--text-muted)">© 2026 Buzz · Made with ❤️ by Arman Singh</p>
+          <a
+            href="https://github.com/armansinghh/buzz-social"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 text-xs text-(--text-muted) hover:text-(--text-primary) transition-colors"
+          >
+            <FontAwesomeIcon icon={faCode } />
+            GitHub
+          </a>
+        </div>
       </div>
 
       {/* ── RIGHT PANEL ── */}
-      <div className="flex flex-1 lg:flex-none lg:w-[480px] items-center justify-center p-8">
+      <div className="flex flex-1 lg:flex-none lg:w-140 items-center justify-center p-6 lg:p-8">
         <div className="w-full max-w-sm">
 
           {/* Mobile logo */}
-          <div className="flex lg:hidden items-center justify-center gap-1.5 mb-10">
+          <div className="flex lg:hidden items-center justify-center gap-1.5 mb-6">
             <span className="font-serif text-2xl font-bold text-(--text-primary) tracking-tight">buzz</span>
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mb-2 inline-block" />
           </div>
 
+          {/* Card wrapper — bordered on mobile, invisible on desktop */}
+          <div className="bg-(--bg-primary) border border-(--border-color) rounded-2xl p-6 shadow-(--shadow-sm) lg:bg-transparent lg:border-none lg:rounded-none lg:p-0 lg:shadow-none">
+
           {/* Heading */}
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 className="text-2xl font-semibold text-(--text-primary) tracking-tight mb-1">
               {mode === "login" ? "Sign in" : "Create account"}
             </h2>
@@ -181,8 +197,10 @@ export default function AuthPage() {
             </button>
           </div>
 
+          </div>{/* /card wrapper */}
+
           {/* Switch mode */}
-          <p className="text-xs text-(--text-muted) text-center mt-8">
+          <p className="text-xs text-(--text-muted) text-center mt-6">
             {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
             <button
               onClick={() => setMode(mode === "login" ? "signup" : "login")}
