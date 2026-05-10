@@ -67,7 +67,7 @@ function serializeComments(comments: Post["comments"]) {
 }
 
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, profile } = useAuth();
+  const { user, profile, loading } = useAuth();
   const { createNotification } = useNotifications();
   const [posts, setPosts] = useState<Post[]>([]);
   const [hasMore, setHasMore] = useState(true);
@@ -79,6 +79,8 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const loadingMoreRef = useRef(false);
 
   useEffect(() => {
+    if (loading || !user) return; // wait for auth to resolve
+
     const fetchInitialPosts = async () => {
       try {
         const q = query(
@@ -86,14 +88,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
           orderBy("createdAt", "desc"),
           limit(POSTS_PER_PAGE),
         );
-
         const snapshot = await getDocs(q);
-
-        // Always go through mapPost — never spread doc.data() directly
         const fetchedPosts = snapshot.docs.map((docSnap) =>
           mapPost(docSnap.id, docSnap.data()),
         );
-
         setPosts(fetchedPosts);
         setLastDoc(snapshot.docs[snapshot.docs.length - 1] ?? null);
         setHasMore(snapshot.docs.length === POSTS_PER_PAGE);
@@ -103,7 +101,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     fetchInitialPosts();
-  }, []);
+  }, [user, loading]);
 
   const loadMorePosts = useCallback(async () => {
     if (!lastDoc || !hasMore || loadingMoreRef.current) return;
