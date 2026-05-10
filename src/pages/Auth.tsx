@@ -46,71 +46,109 @@ export default function AuthPage() {
     <>
       <style>{`
         @keyframes float-a {
-          0%, 100% { transform: translateY(0px) rotate(-2deg); }
-          50% { transform: translateY(-14px) rotate(-2deg); }
+          0%, 100% { transform: translateX(-50%) rotate(-2deg) translateY(0px); }
+          50%       { transform: translateX(-50%) rotate(-2deg) translateY(-14px); }
         }
         @keyframes float-b {
           0%, 100% { transform: translateY(0px) rotate(3deg); }
-          50% { transform: translateY(-10px) rotate(3deg); }
+          50%       { transform: translateY(-10px) rotate(3deg); }
         }
         @keyframes float-c {
           0%, 100% { transform: translateY(0px) rotate(-1deg); }
-          50% { transform: translateY(-18px) rotate(-1deg); }
+          50%       { transform: translateY(-18px) rotate(-1deg); }
         }
         @keyframes pulse-dot {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.6; transform: scale(1.3); }
+          50%       { opacity: 0.6; transform: scale(1.3); }
         }
-        .float-a { animation: float-a 6s ease-in-out infinite; }
-        .float-b { animation: float-b 8s ease-in-out infinite 1s; }
-        .float-c { animation: float-c 7s ease-in-out infinite 2s; }
-        .pulse-dot { animation: pulse-dot 2.5s ease-in-out infinite; }
+        .auth-float-a { animation: float-a 6s ease-in-out infinite; }
+        .auth-float-b { animation: float-b 8s ease-in-out infinite 1s; }
+        .auth-float-c { animation: float-c 7s ease-in-out infinite 2s; }
+        .auth-pulse-dot { animation: pulse-dot 2.5s ease-in-out infinite; }
+
+        .auth-left-panel {
+          display: none;
+        }
+        @media (min-width: 768px) {
+          .auth-left-panel {
+            display: flex;
+          }
+        }
+        .auth-right-panel {
+          width: 100%;
+        }
+        @media (min-width: 768px) {
+          .auth-right-panel {
+            width: auto;
+            min-width: 420px;
+          }
+        }
+        @media (min-width: 1024px) {
+          .auth-right-panel {
+            min-width: 460px;
+          }
+        }
+        .auth-mobile-logo {
+          display: block;
+        }
+        @media (min-width: 768px) {
+          .auth-mobile-logo {
+            display: none;
+          }
+        }
+        .auth-divider {
+          display: none;
+        }
+        @media (min-width: 768px) {
+          .auth-divider {
+            display: block;
+          }
+        }
       `}</style>
 
       <div style={{ minHeight: "100vh", display: "flex", background: "#0c0c0e" }}>
 
         {/* ── LEFT PANEL ── */}
         <div
+          className="auth-left-panel"
           style={{
             flex: 1,
-            display: "none",
             flexDirection: "column",
             justifyContent: "space-between",
             padding: "48px 56px",
             position: "relative",
             overflow: "hidden",
           }}
-          className="md:flex"
         >
           {/* Grid texture */}
           <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.03, pointerEvents: "none" }} xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <pattern id="auth-grid" width="40" height="40" patternUnits="userSpaceOnUse">
                 <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" strokeWidth="0.5"/>
               </pattern>
             </defs>
-            <rect width="100%" height="100%" fill="url(#grid)" />
+            <rect width="100%" height="100%" fill="url(#auth-grid)" />
           </svg>
 
-          {/* Glow spots */}
+          {/* Ambient glows */}
           <div style={{ position: "absolute", top: "15%", left: "20%", width: "350px", height: "350px", borderRadius: "50%", background: "radial-gradient(circle, rgba(251,191,36,0.13) 0%, transparent 65%)", pointerEvents: "none" }} />
           <div style={{ position: "absolute", bottom: "20%", right: "10%", width: "280px", height: "280px", borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 65%)", pointerEvents: "none" }} />
 
           {/* Logo */}
           <div style={{ display: "flex", alignItems: "center", gap: "8px", position: "relative", zIndex: 1 }}>
             <span style={{ fontFamily: "Georgia, serif", fontSize: "26px", fontWeight: 700, color: "#fafafa", letterSpacing: "-1px" }}>buzz</span>
-            <span className="pulse-dot" style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#fbbf24", display: "inline-block", marginBottom: "8px" }} />
+            <span className="auth-pulse-dot" style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#fbbf24", display: "inline-block", marginBottom: "8px" }} />
           </div>
 
-          {/* Center content */}
+          {/* Center illustration + text */}
           <div style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "40px" }}>
 
-            {/* Floating post cards */}
+            {/* Floating cards cluster */}
             <div style={{ position: "relative", width: "340px", height: "260px" }}>
 
               {/* Card C — back left */}
               <div
-                className="float-c"
+                className="auth-float-c"
                 style={{
                   position: "absolute", top: "40px", left: "0px",
                   width: "220px", borderRadius: "16px",
@@ -136,7 +174,7 @@ export default function AuthPage() {
 
               {/* Card B — back right */}
               <div
-                className="float-b"
+                className="auth-float-b"
                 style={{
                   position: "absolute", top: "20px", right: "0px",
                   width: "200px", borderRadius: "16px",
@@ -163,12 +201,11 @@ export default function AuthPage() {
                 </div>
               </div>
 
-              {/* Card A — front center (hero) */}
+              {/* Card A — front hero */}
               <div
-                className="float-a"
+                className="auth-float-a"
                 style={{
                   position: "absolute", bottom: "0px", left: "50%",
-                  transform: "translateX(-50%) rotate(-2deg)",
                   width: "240px", borderRadius: "18px",
                   background: "linear-gradient(160deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.04) 100%)",
                   border: "1px solid rgba(255,255,255,0.14)",
@@ -194,13 +231,13 @@ export default function AuthPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                   <span style={{ fontSize: "14px" }}>❤️</span>
                   <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", fontFamily: "system-ui" }}>142 likes</span>
-                  <span style={{ fontSize: "14px", marginLeft: "2px" }}>💬</span>
+                  <span style={{ fontSize: "14px" }}>💬</span>
                   <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", fontFamily: "system-ui" }}>31</span>
                 </div>
               </div>
             </div>
 
-            {/* Text block */}
+            {/* Text */}
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               <h1
                 style={{
@@ -221,12 +258,12 @@ export default function AuthPage() {
               </p>
 
               {/* Social proof pill */}
-              <div style={{ display: "inline-flex", alignItems: "center", gap: "10px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: "100px", padding: "8px 14px", width: "fit-content" }}>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "2px", background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.09)", borderRadius: "100px", padding: "8px 16px", width: "fit-content" }}>
                 {(["#fbbf24", "#a78bfa", "#34d399", "#f87171"] as const).map((c, i) => (
                   <div key={c} style={{ width: "22px", height: "22px", borderRadius: "50%", background: c, border: "2px solid #0c0c0e", marginLeft: i === 0 ? 0 : "-8px", flexShrink: 0 }} />
                 ))}
-                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", fontFamily: "system-ui", marginLeft: "4px" }}>
-                  Join thousands sharing their moments
+                <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.45)", fontFamily: "system-ui", marginLeft: "10px" }}>
+                  Join thousands sharing moments
                 </span>
               </div>
             </div>
@@ -238,11 +275,12 @@ export default function AuthPage() {
           </p>
         </div>
 
-        {/* Divider line */}
-        <div className="hidden md:block" style={{ width: "1px", background: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
+        {/* Divider */}
+        <div className="auth-divider" style={{ width: "1px", background: "rgba(255,255,255,0.06)", flexShrink: 0 }} />
 
-        {/* ── RIGHT PANEL — form (original logic untouched) ── */}
+        {/* ── RIGHT PANEL — original form, untouched ── */}
         <div
+          className="auth-right-panel"
           style={{
             display: "flex",
             alignItems: "center",
@@ -250,20 +288,19 @@ export default function AuthPage() {
             padding: "48px 40px",
             background: "#111113",
           }}
-          className="w-full md:w-auto md:min-w-105 lg:min-w-115"
         >
           <div style={{ width: "100%", maxWidth: "340px" }}>
 
             {/* Mobile-only logo */}
-            <div className="text-center mb-8 md:hidden">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <span className="text-3xl font-bold tracking-tight text-(--text-primary)">buzz</span>
-                <span className="w-2 h-2 rounded-full bg-amber-400" />
+            <div className="auth-mobile-logo" style={{ textAlign: "center", marginBottom: "32px" }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }}>
+                <span style={{ fontSize: "28px", fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-1px", fontFamily: "Georgia, serif" }}>buzz</span>
+                <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#fbbf24", display: "inline-block", marginBottom: "8px" }} />
               </div>
-              <p className="text-sm text-(--text-muted)">What's buzzing right now.</p>
+              <p style={{ fontSize: "14px", color: "var(--text-muted)", margin: 0 }}>What's buzzing right now.</p>
             </div>
 
-            {/* Card */}
+            {/* Card — original markup */}
             <div
               className="bg-(--bg-primary) rounded-2xl p-6 border border-(--border-color)"
               style={{ boxShadow: "var(--shadow-md)" }}
