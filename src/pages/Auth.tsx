@@ -70,10 +70,15 @@ export default function AuthPage() {
           </defs>
           <rect width="100%" height="100%" fill="url(#dots)" />
         </svg>
-
         {/* Ambient glows */}
-        <div className="absolute top-[8%] left-[5%] w-105 h-105 rounded-full bg-[radial-gradient(circle,rgba(251,191,36,0.13)_0%,transparent_65%)] pointer-events-none" />
-        <div className="absolute bottom-[8%] right-[0%] w-90 h-90 rounded-full bg-[radial-gradient(circle,rgba(139,92,246,0.10)_0%,transparent_65%)] pointer-events-none" />
+        <div
+          style={{ willChange: "transform" }}
+          className="absolute top-[8%] -left-[5%] w-150 h-150 bg-[radial-gradient(circle,rgba(251,191,36,0.15)_0%,transparent_70%)] pointer-events-none animate-[glowA_6s_ease-in-out_infinite]"
+        />
+        <div
+          style={{ willChange: "transform" }}
+          className="absolute bottom-[8%] right-[0%] w-125 h-125 bg-[radial-gradient(circle,rgba(139,92,246,0.12)_0%,transparent_70%)] pointer-events-none animate-[glowB_8s_ease-in-out_infinite]"
+        />
 
         {/* Logo */}
         <div className="flex items-center gap-1.5 relative z-10">
@@ -116,8 +121,7 @@ export default function AuthPage() {
         {/* Footer */}
         <div className="flex items-center justify-between relative z-10">
           <p className="flex items-center justify-center gap-1 whitespace-nowrap text-xs text-(--text-muted)">
-            © 2026 Buzz · Made with <FaHeart/> by
-            Arman Singh
+            © 2026 Buzz · Made with <FaHeart /> by Arman Singh
           </p>
           <a
             href="https://github.com/armansinghh/buzz-social"
