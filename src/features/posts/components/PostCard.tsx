@@ -5,8 +5,7 @@ import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
 import CommentInput from "@/features/posts/components/CommentInput";
 import CommentItem from "@/features/posts/components/CommentItem";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsisVertical, faLink } from "@fortawesome/free-solid-svg-icons";
+import { FaEllipsisVertical, FaLink, FaHeart } from "react-icons/fa6";
 import { usePosts } from "../PostContext";
 import { useUI } from "@/contexts/UIContext";
 import Avatar from "@/components/ui/Avatar";
@@ -101,10 +100,7 @@ export default function PostCard({ post }: PostCardProps) {
                 type="button"
                 className="w-8 h-8 flex items-center justify-center rounded-xl text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors"
               >
-                <FontAwesomeIcon
-                  icon={faEllipsisVertical}
-                  className="w-4 h-4"
-                />
+                <FaEllipsisVertical className="w-4 h-4" />
               </button>
             }
           >
@@ -118,10 +114,7 @@ export default function PostCard({ post }: PostCardProps) {
                 }}
                 className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors rounded-lg"
               >
-                <FontAwesomeIcon
-                  icon={faLink}
-                  className="w-3.5 h-3.5 shrink-0 text-(--text-muted)"
-                />
+                <FaLink className="w-4 h-4" />
                 Copy link
               </button>
             )}
@@ -258,7 +251,7 @@ export default function PostCard({ post }: PostCardProps) {
         {showHeart && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <span className="text-7xl animate-heart-burst drop-shadow-lg">
-              ❤️
+              <FaHeart className="text-red-600" />
             </span>
           </div>
         )}
