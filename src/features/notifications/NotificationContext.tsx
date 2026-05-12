@@ -14,6 +14,7 @@ import {
   doc,
   orderBy,
   query,
+  serverTimestamp,
 } from "firebase/firestore";
 
 import { db } from "@/lib/firebase";
@@ -78,10 +79,19 @@ export const NotificationProvider = ({
             snap.docs.map(
               (
                 docSnap
-              ) => ({
-                id: docSnap.id,
-                ...docSnap.data(),
-              })
+              ) => {
+                const docData = docSnap.data();
+                return {
+                  id: docSnap.id,
+                  ...docData,
+                  createdAt:
+                    docData.createdAt && typeof (docData.createdAt as any).toDate === "function"
+                      ? (docData.createdAt as any).toDate().toISOString()
+                      : typeof docData.createdAt === "string"
+                      ? docData.createdAt
+                      : new Date().toISOString(),
+                };
+              }
             ) as Notification[];
 
           setNotifications(data);
@@ -120,7 +130,7 @@ export const NotificationProvider = ({
               isRead: false,
 
               createdAt:
-                new Date().toISOString(),
+                serverTimestamp(),
             }
           );
         } catch (err) {
