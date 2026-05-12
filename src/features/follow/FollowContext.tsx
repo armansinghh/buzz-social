@@ -23,6 +23,7 @@ import {
   deleteDoc,
   collection,
   getDocs,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useNotifications } from "@/features/notifications/NotificationContext";
@@ -88,10 +89,10 @@ export function FollowProvider({ children }: { children: React.ReactNode }) {
 
       await Promise.all([
         setDoc(doc(db, "users", user.uid, "following", targetUid), {
-          followedAt: new Date().toISOString(),
+          followedAt: serverTimestamp(),
         }),
         setDoc(doc(db, "users", targetUid, "followers", user.uid), {
-          followedAt: new Date().toISOString(),
+          followedAt: serverTimestamp(),
         }),
       ]);
 
