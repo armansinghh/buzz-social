@@ -7,7 +7,7 @@ import {
 } from "firebase/auth";
 
 import { auth, db } from "@/lib/firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 
 const provider = new GoogleAuthProvider();
 
@@ -16,13 +16,21 @@ const saveUser = async (user: any) => {
   const snap = await getDoc(ref);
 
   if (!snap.exists()) {
-    await setDoc(ref, {
+    // 1. Build the base user data without the avatar field
+    const newUserData: Record<string, any> = {
       uid: user.uid,
       name: user.displayName || "Anonymous",
       email: user.email,
-      avatar: user.photoURL || "",
-      createdAt: new Date(),
-    });
+      createdAt: serverTimestamp(), // accurate server time
+    };
+
+    // 2. Only add the avatar field if it is a valid HTTPS URL
+    if (user.photoURL && user.photoURL.startsWith("https://")) {
+      newUserData.avatar = user.photoURL;
+    }
+
+    // 3. Save to Firestore
+    await setDoc(ref, newUserData);
   }
 };
 
