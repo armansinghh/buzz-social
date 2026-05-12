@@ -1,9 +1,11 @@
 import type { Post, Comment } from "@/types/post";
 import type { User } from "firebase/auth";
 import type { UserProfile } from "@/types/user";
+import { serverTimestamp } from "firebase/firestore";
 
 export function buildPost({
   user,
+  profile,
   caption,
   media,
 }: {
@@ -11,15 +13,27 @@ export function buildPost({
   profile: UserProfile | null;
   caption: string;
   media?: { url: string; type: "image" | "video" };
-}): Omit<Post, "id" | "authorUsername" | "authorAvatar"> {
-  return {
+}): Omit<Post, "id"> { // Removed authorUsername/authorAvatar from Omit
+  
+  const postData: any = {
     authorId: user.uid,
+    authorUsername: profile?.username || "user", // MUST exist for rules
     caption,
-    ...(media ? { media } : {}),
     likes: [],
     comments: [],
-    createdAt: new Date().toISOString(),
+    createdAt: serverTimestamp(),
   };
+
+  if (media) {
+    postData.media = media;
+  }
+
+  // Only attach avatar if it's a valid URL, otherwise rules will block it
+  if (profile?.avatar && profile.avatar.startsWith("https://")) {
+    postData.authorAvatar = profile.avatar;
+  }
+
+  return postData;
 }
 
 export function buildComment({
@@ -35,6 +49,7 @@ export function buildComment({
     authorId: user.uid,
     text,
     reactions: [],
-    createdAt: new Date().toISOString(),
+    // Reverted to string: Firestore doesn't allow serverTimestamp inside arrays!
+    createdAt: new Date().toISOString(), 
   };
 }
