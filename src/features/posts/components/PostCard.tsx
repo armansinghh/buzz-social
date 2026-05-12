@@ -250,9 +250,33 @@ export default function PostCard({ post }: PostCardProps) {
         {/* Heart burst overlay */}
         {showHeart && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <span className="text-7xl animate-heart-burst drop-shadow-lg">
-              <FaHeart className="text-red-600" />
-            </span>
+            <svg
+              width="80"
+              height="80"
+              className="animate-heart-burst drop-shadow-lg"
+            >
+              <defs>
+                <linearGradient
+                  id="heartGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
+                  <stop offset="0%" stopColor="#e11d48" /> {/* rose-600 */}
+                  <stop offset="100%" stopColor="#7c3aed" /> {/* violet-600 */}
+                </linearGradient>
+              </defs>
+
+              <foreignObject width="100%" height="100%">
+                <div className="flex items-center justify-center w-full h-full">
+                  <FaHeart
+                    style={{ fill: "url(#heartGradient)" }}
+                    className="text-7xl"
+                  />
+                </div>
+              </foreignObject>
+            </svg>
           </div>
         )}
       </article>
