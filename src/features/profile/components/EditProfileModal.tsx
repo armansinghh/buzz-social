@@ -122,11 +122,16 @@ export default function EditProfileModal({
         avatarUrl = result.url;
       }
 
-      const updates: Record<string, string> = {
+      //  Changed type to 'any' so we can conditionally add the avatar
+      const updates: Record<string, any> = {
         name: name.trim(),
         username: username.trim(),
-        avatar: avatarUrl,
       };
+
+      // Only include the avatar field if it is actually a valid HTTPS URL
+      if (avatarUrl && avatarUrl.startsWith("https://")) {
+        updates.avatar = avatarUrl;
+      }
 
       // 1. Save to Firestore user document
       await updateDoc(doc(db, "users", user.uid), updates);
