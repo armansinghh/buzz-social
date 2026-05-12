@@ -17,13 +17,14 @@ import Avatar from "@/components/ui/Avatar";
 import type { Post } from "@/types/post";
 import type { UserProfile } from "@/types/user";
 import Tabs from "@/components/ui/Tabs";
+import { FaHeart, FaComment } from "react-icons/fa6";
+import { useUserProfile } from "@/hooks/useUserProfile";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const USERS_LIMIT = 20;
 const SESSION_TAB_KEY = "buzz-explore-tab";
 
 type ExploreTab = "trending" | "people" | "media";
-
 
 // ─── Time-decay trending score (Hacker News gravity) ─────────────────────────
 function trendingScore(post: Post): number {
@@ -197,8 +198,14 @@ function MediaGridItem({ post, onClick }: { post: Post; onClick: () => void }) {
       )}
       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors flex items-end p-2 opacity-0 group-hover:opacity-100">
         <div className="flex items-center gap-2 text-white text-xs font-semibold drop-shadow">
-          <span>❤️ {post.likes.length}</span>
-          <span>💬 {post.comments.length}</span>
+          <span className="flex items-center justify-center gap-1 whitespace-nowrap">
+            {" "}
+            <FaHeart /> {post.likes.length}
+          </span>
+          <span className="flex items-center justify-center gap-1 whitespace-nowrap">
+            {" "}
+            <FaComment /> {post.comments.length}
+          </span>
         </div>
       </div>
       {post.media?.type === "video" && (
@@ -229,6 +236,18 @@ function MediaLightbox({
   const idx = mediaPosts.findIndex((p) => p.id === post.id);
   const hasPrev = idx > 0;
   const hasNext = idx < mediaPosts.length - 1;
+
+  // 1. Fetch the live profile data
+  const authorProfile = useUserProfile(post.authorId);
+
+  // 2. Resolve the freshest username and avatar
+  const authorUsername =
+    authorProfile?.username ||
+    authorProfile?.name ||
+    post.authorUsername ||
+    "User";
+  const authorAvatar =
+    authorProfile?.avatar || authorProfile?.photoURL || post.authorAvatar;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -335,13 +354,9 @@ function MediaLightbox({
         )}
         <div className="p-4">
           <div className="flex items-center gap-2.5 mb-2">
-            <Avatar
-              name={post.authorUsername || "User"}
-              src={post.authorAvatar}
-              size="sm"
-            />
+            <Avatar name={authorUsername} src={authorAvatar} size="sm" />
             <p className="text-sm font-semibold text-(--text-primary)">
-              {post.authorUsername || "User"}
+              {authorUsername}
             </p>
           </div>
           {post.caption && (
@@ -350,8 +365,14 @@ function MediaLightbox({
             </p>
           )}
           <div className="flex items-center gap-4 mt-3 text-xs text-(--text-muted)">
-            <span>❤️ {post.likes.length} likes</span>
-            <span>💬 {post.comments.length} comments</span>
+            <span className="flex items-center justify-center gap-1 whitespace-nowrap">
+              {" "}
+              <FaHeart /> {post.likes.length} likes
+            </span>
+            <span className="flex items-center justify-center gap-1 whitespace-nowrap">
+              {" "}
+              <FaComment /> {post.comments.length} comments
+            </span>
           </div>
         </div>
       </div>
