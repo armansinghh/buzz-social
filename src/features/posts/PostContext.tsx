@@ -140,15 +140,15 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       const docRef = await addDoc(collection(db, "posts"), newPost);
 
-      // Optimistic update — add placeholder fields so PostCard renders immediately
-      // useUserProfile will resolve the real values on next render
+      // Optimistic update
       setPosts((prev) => [
         {
           ...newPost,
           id: docRef.id,
-          authorUsername: "",
-          authorAvatar: undefined,
-        },
+          // Override the Firestore serverTimestamp with a local string
+          // just so the UI doesn't crash before the next fetch
+          createdAt: new Date().toISOString(),
+        } as Post,
         ...prev,
       ]);
     } catch (err) {
