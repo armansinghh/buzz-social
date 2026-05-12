@@ -21,14 +21,14 @@ export function mapPost(docId: string, data: Record<string, unknown>): Post {
 
     media:
       data.media &&
-      typeof (data.media as Record<string, unknown>).url === "string" &&
-      typeof (data.media as Record<string, unknown>).type === "string"
+        typeof (data.media as Record<string, unknown>).url === "string" &&
+        typeof (data.media as Record<string, unknown>).type === "string"
         ? {
-            url: (data.media as Record<string, unknown>).url as string,
-            type: (data.media as Record<string, unknown>).type as
-              | "image"
-              | "video",
-          }
+          url: (data.media as Record<string, unknown>).url as string,
+          type: (data.media as Record<string, unknown>).type as
+            | "image"
+            | "video",
+        }
         : undefined,
 
     likes: Array.isArray(data.likes) ? (data.likes as string[]) : [],
@@ -38,9 +38,11 @@ export function mapPost(docId: string, data: Record<string, unknown>): Post {
       : [],
 
     createdAt:
-      typeof data.createdAt === "string"
-        ? data.createdAt
-        : new Date().toISOString(),
+      data.createdAt && typeof (data.createdAt as any).toDate === "function"
+        ? (data.createdAt as any).toDate().toISOString()
+        : typeof data.createdAt === "string"
+          ? data.createdAt
+          : new Date().toISOString(),
   };
 }
 
@@ -52,13 +54,15 @@ function mapComment(data: Record<string, unknown>): Comment {
     text: typeof data.text === "string" ? data.text : "",
     reactions: Array.isArray(data.reactions)
       ? (data.reactions as Record<string, unknown>[]).map((r) => ({
-          emoji: typeof r.emoji === "string" ? r.emoji : "",
-          users: Array.isArray(r.users) ? (r.users as string[]) : [],
-        }))
+        emoji: typeof r.emoji === "string" ? r.emoji : "",
+        users: Array.isArray(r.users) ? (r.users as string[]) : [],
+      }))
       : [],
     createdAt:
-      typeof data.createdAt === "string"
-        ? data.createdAt
-        : new Date().toISOString(),
+      data.createdAt && typeof (data.createdAt as any).toDate === "function"
+        ? (data.createdAt as any).toDate().toISOString()
+        : typeof data.createdAt === "string"
+          ? data.createdAt
+          : new Date().toISOString(),
   };
 }
