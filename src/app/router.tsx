@@ -1,4 +1,5 @@
 import { createBrowserRouter } from "react-router-dom";
+import { ErrorElementFallback } from "@/components/ui/ErrorBoundary";
 import AppLayout from "@/components/layout/AppLayout";
 import Home from "@/pages/Home";
 import AuthPage from "@/pages/Auth";
@@ -17,12 +18,13 @@ export const router = createBrowserRouter([
         <AppLayout />
       </ProtectedRoute>
     ),
+    errorElement: <ErrorElementFallback />,
     children: [
       { path: "/", element: <Home /> },
       { path: "/explore", element: <Explore /> },
       { path: "/search", element: <Search /> },
       { path: "/profile/:id", element: <Profile /> },
-      { path: "/post/:id", element: <PostDetail /> }
+      { path: "/post/:id", element: <PostDetail /> },
     ],
   },
   { path: "/auth", element: <AuthPage /> },
