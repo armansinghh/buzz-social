@@ -2,8 +2,10 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
 import { FaGithub, FaHeart } from "react-icons/fa";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function AuthPage() {
+  usePageTitle("Welcome");
   const { login, signup, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 

@@ -12,6 +12,7 @@ import { db } from "@/lib/firebase";
 import Avatar from "@/components/ui/Avatar";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useFollow } from "@/features/follow/FollowContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import { useDebounce } from "@/hooks/useDebounce";
 import type { Post } from "@/types/post";
 
@@ -204,6 +205,7 @@ function Skeletons() {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function Search() {
+  usePageTitle("Search");
   const [search, setSearch] = useState("");
   const [users, setUsers] = useState<SearchUser[]>([]);
   const [posts, setPosts] = useState<Post[]>([]);

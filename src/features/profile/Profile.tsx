@@ -18,6 +18,7 @@ import PostCard from "@/features/posts/components/PostCard";
 import Avatar from "@/components/ui/Avatar";
 import EditProfileModal from "@/features/profile/components/EditProfileModal";
 import ProfileSkeleton from "@/components/skeletons/ProfileSkeleton";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Profile() {
   const { id } = useParams<{ id: string }>();
@@ -36,7 +37,15 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-
+  usePageTitle(
+    loading
+      ? "Loading Profile"
+      : notFound || !profileData
+        ? "User Not Found"
+        : profileData.username
+          ? `${profileData.name || profileData.username || "User"} (@${profileData.username})`
+          : profileData.name || "User",
+  );
   const isOwnProfile =
     user && (user.uid === id || currentUserProfile?.username === id);
 
@@ -205,7 +214,7 @@ export default function Profile() {
                   {followed ? "Following" : "Follow"}
                 </button>
               )}
-            </div>    
+            </div>
 
             {/* Info */}
             <div className="space-y-1">

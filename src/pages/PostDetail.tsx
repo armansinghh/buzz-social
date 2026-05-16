@@ -8,10 +8,12 @@ import { usePosts } from "@/features/posts/PostContext";
 import PostCard from "@/features/posts/components/PostCard";
 import type { Post } from "@/types/post";
 import { mapPost } from "@/services/postMapper";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function PostDetail() {
   const { id } = useParams();
-
+  usePageTitle("Post Details");
+  
   const { posts } = usePosts();
 
   const [post, setPost] = useState<Post | null>(null);

@@ -10,11 +10,14 @@ import {
   where,
   getDocs,
 } from "firebase/firestore";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Onboarding() {
   const { user, refreshProfile } = useAuth();
 
   const navigate = useNavigate();
+
+  usePageTitle("Complete Your Profile");
 
   const [username, setUsername] = useState("");
 

@@ -4,6 +4,7 @@ import PostCard from "@/features/posts/components/PostCard";
 import { usePosts } from "@/features/posts/PostContext";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useFollow } from "@/features/follow/FollowContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import Tabs from "@/components/ui/Tabs";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faUserGroup } from "@fortawesome/free-solid-svg-icons";
@@ -11,6 +12,8 @@ import { faBars, faUserGroup } from "@fortawesome/free-solid-svg-icons";
 type FeedTab = "feed" | "following";
 
 export default function Home() {
+  usePageTitle("Home");
+  
   const { posts, hasMore, loadMorePosts } = usePosts();
 
   const { user } = useAuth();

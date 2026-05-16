@@ -12,6 +12,7 @@ import { db } from "@/lib/firebase";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useFollow } from "@/features/follow/FollowContext";
 import { usePosts } from "@/features/posts/PostContext";
+import { usePageTitle } from "@/hooks/usePageTitle";
 import PostCard from "@/features/posts/components/PostCard";
 import Avatar from "@/components/ui/Avatar";
 import type { Post } from "@/types/post";
@@ -503,6 +504,7 @@ const TrendEmptyIcon = (
 // Main Explore page
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Explore() {
+  usePageTitle("Explore");
   // ── Use live posts from context (same as Home & Profile) ─────────────────
   const { posts, hasMore: hasMoreExplorePosts, loadMorePosts } = usePosts();
 
