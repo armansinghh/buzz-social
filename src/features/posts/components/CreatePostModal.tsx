@@ -2,11 +2,13 @@ import { useEffect, useState, useRef } from "react";
 import { useUI } from "@/contexts/UIContext";
 import { usePosts } from "@/features/posts/PostContext";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { useToast } from "@/contexts/ToastContext";
 
 export default function CreatePostModal() {
   const { activeModal, closeModal } = useUI();
   const isOpen = activeModal === "createPost";
   const { addPost } = usePosts();
+  const { showToast } = useToast();
 
   const [caption, setCaption] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -51,12 +53,23 @@ export default function CreatePostModal() {
     closeModal();
   };
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
+
+    // File size constraints enforcement
+    const isVideo = file.type.startsWith("video/");
+    const maxSizeBytes = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024; // 50MB vs 10MB
+
+    if (file.size > maxSizeBytes) {
+      showToast(
+        `File too large! Max size is ${isVideo ? "50MB" : "10MB"}.`,
+        "error",
+      );
+      e.target.value = ""; // Reset the DOM input handle element cleanly
+      return;
+    }
 
     setSelectedFile(file);
     setPreview(URL.createObjectURL(file));
@@ -77,9 +90,7 @@ export default function CreatePostModal() {
     try {
       setUploading(true);
 
-      let media:
-        | { url: string; type: "image" | "video" }
-        | undefined;
+      let media: { url: string; type: "image" | "video" } | undefined;
 
       if (selectedFile) {
         media = await uploadToCloudinary(selectedFile);
@@ -184,9 +195,7 @@ export default function CreatePostModal() {
 
           <span
             className={`text-xs font-medium transition-colors ${
-              caption.length > 2200
-                ? "text-red-500"
-                : "text-(--text-muted)"
+              caption.length > 2200 ? "text-red-500" : "text-(--text-muted)"
             }`}
           >
             {caption.length} / 2200

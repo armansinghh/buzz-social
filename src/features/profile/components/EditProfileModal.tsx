@@ -13,6 +13,7 @@ import { useAuth } from "@/features/auth/AuthContext";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import Avatar from "@/components/ui/Avatar";
 import { invalidateUserProfile } from "@/hooks/useUserProfile";
+import { useToast } from "@/contexts/ToastContext";
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ export default function EditProfileModal({
 }: EditProfileModalProps) {
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const { showToast } = useToast();
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -71,6 +73,14 @@ export default function EditProfileModal({
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Avatar size verification check (5MB Limit)
+    if (file.size > 5 * 1024 * 1024) {
+      showToast("Profile picture is too large! Max size is 5MB.", "error");
+      e.target.value = ""; // Clear the native input element selection
+      return;
+    }
+
     setAvatarFile(file);
     setAvatarPreview(URL.createObjectURL(file));
   };
