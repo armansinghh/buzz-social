@@ -6,14 +6,13 @@ import { useAuth } from "@/features/auth/AuthContext";
 import { useFollow } from "@/features/follow/FollowContext";
 import { usePageTitle } from "@/hooks/usePageTitle";
 import Tabs from "@/components/ui/Tabs";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faUserGroup } from "@fortawesome/free-solid-svg-icons";
+import { FaBars, FaUserGroup } from "react-icons/fa6";
 
 type FeedTab = "feed" | "following";
 
 export default function Home() {
   usePageTitle("Home");
-  
+
   const { posts, hasMore, loadMorePosts } = usePosts();
 
   const { user } = useAuth();
@@ -46,12 +45,12 @@ export default function Home() {
     {
       id: "feed",
       label: "Feed",
-      icon: <FontAwesomeIcon icon={faBars} className="text-sm" />,
+      icon: <FaBars className="text-sm" />,
     },
     {
       id: "following",
       label: "Following",
-      icon: <FontAwesomeIcon icon={faUserGroup} className="text-sm" />,
+      icon: <FaUserGroup className="text-sm" />,
     },
   ];
   return (
