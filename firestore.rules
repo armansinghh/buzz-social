@@ -1,0 +1,169 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper functions ────────────────────────────────────────────
+    function isAuth() { 
+      return request.auth != null; 
+    }
+    
+    function isUser(userId) { 
+      return request.auth.uid == userId; 
+    }
+    
+    function isValidString(value, maxLen) { 
+      return value is string && value.size() <= maxLen; 
+    }
+
+    // Anchored regex to ensure it is actually a valid URL structure
+    function isValidUrl(value) {
+      return value is string 
+        && value.size() <= 2048 
+        && value.matches('^https://.+');
+    }
+
+    // Uses Firestore's native timestamp type instead of string length
+    function isValidTimestamp(value) {
+      return value is timestamp || value == request.time;
+    }
+
+    // ─── Users ───────────────────────────────────────────────────────
+    match /users/{userId} {
+      allow read: if isAuth();
+
+      allow create: if isAuth()
+                    && isUser(userId)
+                    && isValidString(request.resource.data.uid, 128)
+                    && isValidString(request.resource.data.email, 254)
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.keys().hasAll(['uid', 'email', 'createdAt'])
+                    && request.resource.data.keys().hasOnly([
+                        'uid', 'email', 'name', 'username',
+                        'avatar', 'photoURL', 'createdAt',
+                        'followers', 'following'
+                       ]);
+
+      allow update: if isAuth()
+                    && isUser(userId)
+                    && request.resource.data.uid == resource.data.uid
+                    && request.resource.data.email == resource.data.email
+                    && request.resource.data.diff(resource.data)
+                         .affectedKeys().hasOnly([
+                           'name', 'username', 'avatar',
+                           'photoURL', 'followers', 'following'
+                         ])
+                    && (!('name' in request.resource.data) || isValidString(request.resource.data.name, 50))
+                    && (!('username' in request.resource.data) || isValidString(request.resource.data.username, 30))
+                    && (!('avatar' in request.resource.data) || isValidUrl(request.resource.data.avatar))
+                    && (!('photoURL' in request.resource.data) || isValidUrl(request.resource.data.photoURL));
+
+      allow delete: if false;
+
+      // ─── Following ───────────────────────────────────────────────
+      match /following/{targetUid} {
+        allow read: if isAuth();
+        
+        allow create: if isAuth()
+                      && isUser(userId)
+                      && userId != targetUid
+                      && (!('followedAt' in request.resource.data) || isValidTimestamp(request.resource.data.followedAt))
+                      && request.resource.data.keys().hasOnly(['followedAt']);
+                      
+        allow delete: if isAuth() 
+                      && isUser(userId) 
+                      && userId != targetUid;
+                      
+        allow update: if false;
+      }
+
+      // ─── Followers ───────────────────────────────────────────────
+      match /followers/{followerUid} {
+        allow read: if isAuth();
+        
+        allow create: if isAuth()
+                      && isUser(followerUid)
+                      && userId != followerUid
+                      && (!('followedAt' in request.resource.data) || isValidTimestamp(request.resource.data.followedAt))
+                      && request.resource.data.keys().hasOnly(['followedAt']);
+                      
+        allow delete: if isAuth() 
+                      && isUser(followerUid) 
+                      && userId != followerUid;
+                      
+        allow update: if false;
+      }
+
+      // ─── Notifications ───────────────────────────────────────────
+      match /notifications/{notificationId} {
+        allow read: if isAuth() && isUser(userId);
+        
+        allow create: if isAuth()
+                      && request.resource.data.recipientId == userId
+                      && request.resource.data.senderId == request.auth.uid
+                      && request.resource.data.recipientId != request.resource.data.senderId
+                      && request.resource.data.isRead == false
+                      && request.resource.data.type in ['like', 'comment', 'follow']
+                      && (!('postId' in request.resource.data) || isValidString(request.resource.data.postId, 128))
+                      && isValidTimestamp(request.resource.data.createdAt)
+                      // FIXED: Removed senderName and senderAvatar from schema keys
+                      && request.resource.data.keys().hasOnly([
+                           'recipientId', 'senderId', 'type', 
+                           'postId', 'isRead', 'createdAt'
+                         ]);
+
+        allow update: if isAuth()
+                      && isUser(userId)
+                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead'])
+                      && request.resource.data.isRead is bool;
+
+        allow delete: if false;
+      }
+    }
+
+    // ─── Posts ───────────────────────────────────────────────────────
+    match /posts/{postId} {
+      allow read: if isAuth();
+
+      allow create: if isAuth()
+                    && request.resource.data.authorId == request.auth.uid
+                    && request.resource.data.keys().hasAll([
+                         'authorId', 'caption', 'likes', 'comments', 'createdAt'
+                       ])
+                    && request.resource.data.keys().hasOnly([
+                         'authorId', 'authorUsername', 'authorAvatar',
+                         'caption', 'media', 'likes', 'comments', 'createdAt'
+                       ])
+                    && isValidString(request.resource.data.caption, 2200)
+                    && isValidTimestamp(request.resource.data.createdAt)
+                    && isValidString(request.resource.data.authorUsername, 30)
+                    && (!('authorAvatar' in request.resource.data) || isValidUrl(request.resource.data.authorAvatar))
+                    && request.resource.data.likes.size() == 0
+                    && request.resource.data.comments.size() == 0
+                    && (!('media' in request.resource.data) || (
+                         request.resource.data.media is map
+                         && isValidUrl(request.resource.data.media.url)
+                         && request.resource.data.media.type in ['image', 'video']
+                       ));
+
+      allow update: if isAuth()
+                    && (
+                      // Path 1: Author updating their post
+                      (resource.data.authorId == request.auth.uid)
+                      ||
+                      // Path 2: Someone else updating likes/comments
+                      (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'comments']))
+                    )
+                    // These rules apply to BOTH paths (prevents author from doing sketchy stuff)
+                    && request.resource.data.authorId == resource.data.authorId 
+                    && request.resource.data.caption == resource.data.caption 
+                    && request.resource.data.createdAt == resource.data.createdAt 
+                    && request.resource.data.likes is list
+                    && request.resource.data.likes.size() <= 10000
+                    && request.resource.data.comments is list
+                    && request.resource.data.comments.size() <= 500;
+
+      allow delete: if isAuth()
+                    && resource.data.authorId == request.auth.uid;
+    }
+  }
+}
