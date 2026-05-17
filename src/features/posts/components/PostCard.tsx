@@ -5,7 +5,7 @@ import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
 import CommentInput from "@/features/posts/components/CommentInput";
 import CommentItem from "@/features/posts/components/CommentItem";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
-import { FaEllipsisVertical, FaLink, FaHeart } from "react-icons/fa6";
+import { FaEllipsisVertical, FaLink, FaHeart, FaTrash } from "react-icons/fa6";
 import { usePosts } from "../PostContext";
 import { useUI } from "@/contexts/UIContext";
 import Avatar from "@/components/ui/Avatar";
@@ -19,7 +19,7 @@ interface PostCardProps {
 
 export default function PostCard({ post }: PostCardProps) {
   const { user } = useAuth();
-  const { toggleLike, likePost } = usePosts();
+  const { toggleLike, likePost, deletePost } = usePosts();
   const { openComments } = useUI();
 
   // Always resolve author live — ignores stale snapshot fields on the post doc
@@ -74,6 +74,11 @@ export default function PostCard({ post }: PostCardProps) {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm("Delete this post?")) return;
+    await deletePost(post.id);
+  };
+
   return (
     <>
       <article
@@ -105,18 +110,31 @@ export default function PostCard({ post }: PostCardProps) {
             }
           >
             {(closeDropdown) => (
-              <button
-                onClick={async () => {
-                  await handleCopyLink();
-                  setTimeout(() => {
-                    closeDropdown(); // runs after delay
-                  }, 1000);
-                }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors rounded-lg"
-              >
-                <FaLink className="w-4 h-4" />
-                Copy link
-              </button>
+              <>
+                <button
+                  onClick={async () => {
+                    await handleCopyLink();
+                    setTimeout(() => closeDropdown(), 1000);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors rounded-lg"
+                >
+                  <FaLink className="w-4 h-4" />
+                  Copy link
+                </button>
+
+                {user?.uid === post.authorId && (
+                  <button
+                    onClick={() => {
+                      closeDropdown();
+                      handleDelete();
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors rounded-lg"
+                  >
+                    <FaTrash className="w-4 h-4" />
+                    Delete post
+                  </button>
+                )}
+              </>
             )}
           </Dropdown>
         </div>
