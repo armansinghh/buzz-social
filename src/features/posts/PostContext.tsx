@@ -19,6 +19,7 @@ import {
   arrayRemove,
   limit,
   startAfter,
+  deleteDoc,
 } from "firebase/firestore";
 
 import type { QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
@@ -30,6 +31,7 @@ import type { Post } from "@/types/post";
 import { useAuth } from "@/features/auth/AuthContext";
 import { buildPost, buildComment } from "@/services/postBuilder";
 import { mapPost } from "@/services/postMapper";
+import { useToast } from "@/contexts/ToastContext";
 
 interface Media {
   url: string;
@@ -45,6 +47,7 @@ interface PostContextType {
   likePost: (postId: string) => void;
   addComment: (postId: string, text: string) => void;
   toggleReaction: (postId: string, commentId: string, emoji: string) => void;
+  deletePost: (postId: string) => Promise<void>; //
 }
 
 const POSTS_PER_PAGE = 10;
@@ -69,6 +72,7 @@ function serializeComments(comments: Post["comments"]) {
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, profile, loading } = useAuth();
   const { createNotification } = useNotifications();
+  const { showToast } = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
   const [hasMore, setHasMore] = useState(true);
 
@@ -334,6 +338,39 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     },
     [user],
   );
+  
+  const deletePost = useCallback(
+    async (postId: string) => {
+      if (!user) return;
+
+      const postToDelete = posts.find((p) => p.id === postId);
+      if (!postToDelete) return;
+
+      // Optimistic remove
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+
+      try {
+        await deleteDoc(doc(db, "posts", postId));
+      } catch (err) {
+        console.error("Failed to delete post:", err);
+        // Rollback — restore post at its original position by createdAt order
+        setPosts((prev) => {
+          const index = prev.findIndex(
+            (p) => p.createdAt < postToDelete.createdAt,
+          );
+          const restored = [...prev];
+          if (index === -1) {
+            restored.push(postToDelete);
+          } else {
+            restored.splice(index, 0, postToDelete);
+          }
+          return restored;
+        });
+        showToast("Failed to delete post. Please try again.", "error");
+      }
+    },
+    [user, posts, showToast],
+  );
 
   return (
     <PostContext.Provider
@@ -346,6 +383,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         likePost,
         addComment,
         toggleReaction,
+        deletePost,
       }}
     >
       {children}
