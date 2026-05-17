@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import Avatar from "@/components/ui/Avatar";
-
 import { collection, getDocs, limit, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-
 import { useAuth } from "@/features/auth/AuthContext";
 import { useFollow } from "@/features/follow/FollowContext";
-
+import { FaHeart } from "react-icons/fa6";
 interface SuggestedUser {
   uid: string;
   username: string;
@@ -92,8 +89,8 @@ export default function RightSidebar() {
       </div>
 
       <div className="px-1">
-        <p className="text-[11px] text-(--text-muted) leading-relaxed">
-          © 2026 Buzz · Made with ❤️ by Arman Singh
+        <p className="flex items-center justify-center gap-1 text-[11px] text-(--text-muted)">
+          © 2026 Buzz · Made with <FaHeart/> by Arman Singh
         </p>
       </div>
     </div>

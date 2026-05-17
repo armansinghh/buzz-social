@@ -75,7 +75,7 @@ export default function AuthPage() {
         {/* Ambient glows */}
         <div
           style={{ willChange: "transform" }}
-          className="absolute top-[8%] -left-[5%] w-150 h-150 bg-[radial-gradient(circle,rgba(251,191,36,0.15)_0%,transparent_70%)] pointer-events-none animate-[glowA_6s_ease-in-out_infinite]"
+          className="absolute top-[8%] left-[-5%] w-150 h-150 bg-[radial-gradient(circle,rgba(251,191,36,0.15)_0%,transparent_70%)] pointer-events-none animate-[glowA_6s_ease-in-out_infinite]"
         />
         <div
           style={{ willChange: "transform" }}

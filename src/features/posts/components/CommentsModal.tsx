@@ -5,7 +5,8 @@ import CommentItem from "./CommentItem";
 import CommentInput from "./CommentInput";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import Avatar from "@/components/ui/Avatar";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useUserProfile } from "@/hooks/useUserProfile"
+import { FaHeart } from "react-icons/fa6";
 
 // Inner component so useUserProfile is only called when a post is actually open,
 // and so the hook always runs unconditionally (no conditional hook calls).
@@ -71,8 +72,8 @@ function CommentsModalInner({ postId }: { postId: string }) {
               {post.caption}
             </p>
           )}
-          <p className="text-xs text-(--text-muted)">
-            ❤️ {post.likes.length} {post.likes.length === 1 ? "like" : "likes"}
+          <p className="flex items-center justify-baseline gap-1 text-xs text-(--text-muted)">
+            <FaHeart/> <span>{post.likes.length} {post.likes.length === 1 ? "like" : "likes"}</span> 
           </p>
         </div>
       </div>
