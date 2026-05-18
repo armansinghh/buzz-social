@@ -1,3 +1,5 @@
+import PostCardSkeleton from "@/components/skeletons/PostCardSkeleton";
+
 export default function ProfileSkeleton() {
   return (
     <div className="space-y-6">
@@ -29,19 +31,8 @@ export default function ProfileSkeleton() {
       </div>
 
       {/* Post cards */}
-      {[1, 2].map((i) => (
-        <div
-          key={i}
-          className="bg-(--bg-primary) rounded-2xl border border-(--border-color) p-4 space-y-3"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full skeleton" />
-            <div className="h-4 w-28 rounded skeleton" />
-          </div>
-          <div className="h-48 rounded-xl skeleton" />
-          <div className="h-3 w-3/4 rounded skeleton" />
-        </div>
-      ))}
+      <PostCardSkeleton />
+      <PostCardSkeleton />
     </div>
   );
 }
