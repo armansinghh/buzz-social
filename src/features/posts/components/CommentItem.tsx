@@ -22,7 +22,7 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
   const userId = user?.uid ?? "guest";
 
   // Resolve author live — ignores stale snapshot fields on the comment
-  const authorProfile = useUserProfile(comment.authorId);
+  const { profile: authorProfile } = useUserProfile(comment.authorId);
   const authorUsername =
     authorProfile?.username ||
     authorProfile?.name ||

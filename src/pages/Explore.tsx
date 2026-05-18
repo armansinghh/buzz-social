@@ -239,7 +239,7 @@ function MediaLightbox({
   const hasNext = idx < mediaPosts.length - 1;
 
   // 1. Fetch the live profile data
-  const authorProfile = useUserProfile(post.authorId);
+  const { profile: authorProfile } = useUserProfile(post.authorId);
 
   // 2. Resolve the freshest username and avatar
   const authorUsername =

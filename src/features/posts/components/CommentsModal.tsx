@@ -5,7 +5,7 @@ import CommentItem from "./CommentItem";
 import CommentInput from "./CommentInput";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import Avatar from "@/components/ui/Avatar";
-import { useUserProfile } from "@/hooks/useUserProfile"
+import { useUserProfile } from "@/hooks/useUserProfile";
 import { FaHeart } from "react-icons/fa6";
 
 // Inner component so useUserProfile is only called when a post is actually open,
@@ -15,7 +15,7 @@ function CommentsModalInner({ postId }: { postId: string }) {
   const { posts } = usePosts();
   const post = posts.find((p) => p.id === postId)!;
 
-  const authorProfile = useUserProfile(post.authorId);
+  const { profile: authorProfile } = useUserProfile(post.authorId);
   const authorUsername =
     authorProfile?.username ||
     authorProfile?.name ||

@@ -13,36 +13,49 @@ export function useUserProfile(uid: string | undefined) {
   const [profile, setProfile] = useState<UserProfile | null>(
     uid ? (profileCache.get(uid) ?? null) : null
   );
+  const [isLoading, setIsLoading] = useState(
+    !!uid && !profileCache.has(uid)
+  );
 
   useEffect(() => {
-    if (!uid) return;
-
-    // Already cached — nothing to do
-    if (profileCache.has(uid)) {
-      setProfile(profileCache.get(uid)!);
+    if (!uid) {
+      setProfile(null);
+      setIsLoading(false);
       return;
     }
 
+    // Already cached — use it immediately, no loading state
+    if (profileCache.has(uid)) {
+      setProfile(profileCache.get(uid)!);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+
     // Deduplicate concurrent fetches for the same uid
     if (!inFlight.has(uid)) {
-      const promise = getDoc(doc(db, "users", uid)).then((snap) => {
-        if (!snap.exists()) return null;
-        const data = snap.data() as UserProfile;
-        const p = { ...data, uid: snap.id };
-        profileCache.set(uid, p);
-        return p;
-      }).finally(() => {
-        inFlight.delete(uid);
-      });
+      const promise = getDoc(doc(db, "users", uid))
+        .then((snap) => {
+          if (!snap.exists()) return null;
+          const data = snap.data() as UserProfile;
+          const p = { ...data, uid: snap.id };
+          profileCache.set(uid, p);
+          return p;
+        })
+        .finally(() => {
+          inFlight.delete(uid);
+        });
       inFlight.set(uid, promise);
     }
 
     inFlight.get(uid)!.then((p) => {
-      if (p) setProfile(p);
+      setProfile(p);       // set even if null — don't skip null results
+      setIsLoading(false);
     });
   }, [uid]);
 
-  return profile;
+  return { profile, isLoading };
 }
 
 // Call this after a profile save so the next render gets fresh data

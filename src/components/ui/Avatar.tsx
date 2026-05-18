@@ -56,6 +56,7 @@ export default function Avatar({
         <img
           src={src}
           alt={name}
+          referrerPolicy="no-referrer" 
           className="w-full h-full object-cover"
           onError={() => setImgError(true)}
         />

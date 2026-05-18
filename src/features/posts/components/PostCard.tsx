@@ -23,7 +23,9 @@ export default function PostCard({ post }: PostCardProps) {
   const { openComments } = useUI();
 
   // Always resolve author live — ignores stale snapshot fields on the post doc
-  const authorProfile = useUserProfile(post.authorId);
+  const { profile: authorProfile, isLoading: authorLoading } = useUserProfile(
+    post.authorId,
+  );
   const authorUsername =
     authorProfile?.username ||
     authorProfile?.name ||
@@ -90,12 +92,21 @@ export default function PostCard({ post }: PostCardProps) {
           <div className="flex items-center gap-2.5">
             <Avatar name={authorUsername} src={authorAvatar} size="sm" />
             <div>
-              <p className="text-sm font-semibold text-(--text-primary) leading-tight">
-                {authorUsername}
-              </p>
-              <p className="text-xs text-(--text-muted)">
-                {formatRelativeTime(post.createdAt)}
-              </p>
+              {authorLoading ? (
+                <div className="space-y-1.5">
+                  <div className="h-3.5 w-24 rounded skeleton" />
+                  <div className="h-3 w-14 rounded skeleton" />
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm font-semibold text-(--text-primary) leading-tight">
+                    {authorUsername}
+                  </p>
+                  <p className="text-xs text-(--text-muted)">
+                    {formatRelativeTime(post.createdAt)}
+                  </p>
+                </>
+              )}
             </div>
           </div>
           {/* Options button */}

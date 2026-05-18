@@ -10,7 +10,7 @@ function NotificationRow({
 }: {
   notification: Notification;
 }) {
-  const senderProfile = useUserProfile(notification.senderId);
+  const { profile: senderProfile } = useUserProfile(notification.senderId);
 
   const senderName =
     senderProfile?.username ||
