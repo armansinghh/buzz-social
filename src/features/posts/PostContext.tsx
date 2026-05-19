@@ -40,6 +40,7 @@ interface Media {
 
 interface PostContextType {
   posts: Post[];
+  postsLoading: boolean;
   hasMore: boolean;
   loadMorePosts: () => Promise<void>;
   addPost: (caption: string, media?: Media) => Promise<void>;
@@ -47,15 +48,16 @@ interface PostContextType {
   likePost: (postId: string) => void;
   addComment: (postId: string, text: string) => void;
   toggleReaction: (postId: string, commentId: string, emoji: string) => void;
-  deletePost: (postId: string) => Promise<void>; //
+  deletePost: (postId: string) => Promise<void>;
 }
 
 const POSTS_PER_PAGE = 10;
 
 const PostContext = createContext<PostContextType | undefined>(undefined);
 
-// Builds a clean object for every comment — no undefined fields,
-// no legacy authorUsername/authorAvatar, safe to write to Firestore
+// Builds a clean object for every comment.
+// Firestore will throw an error if we try to save undefined fields or complex nested instances,
+// so we serialize it into a strict shape before writing.
 function serializeComments(comments: Post["comments"]) {
   return comments.map((c) => ({
     id: c.id,
@@ -73,19 +75,23 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
   const { user, profile, loading } = useAuth();
   const { createNotification } = useNotifications();
   const { showToast } = useToast();
+  
   const [posts, setPosts] = useState<Post[]>([]);
+  const [postsLoading, setPostsLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
 
   const [lastDoc, setLastDoc] =
     useState<QueryDocumentSnapshot<DocumentData> | null>(null);
 
-  // Guard against concurrent loadMorePosts calls (double-click / fast scroll)
+  // Guard against concurrent fetch calls, like when a user mashes the load button or scrolls too fast
   const loadingMoreRef = useRef(false);
 
   useEffect(() => {
-    if (loading || !user) return; // wait for auth to resolve
+    // Don't try fetching if we are still verifying the user session
+    if (loading || !user) return;
 
     const fetchInitialPosts = async () => {
+      setPostsLoading(true);
       try {
         const q = query(
           collection(db, "posts"),
@@ -96,11 +102,14 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         const fetchedPosts = snapshot.docs.map((docSnap) =>
           mapPost(docSnap.id, docSnap.data()),
         );
+        
         setPosts(fetchedPosts);
         setLastDoc(snapshot.docs[snapshot.docs.length - 1] ?? null);
         setHasMore(snapshot.docs.length === POSTS_PER_PAGE);
       } catch (err) {
         console.error("Failed to fetch posts:", err);
+      } finally {
+        setPostsLoading(false);
       }
     };
 
@@ -121,7 +130,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
       const snapshot = await getDocs(q);
 
-      // Always go through mapPost — never spread doc.data() directly
+      // Always map the post to ensure we have our default values, never trust raw doc.data() completely
       const newPosts = snapshot.docs.map((docSnap) =>
         mapPost(docSnap.id, docSnap.data()),
       );
@@ -142,15 +151,15 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const newPost = buildPost({ user, profile, caption, media });
 
+      // We get the real ID immediately upon creation
       const docRef = await addDoc(collection(db, "posts"), newPost);
 
-      // Optimistic update
+      // Optimistically update the UI so it feels instant to the user
       setPosts((prev) => [
         {
           ...newPost,
           id: docRef.id,
-          // Override the Firestore serverTimestamp with a local string
-          // just so the UI doesn't crash before the next fetch
+          // Fallback to a local timestamp just to prevent UI crashes before the next server sync happens
           createdAt: new Date().toISOString(),
         } as Post,
         ...prev,
@@ -165,9 +174,9 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       if (!user) return;
 
       const userId = user.uid;
-
-      // Use functional updater to read current state — avoids stale closure
       let wasLiked = false;
+      
+      // Using a functional updater here avoids stale closure issues if the user clicks rapidly
       setPosts((prev) =>
         prev.map((post) => {
           if (post.id !== postId) return post;
@@ -188,7 +197,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         });
       } catch (err) {
         console.error("Failed to toggle like:", err);
-        // Roll back optimistic update on failure
+        // Network failed, roll back the optimistic update so the UI reflects reality
         setPosts((prev) =>
           prev.map((post) => {
             if (post.id !== postId) return post;
@@ -205,17 +214,18 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     [user],
   );
 
-  // likePost only adds a like — it never removes (used for double-tap gesture)
+  // This is specifically for double-tap gestures. It should never unlike a post.
   const likePost = useCallback(
     async (postId: string) => {
       if (!user) return;
 
       const userId = user.uid;
 
-      // Check current state before optimistic update
+      // Check current state before modifying to prevent duplicate IDs in the local array
       setPosts((prev) => {
         const target = prev.find((p) => p.id === postId);
-        if (!target || target.likes.includes(userId)) return prev; // already liked, no-op
+        if (!target || target.likes.includes(userId)) return prev;
+        
         return prev.map((post) =>
           post.id !== postId
             ? post
@@ -223,9 +233,10 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         );
       });
 
-      // Fire-and-forget Firestore write — arrayUnion is idempotent so safe
       const postRef = doc(db, "posts", postId);
       try {
+        // arrayUnion is idempotent, meaning if the user already liked it on the backend, 
+        // Firestore just ignores it. Safe to fire and forget.
         await updateDoc(postRef, { likes: arrayUnion(userId) });
       } catch (err) {
         console.error("Failed to like post:", err);
@@ -261,6 +272,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
           comments: serializeComments(updatedComments),
         });
 
+        // Only send a notification if the user is commenting on someone else's post
         if (authorId && authorId !== user.uid) {
           await createNotification({
             recipientId: authorId,
@@ -287,6 +299,8 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
         const target = prev.find((p) => p.id === postId);
         if (!target) return prev;
 
+        // The logic here is a bit dense: we need to find the specific emoji reaction,
+        // check if the user is in the list, and either add or remove them.
         updatedComments = target.comments.map((comment) => {
           if (comment.id !== commentId) return comment;
 
@@ -294,13 +308,16 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             (r) => r.emoji === emoji,
           );
 
+          // The emoji already exists on this comment
           if (reactionIndex !== -1) {
             const reaction = comment.reactions[reactionIndex];
             const hasReacted = reaction.users.includes(userId);
+            
             const updatedUsers = hasReacted
               ? reaction.users.filter((u) => u !== userId)
               : [...reaction.users, userId];
 
+            // If the user was the only one who reacted and they just un-reacted, drop the emoji entirely
             if (updatedUsers.length === 0) {
               return {
                 ...comment,
@@ -316,6 +333,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
             };
           }
 
+          // It's a new emoji reaction for this comment
           return {
             ...comment,
             reactions: [...comment.reactions, { emoji, users: [userId] }],
@@ -338,7 +356,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     },
     [user],
   );
-  
+
   const deletePost = useCallback(
     async (postId: string) => {
       if (!user) return;
@@ -346,14 +364,16 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
       const postToDelete = posts.find((p) => p.id === postId);
       if (!postToDelete) return;
 
-      // Optimistic remove
+      // Hide immediately from the UI
       setPosts((prev) => prev.filter((p) => p.id !== postId));
 
       try {
         await deleteDoc(doc(db, "posts", postId));
       } catch (err) {
         console.error("Failed to delete post:", err);
-        // Rollback — restore post at its original position by createdAt order
+        
+        // Rollback: if the delete fails on the backend, we restore the post.
+        // We use the original createdAt timestamp to put it exactly back where it belongs in the timeline.
         setPosts((prev) => {
           const index = prev.findIndex(
             (p) => p.createdAt < postToDelete.createdAt,
@@ -376,6 +396,7 @@ export const PostProvider = ({ children }: { children: React.ReactNode }) => {
     <PostContext.Provider
       value={{
         posts,
+        postsLoading,
         hasMore,
         loadMorePosts,
         addPost,

@@ -1,6 +1,7 @@
 import { useState } from "react";
 
 import PostCard from "@/features/posts/components/PostCard";
+import PostCardSkeleton from "@/components/skeletons/PostCardSkeleton";
 import { usePosts } from "@/features/posts/PostContext";
 import { useAuth } from "@/features/auth/AuthContext";
 import { useFollow } from "@/features/follow/FollowContext";
@@ -13,13 +14,12 @@ type FeedTab = "feed" | "following";
 export default function Home() {
   usePageTitle("Home");
 
-  const { posts, hasMore, loadMorePosts } = usePosts();
+  const { posts, postsLoading, hasMore, loadMorePosts } = usePosts();
 
   const { user } = useAuth();
   const { following } = useFollow();
 
   const [activeTab, setActiveTab] = useState<FeedTab>("feed");
-
   const [loadingMore, setLoadingMore] = useState(false);
 
   const currentUserId = user?.uid;
@@ -34,7 +34,6 @@ export default function Home() {
   const handleLoadMore = async () => {
     try {
       setLoadingMore(true);
-
       await loadMorePosts();
     } finally {
       setLoadingMore(false);
@@ -42,27 +41,26 @@ export default function Home() {
   };
 
   const tabs: { id: FeedTab; label: string; icon?: React.ReactNode }[] = [
-    {
-      id: "feed",
-      label: "Feed",
-      icon: <FaBars className="text-sm" />,
-    },
-    {
-      id: "following",
-      label: "Following",
-      icon: <FaUserGroup className="text-sm" />,
-    },
+    { id: "feed", label: "Feed", icon: <FaBars className="text-sm" /> },
+    { id: "following", label: "Following", icon: <FaUserGroup className="text-sm" /> },
   ];
+
   return (
     <div className="space-y-6">
       <Tabs
         tabs={tabs}
         activeTab={activeTab}
-        onChange={(key) => setActiveTab(key as any)}
+        onChange={(key) => setActiveTab(key as FeedTab)}
       />
 
-      {/* Posts */}
-      {displayedPosts.length === 0 ? (
+      {postsLoading ? (
+        // Show skeletons while the initial fetch is in flight
+        <>
+          <PostCardSkeleton />
+          <PostCardSkeleton />
+          <PostCardSkeleton />
+        </>
+      ) : displayedPosts.length === 0 ? (
         <div className="text-center py-10 text-(--text-muted)">
           {activeTab === "following"
             ? "No posts from people you follow yet."
@@ -74,7 +72,6 @@ export default function Home() {
             <PostCard key={post.id} post={post} />
           ))}
 
-          {/* Load More */}
           {hasMore && activeTab === "feed" && (
             <div className="flex justify-center pt-4">
               <button
