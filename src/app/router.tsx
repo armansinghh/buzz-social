@@ -6,7 +6,7 @@ import AuthPage from "@/pages/Auth";
 import Profile from "@/features/profile/Profile";
 import NotFound from "@/pages/NotFound";
 import Explore from "@/features/explore/Explore";
-import Search from "@/pages/Search";
+import Search from "@/features/search/Search";
 import Onboarding from "@/pages/Onboarding";
 import PostDetail from "@/pages/PostDetail";
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
