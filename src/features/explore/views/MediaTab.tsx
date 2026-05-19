@@ -3,6 +3,7 @@ import { usePosts } from "@/features/posts/PostContext";
 import EmptyState from "@/components/ui/EmptyState";
 import MediaGridItem from "../components/MediaGridItem";
 import MediaLightbox from "../components/MediaLightbox";
+import GridSkeleton from "@/components/skeletons/GridSkeleton";
 import type { Post } from "@/types/post";
 
 const MediaEmptyIcon = (
@@ -12,16 +13,6 @@ const MediaEmptyIcon = (
     <polyline points="21 15 16 10 5 21" />
   </svg>
 );
-
-function GridSkeleton() {
-  return (
-    <div className="grid grid-cols-3 gap-1.5">
-      {Array.from({ length: 9 }).map((_, i) => (
-        <div key={i} className="aspect-square rounded-xl skeleton" />
-      ))}
-    </div>
-  );
-}
 
 export default function MediaTab() {
   const { posts, hasMore, loadMorePosts } = usePosts();
