@@ -5,7 +5,7 @@ import Home from "@/pages/Home";
 import AuthPage from "@/pages/Auth";
 import Profile from "@/features/profile/Profile";
 import NotFound from "@/pages/NotFound";
-import Explore from "@/pages/Explore";
+import Explore from "@/features/explore/Explore";
 import Search from "@/pages/Search";
 import Onboarding from "@/pages/Onboarding";
 import PostDetail from "@/pages/PostDetail";
