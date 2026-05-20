@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 import type { Comment } from "@/types/post";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import { usePosts } from "@/features/posts/PostContext";
@@ -15,7 +16,8 @@ interface CommentItemProps {
 export default function CommentItem({ comment, postId }: CommentItemProps) {
   const { toggleReaction } = usePosts();
   const { user } = useAuth();
-  const { openEmojiPicker, closeEmojiPicker, emojiPicker } = useUI();
+  // Added closeModal here
+  const { openEmojiPicker, closeEmojiPicker, emojiPicker, closeModal } = useUI();
 
   const buttonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -57,20 +59,31 @@ export default function CommentItem({ comment, postId }: CommentItemProps) {
     openEmojiPicker(comment.id, postId, { x, y });
   };
 
+  const profileUrl = `/profile/${authorUsername || comment.authorId}`;
+
   return (
     <div className="flex gap-2">
-      <Avatar
-        name={authorUsername}
-        src={authorAvatar}
-        size="xs"
+      <Link 
+        to={profileUrl} 
+        onClick={() => closeModal()} 
         className="mt-0.5 shrink-0"
-      />
+      >
+        <Avatar
+          name={authorUsername}
+          src={authorAvatar}
+          size="xs"
+        />
+      </Link>
 
       <div className="flex-1 min-w-0">
         <div className="text-sm">
-          <span className="font-semibold text-(--text-primary) mr-1.5">
+          <Link
+            to={profileUrl}
+            onClick={() => closeModal()}
+            className="font-semibold text-(--text-primary) mr-1.5"
+          >
             {authorUsername}
-          </span>
+          </Link>
           <span className="text-(--text-primary)">{comment.text}</span>
         </div>
 

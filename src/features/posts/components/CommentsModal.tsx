@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useUI } from "@/contexts/UIContext";
 import { usePosts } from "@/features/posts/PostContext";
 import CommentItem from "./CommentItem";
@@ -34,15 +35,21 @@ function CommentsModalInner({ postId }: { postId: string }) {
       <div className="sm:w-1/2 border-b sm:border-b-0 sm:border-r border-(--border-color) flex-col hidden sm:flex">
         {/* Post header */}
         <div className="flex items-center gap-3 px-5 py-4 h-16 border-b border-(--border-color)">
-          <Avatar name={authorUsername} src={authorAvatar} size="sm" />
-          <div>
-            <p className="text-sm font-semibold text-(--text-primary)">
-              {authorUsername}
-            </p>
-            <p className="text-xs text-(--text-muted)">
-              {formatRelativeTime(post.createdAt)}
-            </p>
-          </div>
+          <Link
+            to={`/profile/${authorUsername || post.authorId}`}
+            onClick={() => closeModal()}
+            className="flex items-center gap-3 group w-fit"
+          >
+            <Avatar name={authorUsername} src={authorAvatar} size="sm" />
+            <div>
+              <p className="text-sm font-semibold text-(--text-primary)">
+                {authorUsername}
+              </p>
+              <p className="text-xs text-(--text-muted)">
+                {formatRelativeTime(post.createdAt)}
+              </p>
+            </div>
+          </Link>
         </div>
 
         {/* Media */}
@@ -68,12 +75,21 @@ function CommentsModalInner({ postId }: { postId: string }) {
         <div className="px-5 py-4 space-y-2">
           {post.caption && (
             <p className="text-sm text-(--text-primary)">
-              <span className="font-semibold mr-1.5">{authorUsername}</span>
+              <Link
+                to={`/profile/${authorUsername || post.authorId}`}
+                onClick={() => closeModal()}
+                className="font-semibold mr-1.5"
+              >
+                {authorUsername}
+              </Link>
               {post.caption}
             </p>
           )}
           <p className="flex items-center justify-baseline gap-1 text-xs text-(--text-muted)">
-            <FaHeart/> <span>{post.likes.length} {post.likes.length === 1 ? "like" : "likes"}</span> 
+            <FaHeart />{" "}
+            <span>
+              {post.likes.length} {post.likes.length === 1 ? "like" : "likes"}
+            </span>
           </p>
         </div>
       </div>
@@ -104,10 +120,22 @@ function CommentsModalInner({ postId }: { postId: string }) {
 
         {/* Mobile post caption */}
         <div className="sm:hidden px-5 py-3 border-b border-(--border-color)">
-          <div className="flex items-center gap-2.5">
-            <Avatar name={authorUsername} src={authorAvatar} size="xs" />
+          <div className="flex items-start gap-2.5">
+            <Link
+              to={`/profile/${authorUsername || post.authorId}`}
+              onClick={() => closeModal()}
+              className="shrink-0 pt-0.5"
+            >
+              <Avatar name={authorUsername} src={authorAvatar} size="xs" />
+            </Link>
             <p className="text-sm text-(--text-primary)">
-              <span className="font-semibold mr-1.5">{authorUsername}</span>
+              <Link
+                to={`/profile/${authorUsername || post.authorId}`}
+                onClick={() => closeModal()}
+                className="font-semibold mr-1.5"
+              >
+                {authorUsername}
+              </Link>
               {post.caption}
             </p>
           </div>

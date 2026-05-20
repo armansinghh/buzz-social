@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import type { Post } from "@/types/post";
 import { useAuth } from "@/features/auth/AuthContext";
 import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
@@ -89,7 +90,10 @@ export default function PostCard({ post }: PostCardProps) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-3">
-          <div className="flex items-center gap-2.5">
+          <Link
+            to={`/profile/${authorUsername || post.authorId}`}
+            className="flex items-center gap-2.5 group w-fit"
+          >
             <Avatar name={authorUsername} src={authorAvatar} size="sm" />
             <div>
               {authorLoading ? (
@@ -108,7 +112,7 @@ export default function PostCard({ post }: PostCardProps) {
                 </>
               )}
             </div>
-          </div>
+          </Link>
           {/* Options button */}
           <Dropdown
             trigger={
