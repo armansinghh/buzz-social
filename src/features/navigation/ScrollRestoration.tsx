@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useLayoutEffect, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 
 export default function ScrollRestoration({
@@ -7,27 +7,30 @@ export default function ScrollRestoration({
   containerRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const location = useLocation();
+  const isRestoringRef = useRef(false);
 
   const getKey = (path: string) => `scroll:${path}`;
 
-  // 1. Restore scroll when route changes (with rAF cleanup)
-  useEffect(() => {
+  // 1. Restore scroll synchronously before paint
+  useLayoutEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    const saved = Number(
-      localStorage.getItem(getKey(location.pathname)) || 0
-    );
+    // Lock the scroll listener to prevent it from saving this programmatic shift
+    isRestoringRef.current = true;
 
-    // Save the frame ID so we can cancel it if the component unmounts
+    const saved = Number(localStorage.getItem(getKey(location.pathname)) || 0);
+    container.scrollTop = saved;
+
+    // Unlock after the browser paints and settles
     const frameId = requestAnimationFrame(() => {
-      container.scrollTop = saved;
+      isRestoringRef.current = false;
     });
 
     return () => cancelAnimationFrame(frameId);
   }, [location.pathname]);
 
-  // 2. Save scroll while scrolling (Debounced for performance)
+  // 2. Save scroll while scrolling (Debounced)
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -35,10 +38,12 @@ export default function ScrollRestoration({
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const handleScroll = () => {
-      // Clear the previous timeout if the user is still scrolling
+      // If we are currently restoring the page's scroll position, IGNORE THE EVENT.
+      // This stops scroll contamination dead in its tracks.
+      if (isRestoringRef.current) return;
+
       clearTimeout(timeoutId);
 
-      // Only write to localStorage after they stop scrolling for 150ms
       timeoutId = setTimeout(() => {
         localStorage.setItem(
           getKey(location.pathname),
@@ -52,12 +57,10 @@ export default function ScrollRestoration({
     return () => {
       container.removeEventListener("scroll", handleScroll);
       clearTimeout(timeoutId);
-
-      // Ensure last position is saved immediately on route change or unmount
-      localStorage.setItem(
-        getKey(location.pathname),
-        String(container.scrollTop)
-      );
+      
+      // DELETED: the localStorage save on unmount.
+      // When a component unmounts, the DOM is often collapsing or empty. 
+      // Saving here accidentally overwrites your good saved data with `0`.
     };
   }, [location.pathname]);
 
