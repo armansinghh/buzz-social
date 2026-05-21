@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/AuthContext";
 import { FaGithub, FaHeart } from "react-icons/fa";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { getAuthErrorMessage } from "@/features/auth/authErrors";
 
 export default function AuthPage() {
   usePageTitle("Welcome");
@@ -20,8 +21,10 @@ export default function AuthPage() {
       setError("Please fill in all fields");
       return;
     }
+
     setLoading(true);
     setError("");
+
     try {
       if (mode === "login") {
         await login(email, password);
@@ -30,7 +33,8 @@ export default function AuthPage() {
       }
       navigate("/");
     } catch (err: any) {
-      setError(err.message || "Something went wrong");
+      const friendlyMessage = getAuthErrorMessage(err.code);
+      setError(friendlyMessage);
     } finally {
       setLoading(false);
     }
@@ -165,11 +169,17 @@ export default function AuthPage() {
             {/* Form */}
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-(--text-secondary)">
+                <label
+                  htmlFor="email"
+                  className="text-xs font-medium text-(--text-secondary)"
+                >
                   Email
                 </label>
                 <input
+                  id="email"
+                  name="email"
                   type="email"
+                  autoComplete="username"
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -179,11 +189,19 @@ export default function AuthPage() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-medium text-(--text-secondary)">
+                <label
+                  htmlFor="password"
+                  className="text-xs font-medium text-(--text-secondary)"
+                >
                   Password
                 </label>
                 <input
+                  id="password"
+                  name="password"
                   type="password"
+                  autoComplete={
+                    mode === "login" ? "current-password" : "new-password"
+                  }
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
