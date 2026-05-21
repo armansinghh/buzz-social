@@ -13,21 +13,25 @@ import ProtectedRoute from "@/features/auth/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
-    element: (
-      <ProtectedRoute>
-        <AppLayout />
-      </ProtectedRoute>
-    ),
     errorElement: <ErrorElementFallback />,
     children: [
-      { path: "/", element: <Home /> },
-      { path: "/explore", element: <Explore /> },
-      { path: "/search", element: <Search /> },
-      { path: "/profile/:id", element: <Profile /> },
-      { path: "/post/:id", element: <PostDetail /> },
+      {
+        element: (
+          <ProtectedRoute>
+            <AppLayout />
+          </ProtectedRoute>
+        ),
+        children: [
+          { path: "/", element: <Home /> },
+          { path: "/explore", element: <Explore /> },
+          { path: "/search", element: <Search /> },
+          { path: "/profile/:id", element: <Profile /> },
+          { path: "/post/:id", element: <PostDetail /> },
+        ],
+      },
+      { path: "/auth", element: <AuthPage /> },
+      { path: "/onboarding", element: <Onboarding /> },
+      { path: "*", element: <NotFound /> },
     ],
-  },
-  { path: "/auth", element: <AuthPage /> },
-  { path: "/onboarding", element: <Onboarding /> },
-  { path: "*", element: <NotFound /> },
+  } // <-- End of the master route
 ]);
