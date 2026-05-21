@@ -271,10 +271,12 @@ export default function EditProfileModal({
         {/* Fields */}
         <div className="px-5 py-5 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-(--text-secondary) mb-1.5">
+            <label htmlFor="edit-profile-name" className="block text-xs font-medium text-(--text-secondary) mb-1.5">
               Name
             </label>
             <input
+              id="edit-profile-name"
+              name="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -285,7 +287,7 @@ export default function EditProfileModal({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-(--text-secondary) mb-1.5">
+            <label htmlFor="edit-profile-username" className="block text-xs font-medium text-(--text-secondary) mb-1.5">
               Username
             </label>
             <div
@@ -298,6 +300,8 @@ export default function EditProfileModal({
             >
               <span className="text-(--text-muted) text-sm mr-1.5">@</span>
               <input
+                id="edit-profile-username"
+                name="username"
                 type="text"
                 value={username}
                 onChange={(e) => handleUsernameChange(e.target.value)}

@@ -174,7 +174,7 @@ function CommentsModalInner({ postId }: { postId: string }) {
 
         {/* Input */}
         <div className="border-t border-(--border-color) px-5 py-4 shrink-0">
-          <CommentInput postId={post.id} />
+          <CommentInput postId={post.id} idPrefix="modal" />
         </div>
       </div>
     </div>

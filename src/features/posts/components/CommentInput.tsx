@@ -5,12 +5,14 @@ import Avatar from "@/components/ui/Avatar";
 
 interface CommentInputProps {
   postId: string;
+  idPrefix?: string;
 }
 
-export default function CommentInput({ postId }: CommentInputProps) {
+export default function CommentInput({ postId, idPrefix = "feed" }: CommentInputProps) {
   const { addComment } = usePosts();
   const { profile } = useAuth();
   const [text, setText] = useState("");
+  const uniqueId = `comment-${idPrefix}-${postId}`;
 
   const handleSubmit = () => {
     const trimmed = text.trim();
@@ -23,6 +25,9 @@ export default function CommentInput({ postId }: CommentInputProps) {
     <div className="flex items-center gap-2">
       <Avatar name={profile?.username ?? "User"} src={profile?.avatar} size="xs" />
       <input
+        id={uniqueId}
+        name={uniqueId}
+        autoComplete="off"
         type="text"
         placeholder="Add a comment…"
         value={text}

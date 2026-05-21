@@ -64,6 +64,8 @@ export default function Search() {
         </svg>
 
         <input
+          id="search-query"
+          name="search-query"
           ref={inputRef}
           type="text"
           placeholder="Search posts, people…"
@@ -84,7 +86,15 @@ export default function Search() {
             onClick={handleClear}
             className="w-5 h-5 flex items-center justify-center rounded-full bg-(--bg-tertiary) text-(--text-muted) hover:bg-(--border-color) hover:text-(--text-primary) transition-colors shrink-0"
           >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+            >
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
@@ -127,7 +137,17 @@ export default function Search() {
         {!loading && !search && (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
             <div className="w-14 h-14 rounded-2xl bg-(--bg-tertiary) flex items-center justify-center">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-(--text-muted) opacity-60">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-(--text-muted) opacity-60"
+              >
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
@@ -136,7 +156,8 @@ export default function Search() {
               Find anything on Buzz
             </p>
             <p className="text-xs text-(--text-muted) text-center max-w-50 leading-relaxed">
-              Search by username, caption, or hashtag to discover posts and people.
+              Search by username, caption, or hashtag to discover posts and
+              people.
             </p>
           </div>
         )}
@@ -145,7 +166,17 @@ export default function Search() {
         {!loading && hasSearched && !hasResults && (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
             <div className="w-14 h-14 rounded-2xl bg-(--bg-tertiary) flex items-center justify-center">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-(--text-muted) opacity-60">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-(--text-muted) opacity-60"
+              >
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>

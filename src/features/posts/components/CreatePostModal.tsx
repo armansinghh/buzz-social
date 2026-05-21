@@ -146,6 +146,8 @@ export default function CreatePostModal() {
         {/* Body */}
         <div className="px-5 py-4">
           <textarea
+            id="create-post-caption"
+            name="create-post-caption"
             ref={textareaRef}
             value={caption}
             onChange={(e) => setCaption(e.target.value)}
