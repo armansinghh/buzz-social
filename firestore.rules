@@ -15,14 +15,12 @@ service cloud.firestore {
       return value is string && value.size() <= maxLen; 
     }
 
-    // Anchored regex to ensure it is actually a valid URL structure
     function isValidUrl(value) {
       return value is string 
         && value.size() <= 2048 
         && value.matches('^https://.+');
     }
 
-    // Uses Firestore's native timestamp type instead of string length
     function isValidTimestamp(value) {
       return value is timestamp || value == request.time;
     }
@@ -105,16 +103,28 @@ service cloud.firestore {
                       && request.resource.data.type in ['like', 'comment', 'follow']
                       && (!('postId' in request.resource.data) || isValidString(request.resource.data.postId, 128))
                       && isValidTimestamp(request.resource.data.createdAt)
-                      // FIXED: Removed senderName and senderAvatar from schema keys
+                      && (!('totalLikes' in request.resource.data) || request.resource.data.totalLikes is number)
                       && request.resource.data.keys().hasOnly([
                            'recipientId', 'senderId', 'type', 
-                           'postId', 'isRead', 'createdAt'
+                           'postId', 'isRead', 'createdAt', 'totalLikes'
                          ]);
 
         allow update: if isAuth()
-                      && isUser(userId)
-                      && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead'])
-                      && request.resource.data.isRead is bool;
+                      && (
+                        (isUser(userId) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead']) && request.resource.data.isRead is bool)
+                        ||
+                        (
+                          resource.data.type == 'like' 
+                          && request.resource.data.type == 'like' 
+                          && request.resource.data.senderId == request.auth.uid 
+                          && request.resource.data.recipientId == resource.data.recipientId 
+                          && request.resource.data.postId == resource.data.postId 
+                          && request.resource.data.isRead == false 
+                          && isValidTimestamp(request.resource.data.createdAt)
+                          && (!('totalLikes' in request.resource.data) || request.resource.data.totalLikes is number)
+                          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['senderId', 'isRead', 'createdAt', 'totalLikes'])
+                        )
+                      );
 
         allow delete: if false;
       }
@@ -129,14 +139,14 @@ service cloud.firestore {
                     && request.resource.data.keys().hasAll([
                          'authorId', 'caption', 'likes', 'comments', 'createdAt'
                        ])
+                    // UPDATED: Removed 'authorUsername' and 'authorAvatar'
                     && request.resource.data.keys().hasOnly([
-                         'authorId', 'authorUsername', 'authorAvatar',
-                         'caption', 'media', 'likes', 'comments', 'createdAt'
+                         'authorId', 'caption', 'media', 'likes', 'comments', 'createdAt'
                        ])
                     && isValidString(request.resource.data.caption, 2200)
                     && isValidTimestamp(request.resource.data.createdAt)
-                    && isValidString(request.resource.data.authorUsername, 30)
-                    && (!('authorAvatar' in request.resource.data) || isValidUrl(request.resource.data.authorAvatar))
+                    // REMOVED: isValidString for authorUsername
+                    // REMOVED: isValidUrl for authorAvatar
                     && request.resource.data.likes.size() == 0
                     && request.resource.data.comments.size() == 0
                     && (!('media' in request.resource.data) || (
@@ -150,10 +160,8 @@ service cloud.firestore {
                       // Path 1: Author updating their post
                       (resource.data.authorId == request.auth.uid)
                       ||
-                      // Path 2: Someone else updating likes/comments
                       (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'comments']))
                     )
-                    // These rules apply to BOTH paths (prevents author from doing sketchy stuff)
                     && request.resource.data.authorId == resource.data.authorId 
                     && request.resource.data.caption == resource.data.caption 
                     && request.resource.data.createdAt == resource.data.createdAt 
