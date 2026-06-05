@@ -281,7 +281,8 @@ export default function EditProfileModal({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your display name"
-              maxLength={50}
+              maxLength={15}
+              autoComplete="name"
               className="w-full border border-(--border-color) bg-(--bg-secondary) text-(--text-primary) placeholder:text-(--text-muted) px-3 py-2.5 rounded-xl text-sm outline-none focus:ring-2 focus:ring-(--accent)/20 focus:border-(--accent) transition"
             />
           </div>
@@ -306,7 +307,8 @@ export default function EditProfileModal({
                 value={username}
                 onChange={(e) => handleUsernameChange(e.target.value)}
                 placeholder="yourusername"
-                maxLength={30}
+                maxLength={15}
+                autoComplete="username"
                 className="flex-1 bg-transparent text-(--text-primary) placeholder:text-(--text-muted) text-sm outline-none"
               />
             </div>

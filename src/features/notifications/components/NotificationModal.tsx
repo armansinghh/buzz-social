@@ -2,9 +2,11 @@ import { useEffect } from "react";
 import { useUI } from "@/contexts/UIContext";
 import { useNotifications } from "@/features/notifications/NotificationContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
-import Avatar from "@/components/ui/Avatar";
 import { formatRelativeTime } from "@/utils/formatRelativeTime";
 import type { Notification } from "@/types/notification";
+import { FaBell } from "react-icons/fa6";
+import Avatar from "@/components/ui/Avatar";
+import EmptyState from "@/components/ui/EmptyState";
 
 function NotificationRow({
   notification,
@@ -92,7 +94,7 @@ export default function NotificationModal() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center modal-in bg-black/50 backdrop-blur-sm"
       onClick={closeModal}
     >
       <div
@@ -127,29 +129,11 @@ export default function NotificationModal() {
               </div>
             ))
           ) : notifications.length === 0 ? (
-            // EMPTY STATE
-            <div className="py-20 flex flex-col items-center justify-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-(--bg-tertiary) flex items-center justify-center mb-1">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  className="text-(--text-muted)"
-                  strokeWidth="1.5"
-                >
-                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                </svg>
-              </div>
-              <p className="text-(--text-primary) font-medium">
-                No notifications yet
-              </p>
-              <p className="text-sm text-(--text-muted)">
-                When people interact with you, you'll see it here.
-              </p>
-            </div>
+            <EmptyState
+              icon={<FaBell className="w-8 h-8" />}
+              title="No notifications yet"
+              subtitle="When people interact with you, you'll see it here."
+            />
           ) : (
             notifications.map((notification) => (
               <NotificationRow
