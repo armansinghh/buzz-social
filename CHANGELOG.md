@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/armansinghh/buzz-social/compare/v1.0.0...v1.1.0) (2026-06-05)
+
+
+### Features
+
+* **auth:** redesign authentication UI with animated segmented controls ([e277967](https://github.com/armansinghh/buzz-social/commit/e277967e0f4c6a0c1f56c68bef5b96f3723bb2d7))
+
 ## 1.0.0 (2026-06-05)
 
 
