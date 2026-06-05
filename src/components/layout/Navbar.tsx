@@ -14,27 +14,31 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="h-14 w-full flex justify-between items-center px-6 bg-(--bg-primary) border-b border-(--border-color)">
-      {/* Logo */}
-      <Link to="/" className="flex items-center gap-2 group">
-        <span className="text-xl font-bold tracking-tight text-(--text-primary)">
+    <nav className="sticky top-0 z-40 h-16 w-full flex justify-between items-center px-4 sm:px-6 bg-(--bg-primary) border-b border-(--border-color)">
+      {/* The Classic Logo is back */}
+      <Link
+        to="/"
+        className="flex items-center gap-1.5 group rounded-md"
+      >
+        <span className="text-xl font-extrabold text-(--text-primary)">
           buzz
         </span>
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 group-hover:scale-125 transition-transform" />
+        <span className="w-2 h-2 rounded-full bg-amber-400 group-hover:scale-125 transition-transform" />
       </Link>
 
       {/* Right side */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-4">
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-(--bg-tertiary) transition-colors text-(--text-secondary) hover:text-(--text-primary)"
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-(--bg-secondary) transition-colors text-(--text-secondary) hover:text-(--text-primary)"
           title={theme === "dark" ? "Switch to light" : "Switch to dark"}
+          aria-label="Toggle theme"
         >
           {theme === "dark" ? (
             <svg
-              width="16"
-              height="16"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -54,8 +58,8 @@ export default function Navbar() {
             </svg>
           ) : (
             <svg
-              width="16"
-              height="16"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -68,14 +72,30 @@ export default function Navbar() {
           )}
         </button>
 
-        {user ? (
-          <div className="flex items-center gap-3">
-            <Avatar name={profile?.username ?? "User"} src={profile?.avatar} size="sm" />
+        {/* Separator */}
+        <div className="w-px h-5 bg-(--border-color) hidden sm:block mx-1" />
 
-            <span>{profile?.username}</span>
+        {user ? (
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* User Profile Link */}
+            <Link
+              to={`/profile/${profile?.username}`}
+              className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+              title="Go to profile"
+            >
+              <Avatar
+                name={profile?.username ?? "User"}
+                src={profile?.avatar}
+                size="sm"
+              />
+              <span className="hidden sm:block text-sm font-medium text-(--text-primary)">
+                {profile?.username}
+              </span>
+            </Link>
+
             <button
               onClick={handleLogout}
-              className="px-3 py-1.5 text-sm rounded-lg border border-(--border-color) text-(--text-secondary) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors font-medium"
+              className="px-4 py-1.5 text-sm rounded-full border border-(--border-color) text-(--text-secondary) hover:bg-(--bg-secondary) hover:text-(--text-primary) transition-all font-medium"
             >
               Logout
             </button>
@@ -83,7 +103,7 @@ export default function Navbar() {
         ) : (
           <Link
             to="/Auth"
-            className="px-4 py-1.5 text-sm rounded-lg bg-(--accent) text-(--bg-primary) hover:opacity-90 transition-opacity font-medium"
+            className="px-5 py-2 text-sm rounded-full bg-(--text-primary) text-(--bg-primary) hover:scale-105 active:scale-95 transition-all font-semibold shadow-sm ml-1"
           >
             Login
           </Link>
