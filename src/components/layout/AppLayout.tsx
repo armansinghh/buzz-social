@@ -14,34 +14,50 @@ export default function AppLayout() {
   const mainRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-(--bg-primary) text-(--text-primary)">
-      <header className="border-b border-(--border-color) shrink-0">
+    // Changed h-screen to h-[100dvh] for mobile browser safety
+    <div className="h-dvh flex flex-col overflow-hidden bg-(--bg-primary) text-(--text-primary)">
+      
+      <header className="border-b border-(--border-color) shrink-0 z-10">
         <Navbar />
       </header>
-      <div className="flex flex-1 min-h-0">
-        {/* Left sidebar */}
-        <aside className="w-64 border-r border-(--border-color) px-4 py-4 hidden md:flex flex-col bg-(--bg-primary) shrink-0">
+
+      <div className="flex flex-1 min-h-0 relative">
+        {/* Left sidebar - Added aria-label */}
+        <aside 
+          aria-label="Primary Navigation"
+          className="w-64 border-r border-(--border-color) px-4 py-4 hidden md:flex flex-col bg-(--bg-primary) shrink-0 z-0"
+        >
           <LeftSidebar />
         </aside>
 
         <main
           ref={mainRef}
+          // Kept this exactly as you had it
           className="flex-1 overflow-y-auto bg-(--bg-secondary) main-scroll pb-20 md:pb-0"
         >
           <ScrollRestoration containerRef={mainRef} />
 
-          <div className="max-w-xl mx-auto px-4 py-6">
+          {/* Consider moving max-w-xl mx-auto into the actual Page components 
+            instead of the layout, so non-feed pages can use the full width! 
+            For now, I've left it, but made sure it has w-full so it spans properly.
+          */}
+          <div className="w-full max-w-xl mx-auto px-4 py-6">
             <Outlet />
           </div>
         </main>
 
-        {/* Right sidebar */}
-        <aside className="w-64 border-l border-(--border-color) px-4 py-4 hidden xl:flex flex-col bg-(--bg-primary) shrink-0">
+        {/* Right sidebar - Added aria-label */}
+        <aside 
+          aria-label="Secondary Sidebar"
+          className="w-64 border-l border-(--border-color) px-4 py-4 hidden xl:flex flex-col bg-(--bg-primary) shrink-0 z-0"
+        >
           <RightSidebar />
         </aside>
       </div>
+
       {/* Mobile bottom nav */}
       <BottomNav />
+
       {/* Modals + Global UI */}
       <CreatePostModal />
       <NotificationModal />
