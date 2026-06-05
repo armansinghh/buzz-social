@@ -3,6 +3,7 @@ import { FaHeart, FaComment } from "react-icons/fa6";
 import Avatar from "@/components/ui/Avatar";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import type { Post } from "@/types/post";
+import { Link } from "react-router-dom";
 
 export default function MediaLightbox({
   post,
@@ -74,7 +75,15 @@ export default function MediaLightbox({
                 className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors"
                 aria-label="Previous"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                >
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
@@ -88,7 +97,15 @@ export default function MediaLightbox({
                 className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors"
                 aria-label="Next"
               >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                >
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
               </button>
@@ -101,7 +118,15 @@ export default function MediaLightbox({
               className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 hover:bg-black/70 text-white flex items-center justify-center transition-colors"
               aria-label="Close"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -110,10 +135,15 @@ export default function MediaLightbox({
         )}
         <div className="p-4">
           <div className="flex items-center gap-2.5 mb-2">
-            <Avatar name={authorUsername} src={authorAvatar} size="sm" />
-            <p className="text-sm font-semibold text-(--text-primary)">
-              {authorUsername}
-            </p>
+            <Link
+              to={`/profile/${authorUsername || post.authorId}`}
+              className="flex items-center gap-2.5 group w-fit"
+            >
+              <Avatar name={authorUsername} src={authorAvatar} size="sm" />
+              <p className="text-sm font-semibold text-(--text-primary)">
+                {authorUsername}
+              </p>
+            </Link>
           </div>
           {post.caption && (
             <p className="text-sm text-(--text-primary) leading-relaxed">
