@@ -152,22 +152,75 @@ export default function AuthPage() {
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mb-2 inline-block" />
           </div>
 
-          {/* Card wrapper — bordered on mobile, invisible on desktop */}
+          {/* Custom Animation Styles (The Apple-esque Spring) */}
+          <style>
+            {`
+              @keyframes gentleScaleFade {
+                0% { opacity: 0; transform: scale(0.96); }
+                100% { opacity: 1; transform: scale(1); }
+              }
+              .animate-scale-fade { 
+                animation: gentleScaleFade 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+              }
+            `}
+          </style>
+
+          {/* Card wrapper */}
           <div className="bg-(--bg-primary) border border-(--border-color) rounded-2xl p-6 shadow-(--shadow-sm) lg:bg-transparent lg:border-none lg:rounded-none lg:p-0 lg:shadow-none">
-            {/* Heading */}
+            {/* Heading Area with Segmented Pill Control */}
             <div className="mb-6">
-              <h2 className="text-2xl font-semibold text-(--text-primary) tracking-tight mb-1">
-                {mode === "login" ? "Sign in" : "Create account"}
-              </h2>
-              <p className="text-sm text-(--text-muted)">
+              {/* Modern Animated Segmented Pill */}
+              <div className="relative flex p-1 bg-(--bg-secondary) rounded-xl ring-1 ring-inset ring-(--border-color)/50">
+                {/* The sliding background element */}
+                <div
+                  className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-(--bg-primary) rounded-lg shadow-sm transition-all duration-300 cubic-bezier(0.4, 0, 0.2, 1) ${
+                    mode === "login" ? "left-1" : "left-[calc(50%+2px)]"
+                  }`}
+                />
+
+                {/* Sign In Button */}
+                <button
+                  onClick={() => {
+                    setMode("login");
+                    setError("");
+                  }}
+                  className={`relative z-10 flex-1 py-2 text-sm font-semibold transition-colors duration-300 ${
+                    mode === "login"
+                      ? "text-(--text-primary)"
+                      : "text-(--text-muted) hover:text-(--text-secondary)"
+                  }`}
+                >
+                  Sign in
+                </button>
+
+                {/* Sign Up Button */}
+                <button
+                  onClick={() => {
+                    setMode("signup");
+                    setError("");
+                  }}
+                  className={`relative z-10 flex-1 py-2 text-sm font-semibold transition-colors duration-300 ${
+                    mode === "signup"
+                      ? "text-(--text-primary)"
+                      : "text-(--text-muted) hover:text-(--text-secondary)"
+                  }`}
+                >
+                  Sign up
+                </button>
+              </div>
+            </div>
+
+            {/* THE ANIMATED SCALE/FADE CONTAINER
+              Using key={mode} ensures this specific div unmounts and remounts 
+              whenever the mode changes, perfectly re-triggering the CSS animation.
+            */}
+            <div key={mode} className="flex flex-col gap-4 animate-scale-fade">
+              <p className="text-sm text-(--text-muted) -mt-2 mb-2">
                 {mode === "login"
                   ? "Welcome back. Enter your details below."
                   : "Get started — it only takes a moment."}
               </p>
-            </div>
 
-            {/* Form */}
-            <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="email"
@@ -225,10 +278,14 @@ export default function AuthPage() {
                 {loading
                   ? "Please wait…"
                   : mode === "login"
-                    ? "Sign in"
-                    : "Sign up"}
+                    ? "Sign in to buzz"
+                    : "Create my account"}
               </button>
+            </div>
+            {/* END ANIMATED CONTAINER */}
 
+            {/* Anchored Google Button (Stays perfectly still during the transition) */}
+            <div className="flex flex-col gap-4 mt-4">
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-px bg-(--border-color)" />
                 <span className="text-xs text-(--text-muted)">or</span>
@@ -266,19 +323,6 @@ export default function AuthPage() {
             </div>
           </div>
           {/* /card wrapper */}
-
-          {/* Switch mode */}
-          <p className="text-xs text-(--text-muted) text-center mt-6">
-            {mode === "login"
-              ? "Don't have an account?"
-              : "Already have an account?"}{" "}
-            <button
-              onClick={() => setMode(mode === "login" ? "signup" : "login")}
-              className="text-(--text-primary) font-medium hover:underline cursor-pointer"
-            >
-              {mode === "login" ? "Sign up" : "Sign in"}
-            </button>
-          </p>
         </div>
       </div>
     </div>
