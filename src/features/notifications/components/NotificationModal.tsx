@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useUI } from "@/contexts/UIContext";
 import { useNotifications } from "@/features/notifications/NotificationContext";
 import { useUserProfile } from "@/hooks/useUserProfile";
@@ -14,9 +15,11 @@ function NotificationRow({
   notification: Notification & { totalLikes?: number };
 }) {
   const { profile: senderProfile } = useUserProfile(notification.senderId);
+  const { closeModal } = useUI();
 
   const senderName = senderProfile?.username || senderProfile?.name || "User";
   const senderAvatar = senderProfile?.avatar || senderProfile?.photoURL;
+  const senderUsername = senderProfile?.username;
 
   const getMessage = (): React.ReactNode => {
     if (notification.type === "like") {
@@ -39,21 +42,72 @@ function NotificationRow({
     return "";
   };
 
+  // 1. Determine where the whole row should navigate
+  const rowTargetUrl =
+    notification.type === "follow"
+      ? senderUsername
+        ? `/profile/${senderUsername}`
+        : "#"
+      : notification.postId
+      ? `/post/${notification.postId}`
+      : "#";
+
+  // Helper to safely route and close the modal
+  const handleLinkClick = (e: React.MouseEvent, requiredData: any) => {
+    e.stopPropagation(); // Prevent overlapping link clicks
+    if (!requiredData || requiredData === "#") {
+      e.preventDefault(); // Stop navigation if data hasn't loaded
+      return;
+    }
+    closeModal();
+  };
+
   return (
     <div
-      className={`flex items-start gap-4 px-6 py-4 border-b border-(--border-color) transition hover:bg-(--bg-secondary) ${!notification.isRead ? "bg-(--bg-secondary)" : ""}`}
+      className={`relative flex items-start gap-4 px-6 py-4 border-b border-(--border-color) transition hover:bg-(--bg-secondary) ${
+        !notification.isRead ? "bg-(--bg-secondary)" : ""
+      }`}
     >
-      <Avatar name={senderName} src={senderAvatar} size="md" />
-      <div className="flex-1 min-w-0">
+      {/* 2. THE BACKGROUND OVERLAY LINK (Makes the whole row clickable) */}
+      <Link
+        to={rowTargetUrl}
+        onClick={(e) => handleLinkClick(e, rowTargetUrl)}
+        className="absolute inset-0 z-0"
+        aria-label="View notification details"
+      />
+
+      {/* 3. AVATAR LINK (Elevated z-index to sit above the background overlay) */}
+      <Link
+        to={senderUsername ? `/profile/${senderUsername}` : "#"}
+        onClick={(e) => handleLinkClick(e, senderUsername)}
+        className="shrink-0 rounded-full hover:opacity-80 transition-opacity block relative z-10 pointer-events-auto"
+        aria-label={`View ${senderName}'s profile`}
+      >
+        <Avatar name={senderName} src={senderAvatar} size="md" />
+      </Link>
+
+      {/* 4. TEXT CONTAINER (pointer-events-none lets clicks fall through to the background overlay) */}
+      <div className="flex-1 min-w-0 relative z-10 pointer-events-none">
         <p className="text-sm text-(--text-primary) leading-relaxed">
-          <span className="font-semibold">{senderName}</span> {getMessage()}
+          {/* USERNAME LINK (Re-enabling pointer-events so this specific word is clickable) */}
+          <Link
+            to={senderUsername ? `/profile/${senderUsername}` : "#"}
+            onClick={(e) => handleLinkClick(e, senderUsername)}
+            className="font-semibold hover:underline pointer-events-auto"
+          >
+            {senderName}
+          </Link>{" "}
+          
+          {/* MESSAGE TEXT (Plain text, click falls through to the post/profile link overlay) */}
+          <span>{getMessage()}</span>
         </p>
         <p className="text-xs text-(--text-muted) mt-1">
           {formatRelativeTime(notification.createdAt)}
         </p>
       </div>
+
       {!notification.isRead && (
-        <div className="w-2.5 h-2.5 rounded-full bg-(--accent) mt-2 shrink-0" />
+        <div className="w-2.5 h-2.5 rounded-full bg-(--accent) mt-2 shrink-0 relative z-10" />
       )}
     </div>
   );
@@ -78,7 +132,6 @@ export default function NotificationModal() {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
-      // LOOP CRASH FIX: Only fire if there are unread notifications
       if (unreadCount > 0) {
         markAllAsRead();
       }
@@ -115,7 +168,6 @@ export default function NotificationModal() {
 
         <div className="overflow-y-auto max-h-[70vh] main-scroll">
           {notificationsLoading ? (
-            // SKELETON LOADER
             Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
