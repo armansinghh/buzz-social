@@ -18,6 +18,8 @@ type AuthContextType = {
   user: User | null;
   profile: UserProfile | null;
   loading: boolean;
+  profileError: boolean;
+  retryProfile: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string) => Promise<void>;
@@ -31,10 +33,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileError, setProfileError] = useState(false);
+
+  const fetchProfile = async (uid: string): Promise<UserProfile | null> => {
+    const ref = doc(db, "users", uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return null;
+    const data = snap.data() as UserProfile;
+    return {
+      ...data,
+      followers: data.followers ?? [],
+      following: data.following ?? [],
+    };
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setLoading(true);
+      setProfileError(false);
 
       if (!firebaseUser) {
         setUser(null);
@@ -44,30 +60,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       try {
-        const ref = doc(db, "users", firebaseUser.uid);
-        const snap = await getDoc(ref);
-
-        let fetchedProfile: UserProfile | null = null;
-
-        if (snap.exists()) {
-          const data = snap.data() as UserProfile;
-          fetchedProfile = {
-            ...data,
-            // These array fields belong to AuthContext's old follow system which
-            // has been removed. FollowContext owns follow state via subcollections.
-            // Keep them here only so existing Firestore docs don't break the shape.
-            followers: data.followers ?? [],
-            following: data.following ?? [],
-          };
-        }
-
-        // Set both together so consumers never see a user without a profile
+        const fetchedProfile = await fetchProfile(firebaseUser.uid);
         setUser(firebaseUser);
         setProfile(fetchedProfile);
+        setProfileError(false);
       } catch (err) {
         console.error("Failed loading profile:", err);
+        // User is authenticated but profile fetch failed (offline/network error)
+        // Do NOT set profile to null silently — flag the error instead
         setUser(firebaseUser);
         setProfile(null);
+        setProfileError(true);
       } finally {
         setLoading(false);
       }
@@ -76,19 +79,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
+  // Retry fetching the profile — called from the error screen
+  const retryProfile = async () => {
+    if (!auth.currentUser) return;
+    setLoading(true);
+    setProfileError(false);
+    try {
+      const fetchedProfile = await fetchProfile(auth.currentUser.uid);
+      setProfile(fetchedProfile);
+    } catch (err) {
+      console.error("Retry failed:", err);
+      setProfileError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const refreshProfile = async () => {
     if (!auth.currentUser) return;
-
-    const ref = doc(db, "users", auth.currentUser.uid);
-    const snap = await getDoc(ref);
-
-    if (snap.exists()) {
-      const data = snap.data() as UserProfile;
-      setProfile({
-        ...data,
-        followers: data.followers ?? [],
-        following: data.following ?? [],
-      });
+    try {
+      const fetchedProfile = await fetchProfile(auth.currentUser.uid);
+      if (fetchedProfile) {
+        setProfile(fetchedProfile);
+        setProfileError(false);
+      }
+    } catch (err) {
+      console.error("Failed refreshing profile:", err);
     }
   };
 
@@ -114,6 +130,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         profile,
         loading,
+        profileError,
+        retryProfile,
         refreshProfile,
         login,
         signup,
