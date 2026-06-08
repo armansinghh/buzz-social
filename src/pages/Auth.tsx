@@ -88,10 +88,10 @@ export default function AuthPage() {
 
         {/* Logo */}
         <div className="flex items-center gap-1.5 relative z-10">
-          <span className="font-serif text-2xl font-bold text-(--text-primary) tracking-tight">
+          <span className="text-xl font-extrabold text-(--text-primary)">
             buzz
           </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+          <span className="w-2 h-2 rounded-full bg-amber-400" />
         </div>
 
         {/* Center text */}
@@ -146,10 +146,10 @@ export default function AuthPage() {
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="flex lg:hidden items-center justify-center gap-1.5 mb-6">
-            <span className="font-serif text-2xl font-bold text-(--text-primary) tracking-tight">
+            <span className="text-xl font-extrabold text-(--text-primary)">
               buzz
             </span>
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mb-2 inline-block" />
+            <span className="w-2 h-2 rounded-full bg-amber-400" />
           </div>
 
           {/* Custom Animation Styles (The Apple-esque Spring) */}
