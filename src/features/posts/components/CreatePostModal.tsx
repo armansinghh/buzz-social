@@ -1,0 +1,211 @@
+"use client"
+
+import { useEffect, useState, useRef } from "react";
+import { useUI } from "@/contexts/UIContext";
+import { usePosts } from "@/features/posts/PostContext";
+import { uploadToCloudinary } from "@/lib/cloudinary";
+import { useToast } from "@/contexts/ToastContext";
+
+export default function CreatePostModal() {
+  const { activeModal, closeModal } = useUI();
+  const isOpen = activeModal === "createPost";
+  const { addPost } = usePosts();
+  const { showToast } = useToast();
+
+  const [caption, setCaption] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+
+  const [uploading, setUploading] = useState(false);
+
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") handleClose();
+    };
+
+    window.addEventListener("keydown", handleEsc);
+
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && textareaRef.current) {
+      setTimeout(() => textareaRef.current?.focus(), 50);
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  const handleClose = () => {
+    if (uploading) return;
+
+    setCaption("");
+    setSelectedFile(null);
+    setPreview(null);
+
+    closeModal();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+
+    if (!file) return;
+
+    // File size constraints enforcement
+    const isVideo = file.type.startsWith("video/");
+    const maxSizeBytes = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024; // 50MB vs 10MB
+
+    if (file.size > maxSizeBytes) {
+      showToast(
+        `File too large! Max size is ${isVideo ? "50MB" : "10MB"}.`,
+        "error",
+      );
+      e.target.value = ""; // Reset the DOM input handle element cleanly
+      return;
+    }
+
+    setSelectedFile(file);
+    setPreview(URL.createObjectURL(file));
+  };
+
+  const removeFile = () => {
+    setSelectedFile(null);
+    setPreview(null);
+  };
+
+  if (!isOpen) return null;
+
+  const canPost = caption.trim() || selectedFile;
+
+  const handlePost = async () => {
+    if (!canPost || uploading) return;
+
+    try {
+      setUploading(true);
+
+      let media: { url: string; type: "image" | "video" } | undefined;
+
+      if (selectedFile) {
+        media = await uploadToCloudinary(selectedFile);
+      }
+
+      addPost(caption.trim(), media);
+
+      handleClose();
+    } catch (err) {
+      console.error("Post upload failed:", err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={handleClose}
+    >
+      <div
+        className="bg-(--bg-primary) w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl overflow-hidden modal-in border border-(--border-color)"
+        style={{ boxShadow: "var(--shadow-md)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-(--border-color)">
+          <button
+            onClick={handleClose}
+            className="text-sm text-(--text-secondary) hover:text-(--text-primary) transition-colors"
+          >
+            Cancel
+          </button>
+
+          <h2 className="text-sm font-semibold text-(--text-primary)">
+            Create post
+          </h2>
+
+          <button
+            onClick={handlePost}
+            disabled={!canPost || uploading}
+            className={`text-sm font-semibold transition-opacity
+              ${
+                canPost
+                  ? "text-blue-500 hover:text-blue-400"
+                  : "text-(--text-muted) cursor-not-allowed opacity-50"
+              }`}
+          >
+            {uploading ? "Uploading..." : "Share"}
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-5 py-4">
+          <textarea
+            id="create-post-caption"
+            name="create-post-caption"
+            ref={textareaRef}
+            value={caption}
+            onChange={(e) => setCaption(e.target.value)}
+            placeholder="What's buzzing?"
+            className="w-full resize-none outline-none text-(--text-primary) placeholder:text-(--text-muted) bg-transparent text-base leading-relaxed"
+            rows={4}
+          />
+
+          {preview && (
+            <div className="relative mt-3 rounded-xl overflow-hidden bg-(--bg-tertiary)">
+              {selectedFile?.type.startsWith("video") ? (
+                <video
+                  src={preview}
+                  controls
+                  className="w-full max-h-64 object-contain"
+                />
+              ) : (
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-full max-h-64 object-contain"
+                />
+              )}
+
+              <button
+                onClick={removeFile}
+                className="absolute top-2 right-2 w-7 h-7 bg-black/60 rounded-full text-white flex items-center justify-center text-xs hover:bg-black/80 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-between px-5 py-3 border-t border-(--border-color)">
+          <label className="flex items-center gap-2 text-sm text-(--text-secondary) hover:text-(--text-primary) transition-colors cursor-pointer">
+            <span>Photo / Video</span>
+
+            <input
+              type="file"
+              accept="image/*,video/*"
+              onChange={handleFileChange}
+              className="sr-only"
+            />
+          </label>
+
+          <span
+            className={`text-xs font-medium transition-colors ${
+              caption.length > 2200 ? "text-red-500" : "text-(--text-muted)"
+            }`}
+          >
+            {caption.length} / 2200
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}

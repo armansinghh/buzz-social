@@ -1,0 +1,326 @@
+"use client"
+
+import { useState, useRef } from "react";
+import Link from "next/link";
+import type { Post } from "@/types/post";
+import { useAuth } from "@/features/auth/AuthContext";
+import MediaViewerModal from "@/features/posts/components/MediaViewerModal";
+import CommentInput from "@/features/posts/components/CommentInput";
+import CommentItem from "@/features/posts/components/CommentItem";
+import { formatRelativeTime } from "@/utils/formatRelativeTime";
+import { FaEllipsisVertical, FaLink, FaHeart, FaTrash } from "react-icons/fa6";
+import { usePosts } from "../PostContext";
+import { useUI } from "@/contexts/UIContext";
+import Avatar from "@/components/ui/Avatar";
+import Dropdown from "@/components/ui/Dropdown";
+import { useToast } from "@/contexts/ToastContext";
+import { useUserProfile } from "@/hooks/useUserProfile";
+
+interface PostCardProps {
+  post: Post;
+}
+
+export default function PostCard({ post }: PostCardProps) {
+  const { user } = useAuth();
+  const { toggleLike, likePost, deletePost } = usePosts();
+  const { openComments } = useUI();
+
+  // Always resolve author live — ignores stale snapshot fields on the post doc
+  const { profile: authorProfile, isLoading: authorLoading } = useUserProfile(
+    post.authorId,
+  );
+  const authorUsername =
+    authorProfile?.username ||
+    authorProfile?.name ||
+    post.authorUsername ||
+    "User";
+  const authorAvatar =
+    authorProfile?.avatar || authorProfile?.photoURL || post.authorAvatar;
+
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+  const [showHeart, setShowHeart] = useState(false);
+
+  const likeCount = post.likes.length;
+  const isLiked = user ? post.likes.includes(user.uid) : false;
+
+  const triggerHeart = () => {
+    setShowHeart(true);
+    setTimeout(() => setShowHeart(false), 700);
+  };
+
+  const clickTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clickCount = useRef(0);
+  const handleCardClick = () => {
+    clickCount.current += 1;
+
+    if (clickCount.current === 1) {
+      clickTimeout.current = setTimeout(() => {
+        clickCount.current = 0;
+        setIsViewerOpen(true);
+      }, 250);
+    } else if (clickCount.current === 2) {
+      clearTimeout(clickTimeout.current!);
+      clickCount.current = 0;
+      triggerHeart();
+      likePost(post.id);
+    }
+  };
+  const { showToast } = useToast();
+
+  const handleCopyLink = async () => {
+    try {
+      const url = `${window.location.origin}/post/${post.id}`;
+
+      await navigator.clipboard.writeText(url);
+
+      showToast("Link copied!", "success");
+    } catch (err) {
+      showToast("Failed to copy link", "error");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Delete this post?")) return;
+    await deletePost(post.id);
+  };
+
+  return (
+    <>
+      <article
+        className="relative bg-(--bg-primary) rounded-2xl border border-(--border-color) overflow-hidden fade-in"
+        style={{ boxShadow: "var(--shadow-sm)" }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-3">
+          <Link
+            href={`/profile/${authorUsername || post.authorId}`}
+            className="flex items-center gap-2.5 group w-fit"
+          >
+            <Avatar name={authorUsername} src={authorAvatar} size="sm" />
+            <div>
+              {authorLoading ? (
+                <div className="space-y-1.5">
+                  <div className="h-3.5 w-24 rounded skeleton" />
+                  <div className="h-3 w-14 rounded skeleton" />
+                </div>
+              ) : (
+                <>
+                  <p className="text-sm font-semibold text-(--text-primary) leading-tight">
+                    {authorUsername}
+                  </p>
+                  <p className="text-xs text-(--text-muted)">
+                    {formatRelativeTime(post.createdAt)}
+                  </p>
+                </>
+              )}
+            </div>
+          </Link>
+          {/* Options button */}
+          <Dropdown
+            trigger={
+              <button
+                type="button"
+                className="w-8 h-8 flex items-center justify-center rounded-xl text-(--text-muted) hover:bg-(--bg-tertiary) hover:text-(--text-primary) transition-colors"
+              >
+                <FaEllipsisVertical className="w-4 h-4" />
+              </button>
+            }
+          >
+            {(closeDropdown) => (
+              <>
+                <button
+                  onClick={async () => {
+                    await handleCopyLink();
+                    setTimeout(() => closeDropdown(), 1000);
+                  }}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-(--text-primary) hover:bg-(--bg-tertiary) transition-colors rounded-lg"
+                >
+                  <FaLink className="w-4 h-4" />
+                  Copy link
+                </button>
+
+                {user?.uid === post.authorId && (
+                  <button
+                    onClick={() => {
+                      closeDropdown();
+                      handleDelete();
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-sm text-(--text-primary) hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors rounded-lg"
+                  >
+                    <FaTrash className="w-4 h-4" />
+                    Delete post
+                  </button>
+                )}
+              </>
+            )}
+          </Dropdown>
+        </div>
+
+        {/* Media */}
+        {post.media && (
+          <div
+            className="w-full bg-(--bg-tertiary) cursor-pointer overflow-hidden"
+            style={{ maxHeight: "400px" }}
+            onClick={handleCardClick}
+          >
+            {post.media.type === "image" ? (
+              <img
+                src={post.media.url}
+                alt="Post media"
+                className="w-full object-cover"
+                style={{ maxHeight: "400px" }}
+              />
+            ) : (
+              <video
+                src={post.media.url}
+                className="w-full object-cover"
+                style={{ maxHeight: "400px" }}
+                muted
+              />
+            )}
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="px-4 pb-4">
+          {/* Caption */}
+          {post.caption && (
+            <p
+              className="text-sm text-(--text-primary) mt-3 leading-relaxed cursor-pointer"
+              onDoubleClick={() => {
+                triggerHeart();
+                likePost(post.id);
+              }}
+            >
+              {post.caption}
+            </p>
+          )}
+
+          {/* Actions */}
+          <div className="flex items-center gap-1 mt-3">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!isLiked) triggerHeart();
+                toggleLike(post.id);
+              }}
+              className={`flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium transition-all
+                ${
+                  isLiked
+                    ? "text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
+                    : "text-(--text-secondary) hover:bg-(--bg-tertiary)"
+                }`}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill={isLiked ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+              <span>{likeCount}</span>
+            </button>
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                openComments(post.id);
+              }}
+              className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium text-(--text-secondary) hover:bg-(--bg-tertiary) transition-colors"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <span>{post.comments.length}</span>
+            </button>
+          </div>
+
+          {/* Latest comment */}
+          {post.comments.length > 0 && (
+            <div
+              className="mt-2 space-y-1.5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <CommentItem
+                comment={post.comments[post.comments.length - 1]}
+                postId={post.id}
+              />
+              {post.comments.length > 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openComments(post.id);
+                  }}
+                  className="text-xs text-(--text-muted) hover:text-(--text-secondary) transition-colors"
+                >
+                  View all {post.comments.length} comments
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Comment input */}
+          <div
+            className="mt-3 pt-3 border-t border-(--border-color)"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <CommentInput postId={post.id} />
+          </div>
+        </div>
+
+        {/* Heart burst overlay */}
+        {showHeart && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <svg
+              width="80"
+              height="80"
+              className="animate-heart-burst drop-shadow-lg"
+            >
+              <defs>
+                <linearGradient
+                  id="heartGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
+                  <stop offset="0%" stopColor="#e11d48" /> {/* rose-600 */}
+                  <stop offset="100%" stopColor="#7c3aed" /> {/* violet-600 */}
+                </linearGradient>
+              </defs>
+
+              <foreignObject width="100%" height="100%">
+                <div className="flex items-center justify-center w-full h-full">
+                  <FaHeart
+                    style={{ fill: "url(#heartGradient)" }}
+                    className="text-7xl"
+                  />
+                </div>
+              </foreignObject>
+            </svg>
+          </div>
+        )}
+      </article>
+
+      <MediaViewerModal
+        isOpen={isViewerOpen}
+        media={post.media ?? null}
+        onClose={() => setIsViewerOpen(false)}
+      />
+    </>
+  );
+}
