@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
@@ -30,24 +30,23 @@ type AuthContextType = {
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
+const fetchProfile = async (uid: string): Promise<UserProfile | null> => {
+  const ref = doc(db, "users", uid);
+  const snap = await getDoc(ref);
+  if (!snap.exists()) return null;
+  const data = snap.data() as UserProfile;
+  return {
+    ...data,
+    followers: data.followers ?? [],
+    following: data.following ?? [],
+  };
+};
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileError, setProfileError] = useState(false);
-
-  const fetchProfile = async (uid: string): Promise<UserProfile | null> => {
-    const ref = doc(db, "users", uid);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) return null;
-    const data = snap.data() as UserProfile;
-    return {
-      ...data,
-      followers: data.followers ?? [],
-      following: data.following ?? [],
-    };
-  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {

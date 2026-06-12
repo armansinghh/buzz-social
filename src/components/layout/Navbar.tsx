@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useAuth } from "@/features/auth/AuthContext";
 import { useUI } from "@/contexts/UIContext";
@@ -11,18 +11,15 @@ export default function Navbar() {
   const { toggleTheme, theme } = useUI();
   const router = useRouter();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push("/auth");
   };
 
   return (
     <nav className="sticky top-0 z-40 h-16 w-full flex justify-between items-center px-4 sm:px-6 bg-(--bg-primary) border-b border-(--border-color)">
       {/* The Classic Logo is back */}
-      <Link
-        href="/"
-        className="flex items-center gap-1.5 group rounded-md"
-      >
+      <Link href="/" className="flex items-center gap-1.5 group rounded-md">
         <span className="text-xl font-extrabold text-(--text-primary)">
           buzz
         </span>
