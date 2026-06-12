@@ -7,6 +7,7 @@ import { NotificationProvider } from "@/features/notifications/NotificationConte
 import { PostProvider } from "@/features/posts/PostContext";
 import { FollowProvider } from "@/features/follow/FollowContext";
 import AppLayout from "@/components/layout/AppLayout";
+import ProtectedRoute from "@/features/auth/ProtectedRoute";
 
 export default function ProtectedLayout({
   children,
@@ -20,7 +21,9 @@ export default function ProtectedLayout({
           <NotificationProvider>
             <PostProvider>
               <FollowProvider>
-                <AppLayout>{children}</AppLayout>
+                <ProtectedRoute>
+                  <AppLayout>{children}</AppLayout>
+                </ProtectedRoute>
               </FollowProvider>
             </PostProvider>
           </NotificationProvider>

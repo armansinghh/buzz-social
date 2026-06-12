@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -21,8 +21,8 @@ export default function LeftSidebar() {
   const pathname = usePathname();
 
   const linkClass = (href: string) =>
-  `flex items-center gap-3 ...
-  ${pathname === href ? "active styles" : "inactive styles"}`;
+    `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all
+  ${pathname === href ? "bg-[var(--accent)] text-[var(--bg-primary)]" : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]"}`;
 
   const btnClass =
     "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)] w-full text-left";
@@ -56,10 +56,7 @@ export default function LeftSidebar() {
         <span>Notifications</span>
       </button>
 
-      <button
-        onClick={() => openModal("createPost")}
-        className={`${btnClass}`}
-      >
+      <button onClick={() => openModal("createPost")} className={`${btnClass}`}>
         <FaPlus className="w-4 h-4" />
         <span>Create Post</span>
       </button>
